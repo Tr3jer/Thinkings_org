@@ -1,0 +1,8 @@
+baseurl: /
+highlighter: pygments
+mardown: redcarpet
+name: Tr3jer_CongRong.
+url: http://www.Thinkings.org/
+paginate: 18
+paginate_path: "/page:num/"
+gems: [jekyll-paginate]

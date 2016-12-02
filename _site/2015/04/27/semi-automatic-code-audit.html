@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <link rel="shortcut icon" href="../../../public/1616.ico">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>半自动化PHP代码审计思路与环境搭建 - Posted By Tr3jer</title>
+    <meta name="description" content="Hacking for fun. - Tr3jer_CongRong"/>
+    <link rel="stylesheet" href="/css/Tr3jer.css" type="text/css" />
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  </head>
+  <body>
+    <div class="site">
+      <div class="post-content">
+        <div id="post">
+          <h1 id="php">半自动化PHP代码审计思路与环境搭建</h1>
+<p class="date">27 Apr 2015 - Tr3jer_CongRong</p>
+
+<h4 id="section">代码审计常见流程:</h4>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/2132b1y3k21.png" /></p>
+
+<pre><code>(1)通过可控变量(输入点)回溯危险函数
+(2)查找危险函数确定可控变量
+(3)传递的过程中触发漏洞
+</code></pre>
+
+<h4 id="section-1">思考:</h4>
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/32ee43tgreg.png" /></p>
+
+<h4 id="section-2">最佳出发点:</h4>
+<p><strong>枚举所有<code>可控变量(输入点)</code> &amp; <code>危险函数</code>,包括但不限于:</strong></p>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/ahs98isuaf.png" /></p>
+
+<blockquote>
+  <ul>
+    <li>大型Web程序逻辑越复杂越易出现漏洞,这就需要代码审计人员拥有较强的<code>代码理解度</code>和<code>逻辑思维</code>,每一段代码都有可能辅助触发漏洞,当代码涉及很多文件时,比如在<code>MVC</code>中,<code>Action</code>层代码可能会涉及几个甚至几十个文件,这些文件包括框架的<code>核心配置初始化文件</code>,<code>类文件</code>,<code>路由控制文件</code>等,如果用手工挖掘漏洞会比较累,另外,某些应用可能比较复杂,我们并不清楚流程是怎样的,该去哪里追踪变量.</li>
+    <li>So,合理的利用半自动化对于代码审计来说即是事半功倍.</li>
+  </ul>
+</blockquote>
+
+<h4 id="section-3">环境:</h4>
+
+<blockquote>
+  <p><code>MAMP:</code><strong>使用它的主要原因是很Easy的切换环境版本(Win下的PhpStudy同理),想要深入挖掘漏洞就要同事根据环境版本的不同审计代码中特有的漏洞.[建议自己先尝试手动配置多版本与各模块,Enjoy折腾时的乐趣,正所谓可以不自己造轮子,但要了解轮子的原理:)]</strong></p>
+</blockquote>
+
+<blockquote>
+  <p><code>PhpStorm:</code><strong>这个IDE就不多说了,做PHP开发的都说好.</strong></p>
+</blockquote>
+
+<blockquote>
+  <p><code>Xdebug:</code> <strong>开源的PHP程序调试工具,用来跟踪,调试和分析PHP程序的运行状况,毋庸置疑,不论应用到开发调试还是代码审计都称得上是神器</strong></p>
+</blockquote>
+
+<h4 id="article">Article:</h4>
+<p><a target="_blank" href="http://www.thinkings.org/public/osx_mamp_phpstorm_setting_xdebug.pdf">OSX PHPSTORM+MAMP 配置 Xdebug</a></p>
+
+<h4 id="other">Other:</h4>
+
+<ul>
+  <li><a target="_blank" href="http://raveren.github.io/kint/">Kint</a></li>
+  <li><a target="_blank" href="https://www.bluestatic.org/software/macgdbp/">MacGDBp</a></li>
+  <li><a target="_blank" href="http://krumo.kaloyan.info/">Krumo</a></li>
+  <li><a target="_blank" href="http://sourceforge.net/projects/php-dyn/">PHP_Dyn</a></li>
+  <li><a target="_blank" href="http://www.debugbar.com/">DebugBar</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'tr3jer';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+      <div id="disqus_thread"></div>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="contact">
+          <p>
+            <a href="/" style="text-decoration: none; margin-right: 5px;">Index</a> |&nbsp;
+            <a href="/feed.xml" target="_blank" style="text-decoration: none; margin-right: 5px;">RSS</a> |&nbsp;
+            <a href="http://weibo.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Weibo</a> |&nbsp;
+            <a href="https://twitter.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Twitter</a> |&nbsp;
+            <a href="/link" target="_blank" style="text-decoration: none; margin-right: 5px;">Links</a> |&nbsp;
+            <a href="/mail.txt" target="_blank">Gmail</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: none;">
+      <script src="http://s11.cnzz.com/z_stat.php?id=1256907244&web_id=1256907244" language="JavaScript"></script>
+    </div>
+  </body>
+</html>

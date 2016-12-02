@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <link rel="shortcut icon" href="../../../public/1616.ico">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Git+Github+Markdown+Jekyll Build a Blog - Posted By Tr3jer</title>
+    <meta name="description" content="Hacking for fun. - Tr3jer_CongRong"/>
+    <link rel="stylesheet" href="/css/Tr3jer.css" type="text/css" />
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  </head>
+  <body>
+    <div class="site">
+      <div class="post-content">
+        <div id="post">
+          <h1 id="gitgithubmarkdownjekyll-build-a-blog">Git+Github+Markdown+Jekyll Build a Blog</h1>
+<p class="date">22 Jan 2015 - Tr3jer_CongRong</p>
+<center>
+<img src="http://ww2.sinaimg.cn/mw690/9c5c5d93tw1erp3be7l47j20ya0jhdgg.jpg" />
+</center>
+
+<h4 id="x01">0x01<科普>:</科普></h4>
+<blockquote>
+  <p><code>Github &amp; Git</code>:是一款免费、开源的分布式版本控制系统，用于敏捷高效地处理任何或小或大的项目,既然能逛到我的Blog就说明你不可能不知道:)
+<code>Markdown</code>:Markdown是一种可以使用普通文本编辑器编写的标记语言，通过类似HTML的标记语法，它可以使普通文本内容具有一定的格式。
+<code>Jekyll</code>:jekyll是一个简单的免费的Blog生成工具，类似WordPress。但是和WordPress又有很大的不同，原因是jekyll只是一个生成静态网页的工具，不需要数据库支持。但是可以配合第三方服务,例如Disqus。最关键的是jekyll可以免费部署在Github上，而且可以绑定自己的域名。</p>
+</blockquote>
+
+<pre><code>以上是Wikipedia的术语.
+</code></pre>
+
+<p>首先引用下阮一峰所总结的三个阶段:</p>
+
+<ul>
+  <li>刚接触Blog,觉得很新鲜,试着选择一个免费空间来写.</li>
+  <li>现免费空间限制太多,就自己购买域名和空间,搭建独立博客.</li>
+  <li>得独立博客的管理太麻烦,最好在保留控制权的前提下,让别人来管,自己只负责写文章.</li>
+</ul>
+
+<h4 id="x02">0x02<开始搭建>:</开始搭建></h4>
+<p>在本机创建一个目录.</p>
+
+<pre><code>$ mkdir demo
+</code></pre>
+
+<p>对该目录进行git初始化.</p>
+
+<pre><code>$ cd demo
+$ git init
+</code></pre>
+
+<p>然后，创建一个分支gh-pages,因为github规定，只有该分支中的页面，才会生成网页文件.</p>
+
+<pre><code>$ git checkout --orphan gh-pages
+</code></pre>
+
+<p>以下所有动作，都在该分支下完成.</p>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/32refds.png" /></p>
+
+<p>在项目根目录下，建立一个名为<code>_config.yml</code>的文本文件。它是jekyll的设置文件，我们在里面填入如下内容，其他设置都可以用默认选项，具体解释参见<a href="https://github.com/jekyll/jekyll/wiki/Configuration">官方网页</a>。</p>
+
+<pre><code>baseurl: /demo
+</code></pre>
+
+<p>接着就需要自定义模版了,根目录创建<code>_layouts</code>文件夹,cd进去后创建一个默认模版文件<code>default.html</code>:</p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+
+&lt;meta http-equiv="content-type" content="text/html; charset=utf-8" /&gt;
+&lt;title&gt;{{ page.title }}&lt;/title&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+   {{ content }}
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>然后就是在项目根目录创建一个文章存放的目录了,命名规范为<code>_post</code></p>
+
+<pre><code>$ mkdir _post
+$ cd _post
+</code></pre>
+
+<blockquote>
+  <p>进入该目录后,创建第一篇文章。文章就是普通的文本文件，文件名假定为2015-01-22-hello-world.html。(注意，文件名必须为”年-月-日-文章标题.后缀名”的格式。如果网页代码采用html格式，后缀名为html；如果采用markdown格式，后缀名为.md</p>
+</blockquote>
+
+<p>在该文件中，填入以下内容：（注意，行首不能有空格）</p>
+
+<pre><code>---
+layout: default
+title: 你好，世界
+---
+&lt;h2&gt;
+{{ page.title }}
+&lt;/h2&gt;
+
+&lt;p&gt;我的第一篇文章&lt;/p&gt;
+
+&lt;p&gt;{{ page.date | date_to_string }}&lt;/p&gt;
+</code></pre>
+
+<blockquote>
+  <p>每篇文章开头必须有<a href="https://github.com/jekyll/jekyll/wiki/YAML-Front-Matter">yaml文件头</a>表示，用来设置一些元数据。它用三根短划线”—“，标记开始和结束，里面每一行设置一种元数据。layout表示该文章使用default模板，标题为”你好，世界”。如果不设置这个值，默认使用嵌入文件名的标题，即”hello world”。在yaml文件头后面，就是文章的正式内容，里面可以使用模板变量。<code>{{ page.title }}</code>就是文件头中设置的”你好，世界”，<code>{{ page.date }}</code>则是嵌入文件名的日期（也可以在文件头重新定义date变量），<code>date_to_string</code>表示将page.date变量转化成人类可读的格式.</p>
+</blockquote>
+
+<p>回到项目根目录,创建主页文件<code>index.html</code></p>
+
+<pre><code>---
+layout: default
+title: Index
+---
+&lt;h2&gt;{{ page.title }}&lt;/h2&gt;
+&lt;p&gt;New Posts&lt;/p&gt;
+&lt;ul&gt;
+  {% for post in site.posts %}
+  &lt;li&gt;{{ post.date | date_to_string }} &lt;a href="{{ site.baseurl }}{{ post.url }}"&gt;{{ post.title }}&lt;/a&gt;&lt;/li&gt;
+{% endfor %}
+&lt;/ul&gt;
+</code></pre>
+
+<blockquote>
+  <p>首页使用了<code>{% for post in site.posts %}</code>，表示对所有帖子进行一个遍历。这里要注意的是，Liquid模板语言规定，输出内容使用两层大括号，单纯的命令使用一层大括号。至于<code>{{site.baseurl}}</code>就是_config.yml中设置的baseurl变量。</p>
+</blockquote>
+
+<p>此时的目录结构:</p>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/6rythfg.png" /></p>
+
+<blockquote>
+  <p>其实也可以直接用Jekyll New一个项目,然后将其覆盖/修改,同时也可以开启Jekyll服务进行本地调试.</p>
+</blockquote>
+
+<p>本地安装Jekyll:</p>
+
+<pre><code>gem install jekyll
+</code></pre>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/5rthfgbv.png" /></p>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/43etrdgf.png" /></p>
+
+<h4 id="x03pages">0x03<提交Pages>:</提交Pages></h4>
+
+<pre><code>$ git add .
+$ git commit -m "frist post"
+$ git remote add origin https://github.com/username/demo.git
+$ git push origin gh-pages
+</code></pre>
+
+<p>push成功后大约十分钟生效,同时生效了的话Github也会发<code>Page build warning</code>的Mail提醒.</p>
+
+<h4 id="x04">0x04<绑定域名>:</绑定域名></h4>
+
+<blockquote>
+  <p>在项目上创建名为CNAME文件,内容就是你的域名,然后在域名控制面板将DNS创建两个A纪录,并指向192.30.252.153,绑定成功后,生效时间要看域名解析时间.</p>
+</blockquote>
+
+<h4 id="x05">0x05<扩展阅读>:</扩展阅读></h4>
+
+<blockquote>
+  <p><a href="https://pages.github.com/">Github pages</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="http://jekyllcn.com/">Jekyll</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="http://www.ruanyifeng.com/blog/2012/08/blogging_with_jekyll.html">搭建一个免费的，无限流量的Blog—-github Pages和Jekyll入门</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="http://www.cnblogs.com/purediy/archive/2013/03/07/2948892.html">通过GitHub Pages建立个人站点(详细步骤)</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="http://jekyllcn.com/docs/home/">Jekyll官方文档</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="http://jekyllrb.com/docs/pagination/">Jekyll Pagination</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="http://havee.me/internet/2013-08/support-pygments-in-jekyll.html">Jekyll 中的语法高亮：Pygments</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="http://blog.csdn.net/on_1y/article/details/19259435">使用 GitHub, Jekyll 打造自己的免费独立博客</a></p>
+</blockquote>
+
+<blockquote>
+  <p><a href="https://disqus.com/">评论功能</a></p>
+</blockquote>
+
+        </div>
+      </div>
+      
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'tr3jer';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+      <div id="disqus_thread"></div>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="contact">
+          <p>
+            <a href="/" style="text-decoration: none; margin-right: 5px;">Index</a> |&nbsp;
+            <a href="/feed.xml" target="_blank" style="text-decoration: none; margin-right: 5px;">RSS</a> |&nbsp;
+            <a href="http://weibo.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Weibo</a> |&nbsp;
+            <a href="https://twitter.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Twitter</a> |&nbsp;
+            <a href="/link" target="_blank" style="text-decoration: none; margin-right: 5px;">Links</a> |&nbsp;
+            <a href="/mail.txt" target="_blank">Gmail</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: none;">
+      <script src="http://s11.cnzz.com/z_stat.php?id=1256907244&web_id=1256907244" language="JavaScript"></script>
+    </div>
+  </body>
+</html>
