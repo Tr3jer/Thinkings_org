@@ -19,5 +19,5 @@ title: My Waf Bypass Series Article
 - 20170213 add wafbypass_misc
 - 20170213 update wafbypass_upload
 - 20170213 update wafbypass_sql
-- 20171129 add wafbypass_upload
+- 20161129 add wafbypass_upload
 - 20161117 add wafbypass_sql
