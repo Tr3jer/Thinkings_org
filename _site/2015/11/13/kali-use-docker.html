@@ -15,7 +15,7 @@
           <h1 id="under-the-docker-run-kali-linux">Under The Docker Run Kali Linux</h1>
 <p class="date">13 Nov 2015 - Tr3jer_CongRong</p>
 
-<h4 id="section">简介</h4>
+<h4 id="简介">简介</h4>
 <ul>
   <li>
     <p><code>Docker</code>是一个由GO语言写的程序运行的开源的应用<code>容器</code>引擎（Linux containers， LXCs），让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口（类似 iPhone 的 app）。几乎没有性能开销,可以很容易地在机器和数据中心中运行。最重要的是,他们不依赖于任何语言、框架包括系统。</p>
@@ -26,7 +26,7 @@ Kali Linux预装了许多渗透测试软件，包括nmap (端口扫描器)、Wir
   </li>
 </ul>
 
-<h4 id="section-1">好处</h4>
+<h4 id="好处">好处</h4>
 <p>      Docker相比KVM之类最明显的特点就是启动快，资源占用小。因此对于构建隔离的标准化的运行环境，轻量级的PaaS， 构建自动化测试和持续集成环境，以及一切可以横向扩展的应用都可轻松应对。具体说来，<code>Docker在如下几个方面具有较大的优势</code>：</p>
 
 <ul>
@@ -38,7 +38,7 @@ Kali Linux预装了许多渗透测试软件，包括nmap (端口扫描器)、Wir
 
 <p>      kali原镜像所含的渗透套件很丰富，基本渗透中的需求都可以满足，但是长期使用会显得有些臃肿，比如换个环境(迁移)，扔锅(被取证)等等，既然想<code>方便</code>/<code>快捷</code>/<code>高效</code>的使用Kali，Docker虚拟化再合适不过。</p>
 
-<h4 id="docker">安装Docker</h4>
+<h4 id="安装docker">安装Docker</h4>
 <p>      我是在<code>Mac</code>下安装的Docker，Docker引擎使用了Linux内核特定的特性，所以要让它运行在OS X上我们需要用一个轻量型的虚拟机，如(Virtualbox, Vmware Fusion, Parallel Desktop)等。用OS X的Docker客户端来控制虚拟Docker来构建，运行以及管理Docker容器。</p>
 
 <p>      Boot2Docker是帮助控制虚拟机中 Docker 的工具，它会下载一个安装好docker的虚拟机，并控制其实现docker功能：</p>
@@ -83,7 +83,7 @@ export DOCKER_HOST=tcp://192.168.59.103:2376
 Or run: `eval "$(boot2docker shellinit)"`
 </code></pre>
 
-<h4 id="section-2">安装镜像</h4>
+<h4 id="安装镜像">安装镜像</h4>
 <p>      kali-linux-docker的<a href="https://hub.docker.com/r/kalilinux/kali-linux-docker/">DockerHub主页</a>，或者直接搜索：</p>
 
 <pre><code>➜ ~ docker search kali
@@ -124,7 +124,7 @@ butlerrc30/kali-ssh                       Kali image that generates random cert 
 
 <p><img src="http://7xiw31.com1.z0.glb.clouddn.com/3r4tgdfxvc.png" /></p>
 
-<h4 id="section-3">常见问题</h4>
+<h4 id="常见问题">常见问题</h4>
 <ul>
   <li>
     <p><a href="http://stackoverflow.com/questions/29799491/after-upgrade-boot2docker-1-5-to-1-6-error-appendfailed-to-get-machine-boot2do/29819016">After upgrade Boot2Docker 1.5 to 1.6 error append:Failed to get machine “boot2docker-vm”: machine does not exist (Did you run <code>boot2docker init</code>?)</a></p>
