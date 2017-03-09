@@ -19,3 +19,4 @@ permalink: /link/
 * <a target="_blank" href="http://www.y1ng.net/">y1ng: http://www.y1ng.net/</a>
 * <a target="_blank" href="http://wooyaa.me/">wooyaa: http://wooyaa.me/</a>
 * <a target="_blank" href="http://whereisk0shl.top/">K0shl: http://whereisk0shl.top/</a>
+* <a target="_blank" href="http://www.0aa.me/">Mosuan: http://www.0aa.me/</a>
