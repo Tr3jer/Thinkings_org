@@ -13,3 +13,7 @@ http://www.thinkings.org/2015/01/22/Git-Github-Markdown-Jekyll-build-blog.html
 
 关于此源码的二次开发可以参考我们这篇博文
 http://www.thinkings.org/2015/01/22/Git-Github-Markdown-Jekyll-build-blog.html
+
+2017/02/26 Be included in jekyll-themes:
+
+https://jekyll-themes.com/thinkings-org/
