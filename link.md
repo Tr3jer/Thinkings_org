@@ -6,7 +6,7 @@ permalink: /link/
 
 * <a target="_blank" href="http://www.firebroo.com/">FireBroo: http://www.firebroo.com/</a>
 * <a target="_blank" href="http://www.cnbraid.com">HackBraid: http://www.cnbraid.com/</a>
-* <a target="_blank" href="http://5up3rc.lofter.com/">5up3rc: http://5up3rc.lofter.com/</a>
+* <a target="_blank" href="http://webvul.me/">5up3rc: http://webvul.me/</a>
 * <a target="_blank" href="http://p2j.cn/">园长: http://p2j.cn/</a>
 * <a target="_blank" href="http://www.03sec.com/">Sky: http://www.03sec.com/</a>
 * <a target="_blank" href="http://sixwha1e.github.io/">sixwhale: http://sixwha1e.github.io/</a>
