@@ -27,13 +27,16 @@ github
 google
 hackerone
 jd
+kuaishou
 linkedin
 localtapiola
 microsoft
 momo
 netease
 paypal
+pingan
 pornhub
+rockstargames
 shopify
 sina
 slack
@@ -41,12 +44,16 @@ smartisan
 snapchat
 starbucks
 tencent
+toutiao
 twitter
 uber
 vimeo
 vip
 vk
 xiaomi
+yahoo
+youporn
+other ...
 ```
 
 > https://github.com/Tr3jer/IncExtensiveList
