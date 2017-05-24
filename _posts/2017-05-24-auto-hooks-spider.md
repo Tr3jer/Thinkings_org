@@ -15,8 +15,26 @@ title: Auto Hooks Spider
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;个人收集的有价值主域名1000+，hooks.txt先放200个你们玩。
 
-
 ![](http://7xiw31.com1.z0.glb.clouddn.com/4trefds.png)
 
 > https://github.com/Tr3jer/AutoHookSpider
+
+```
+AutoHookSpider
+├── LICENSE
+├── README.md
+├── hooks.txt   #hooks字典，随机放了200个，可以自己收集。
+├── lib
+│   ├── __init__.py
+│   ├── common.py   #琐碎功能
+│   └── record.sql  #先在Mysql创建这个表
+├── main.py #主程序
+└── requirements.txt
+
+sudo pip install -r requirements.txt
+lib/record.sql into mysql
+usage: python main.py {Options}[ google.com,twitter.com,facebook.com | -t 20 ]
+或者直接python main.py会直接在hooks.txt抽取(thread_cnt)个入口域名。
+```
+
 
