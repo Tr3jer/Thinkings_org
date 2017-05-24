@@ -11,7 +11,7 @@ I'll thank you very much if crediting the original source:)
 About the source of secondary development can refer to this post
 http://www.thinkings.org/2015/01/22/Git-Github-Markdown-Jekyll-build-blog.html
 
-关于此源码的二次开发可以参考我们这篇博文
+关于此源码的二次开发可以参考我的这篇博文
 http://www.thinkings.org/2015/01/22/Git-Github-Markdown-Jekyll-build-blog.html
 
 2017/02/26 Be included in jekyll-themes:
