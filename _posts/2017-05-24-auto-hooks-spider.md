@@ -37,4 +37,6 @@ usage: python main.py {Options}[ google.com,twitter.com,facebook.com | -t 20 ]
 或者直接python main.py会直接在hooks.txt抽取(thread_cnt)个入口域名。
 ```
 
+> 比如你想专门抓一个公司的子域名，那么将hooks放入该inc的主域名直接运行就ok。
+
 
