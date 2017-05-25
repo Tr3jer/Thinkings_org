@@ -17,7 +17,7 @@ title: Auto Hooks Spider
 
 ![](http://7xiw31.com1.z0.glb.clouddn.com/4trefds.png)
 
-> https://github.com/Tr3jer/AutoHookSpider
+* <a target="_blank" href="https://github.com/Tr3jer/AutoHookSpider">https://github.com/Tr3jer/AutoHookSpider</a>
 
 ```
 AutoHookSpider
