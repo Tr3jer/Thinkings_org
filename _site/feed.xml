@@ -7,10 +7,10 @@
 <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
 
 <item>
-<title>Web App FingerPrint识别库</title>
+<title>Web App 特征识别库</title>
 <pubDate>Mon, 29 May 2017 00:00:00 +0800</pubDate>
-<link>http://localhost:4000/2017/05/29/fingerprint-data.html</link>
-<guid isPermaLink="true">http://localhost:4000/2017/05/29/fingerprint-data.html</guid>
+<link>http://localhost:4000/2017/05/29/characteristics-data.html</link>
+<guid isPermaLink="true">http://localhost:4000/2017/05/29/characteristics-data.html</guid>
 </item>
 
 <item>

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Web App FingerPrint识别库
+title: Web App 特征识别库
 ---
 
 {{ page.title }}

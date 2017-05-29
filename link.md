@@ -4,6 +4,8 @@ title: Friendship Link
 permalink: /link/
 ---
 
+> 相加友联的可以私下找我，底部有几个联系方式。
+
 * <a target="_blank" href="http://www.firebroo.com/">FireBroo: http://www.firebroo.com/</a>
 * <a target="_blank" href="http://www.cnbraid.com">HackBraid: http://www.cnbraid.com/</a>
 * <a target="_blank" href="http://webvul.me/">5up3rc: http://webvul.me/</a>
@@ -21,3 +23,5 @@ permalink: /link/
 * <a target="_blank" href="http://whereisk0shl.top/">K0shl: http://whereisk0shl.top/</a>
 * <a target="_blank" href="http://www.0aa.me/">Mosuan: http://www.0aa.me/</a>
 * <a target="_blank" href="http://www.nxadmin.com/">司马: http://www.nxadmin.com/</a>
+
+
