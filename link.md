@@ -23,5 +23,5 @@ permalink: /link/
 * <a target="_blank" href="http://whereisk0shl.top/">K0shl: http://whereisk0shl.top/</a>
 * <a target="_blank" href="http://www.0aa.me/">Mosuan: http://www.0aa.me/</a>
 * <a target="_blank" href="http://www.nxadmin.com/">司马: http://www.nxadmin.com/</a>
-
+* <a target="_blank" href="http://www.leavesongs.com/">Phithon: http://www.leavesongs.com/</a>
 
