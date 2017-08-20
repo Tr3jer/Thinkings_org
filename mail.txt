@@ -1,6 +1,6 @@
 Tr3jer@Gmail.com
 
-Fuck GFW,you can choose GnuPG send mail to me.
+you can choose GnuPG send mail to me.
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Comment: GPGTools - https://gpgtools.org
