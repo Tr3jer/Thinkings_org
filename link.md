@@ -26,3 +26,4 @@ permalink: /link/
 * <a target="_blank" href="http://www.leavesongs.com/">Phithon: http://www.leavesongs.com/</a>
 * <a target="_blank" href="http://ub3r.cn/">ub3r: http://ub3r.cn/</a>
 * <a target="_blank" href="https://team.armyzer0.com/">armyzer0: https://team.armyzer0.com/</a>
+* <a target="_blank" href="http://www.hackersb.cn/">王松_Striker: http://www.hackersb.cn/</a>
