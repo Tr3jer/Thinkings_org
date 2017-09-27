@@ -7,6 +7,13 @@
 <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
 
 <item>
+<title>不为谁而作的文</title>
+<pubDate>Wed, 27 Sep 2017 00:00:00 +0800</pubDate>
+<link>http://localhost:4000/2017/09/27/alive.html</link>
+<guid isPermaLink="true">http://localhost:4000/2017/09/27/alive.html</guid>
+</item>
+
+<item>
 <title>MetaDockers</title>
 <pubDate>Sun, 17 Sep 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/09/17/metadockers.html</link>
@@ -137,13 +144,6 @@
 <pubDate>Mon, 27 Apr 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/04/27/semi-automatic-code-audit.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/04/27/semi-automatic-code-audit.html</guid>
-</item>
-
-<item>
-<title>分享几款不错的手游</title>
-<pubDate>Wed, 15 Apr 2015 00:00:00 +0800</pubDate>
-<link>http://localhost:4000/2015/04/15/share-hand-swim.html</link>
-<guid isPermaLink="true">http://localhost:4000/2015/04/15/share-hand-swim.html</guid>
 </item>
 
 </channel>
