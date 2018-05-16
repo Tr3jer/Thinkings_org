@@ -7,6 +7,13 @@
 <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
 
 <item>
+<title>Cracked HackerOne Hidden Bounty Amount</title>
+<pubDate>Wed, 16 May 2018 00:00:00 +0800</pubDate>
+<link>http://localhost:4000/2018/05/16/cracked-h1-hidden-bounty-amount.html</link>
+<guid isPermaLink="true">http://localhost:4000/2018/05/16/cracked-h1-hidden-bounty-amount.html</guid>
+</item>
+
+<item>
 <title>不为谁而作的文</title>
 <pubDate>Wed, 27 Sep 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/09/27/alive.html</link>
@@ -137,13 +144,6 @@
 <pubDate>Wed, 10 Jun 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/06/10/360-geekgame-writeup.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/06/10/360-geekgame-writeup.html</guid>
-</item>
-
-<item>
-<title>半自动化PHP代码审计思路与环境搭建</title>
-<pubDate>Mon, 27 Apr 2015 00:00:00 +0800</pubDate>
-<link>http://localhost:4000/2015/04/27/semi-automatic-code-audit.html</link>
-<guid isPermaLink="true">http://localhost:4000/2015/04/27/semi-automatic-code-audit.html</guid>
 </item>
 
 </channel>

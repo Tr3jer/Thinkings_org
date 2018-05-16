@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <link rel="shortcut icon" href="../../../public/1616.ico">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Cracked HackerOne Hidden Bounty Amount - Posted By Tr3jer</title>
+    <meta name="description" content="Hacking for fun. - Tr3jer_CongRong"/>
+    <link rel="stylesheet" href="/css/Tr3jer.css" type="text/css" />
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  </head>
+  <body>
+    <div class="site">
+      <div class="post-content">
+        <div id="post">
+          <h1 id="cracked-hackerone-hidden-bounty-amount">Cracked HackerOne Hidden Bounty Amount</h1>
+<p class="date">16 May 2018 - Tr3jer_CongRong</p>
+
+<blockquote>
+  <p>      这个是前几天提给HackerOne官方并被确认的Violation of Secure Design Principles类型报告。推算隐藏的奖金，可惜计算方式是正态分布，画出范围不能精确。详情懒得再写一遍了，可以从我的POC中看出逻辑;)</p>
+</blockquote>
+
+<pre><code>#!/usr/bin/env python
+#coding:utf-8
+
+import json
+import requests
+from datetime import datetime
+
+
+class crack(object):
+	def __init__(self, user):
+		self.teams = {}
+		self.user = user
+		self.formatted_bounty = {
+			"$":["BOUNTY_LOW","base_bounty","&lt;"],
+			"$$":["BOUNTY_MEDIUM","base_bounty", "&gt;="],
+			"$$$":["BOUNTY_HIGH","top_bounty_lower_range", "&gt;="],
+			"$$$$":["BOUNTY_SEVERE","top_bounty_lower_range", "&gt;="]
+		}
+		self.headers = {
+			'accept': 'application/json',
+			'x-requested-with': 'XMLHttpRequest',
+		}
+
+
+	def loads_hide_reward(self):
+		print "[+] Loads Hidden Bounty Reports ..."
+		url = 'https://hackerone.com/hacktivity?sort_type=latest_disclosable_activity_at&amp;page={}&amp;filter=type%3Abounty-awarded%20{}&amp;range=forever'
+		req = json.loads(requests.get(url.format(1, self.user), headers=self.headers).content)
+		bounty_reports = req['reports']
+		if req['pages'] &gt; 1:
+			print "[+] There are {} pages".format(req['pages'])
+			for i in range(1,req['pages'] + 1):
+				bounty_reports += json.loads(requests.get(url.format(i, self.user), headers=self.headers).content)['reports']
+
+		hide_bounty_reports = filter(lambda x:x['bounty_disclosed'] == False, bounty_reports)
+		if len(hide_bounty_reports) == 0:
+			print "[+] Hide Bounty Reports Count 0!"
+			exit()
+
+		results = {}
+		for k,p in enumerate(hide_bounty_reports):
+			report_tmp = {}
+			report_tmp['id'] = p['id']
+			report_tmp['team'] = p['team']['handle']
+			report_tmp['from_or_to'] = report_tmp['team'] if 'from%3A' in self.user else p['reporter']['username']
+			report_tmp['bounty'] = p['formatted_bounty']
+			time_format = datetime.strptime(p['latest_disclosable_activity_at'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y/%m/%d %H:%M:%S")
+			report_tmp['hacktivity'] = p['latest_disclosable_action'] + " " + time_format
+			results[k] = report_tmp
+			print "[{}] -&gt; {} {} {} {}".format(k, 
+											report_tmp['id'], 
+											report_tmp['from_or_to'], 
+											report_tmp['bounty'], 
+											report_tmp['hacktivity']
+											)
+
+		report_key = raw_input("Select Bounty Hidden Report [Default ALL]:")
+		if report_key.isdigit() and 0 &lt;= int(report_key) &lt;= len(results) - 1:
+			report_keys = [int(report_key)]
+		else:
+			report_keys = range(len(results))
+
+		for i in report_keys:
+			res_tmp = results[i]
+			team = res_tmp['team']
+			if team not in self.teams: self.teams[team] = self.loads_team(team)
+			bounty_dict = self.formatted_bounty[res_tmp['bounty']]
+			team_base_bounty = self.teams[team]['base_bounty']
+			team_top_bounty = self.teams[team]['top_bounty_lower_range']
+
+			if team_base_bounty == None and team_top_bounty and res_tmp['bounty'] in ["$","$$"]:
+				math_flag = "&lt;"
+				bounty = self.teams[team]['top_bounty_lower_range']
+
+			elif team_base_bounty and team_top_bounty == None:
+				bounty = team_base_bounty
+				math_flag = bounty_dict[2] if res_tmp['bounty'] in ["$","$$"] else "&gt;"
+
+			elif team_base_bounty and team_top_bounty and res_tmp['bounty'] == "$$":
+				print "\033[15;32m[{}:{}] ${} &gt; Bounty &gt;= ${}\033[0m".format(i, bounty_dict[0], team_top_bounty, team_base_bounty)
+				continue
+
+			elif not filter(lambda x:x != None, [team_base_bounty, team_top_bounty]):
+				print "\033[15;33m[{}] {} Team not show the Amount of Bounty, please read https://hackerone.com/{} page find this\033[0m".format(i,team,team)
+				math_flag = "&gt;"
+				bounty = 0
+
+			else:
+				math_flag = bounty_dict[2]
+				bounty = self.teams[team][bounty_dict[1]]
+
+			print "\033[15;32m[{}:{}] Bounty {} ${}\033[0m".format(i, bounty_dict[0], math_flag, bounty)
+
+
+	def loads_team(self, team):
+		print "[+] Analysis {} Team Information ...".format(team)
+		team_base = json.loads(requests.get('https://hackerone.com/{}'.format(team), headers=self.headers).content)
+		team_metrics = json.loads(requests.get('https://hackerone.com/{}/profile_metrics.json'.format(team), headers=self.headers).content)
+		team_rule = {}
+		team_rule['base_bounty'] = team_base['base_bounty'] if 'base_bounty' in team_base.keys() else None
+		team_rule['top_bounty_lower_range'] = team_metrics['top_bounty_lower_range']
+
+		return team_rule
+
+
+if __name__ == '__main__':
+	crack_type = raw_input("please Input Crack Type[0:hack {default}/1:team]")
+	if crack_type.isdigit() and int(crack_type) == 1:
+		user = "to%3A" + raw_input("please Input Team Names has Handle:")
+	else:
+		user = "from%3A" + raw_input("please Input HackerOne Id:")
+	crack(user).loads_hide_reward()
+</code></pre>
+
+<ul>
+  <li>计算@<a target="_blank" href="https://hackerone.com/geekboy">geekboy</a>:</li>
+</ul>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/579xovyz.png" alt="" /></p>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/575csqpv.png" alt="" /></p>
+
+<ul>
+  <li>计算@<a target="_blank" href="https://hackerone.com/quora">quora</a>厂商:</li>
+</ul>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/378eahxk.png" alt="" /></p>
+
+<p><img src="http://7xiw31.com1.z0.glb.clouddn.com/21uemnb.png" alt="" /></p>
+
+
+        </div>
+      </div>
+      
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'tr3jer';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+      <div id="disqus_thread"></div>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="contact">
+          <p>
+            <a href="/" style="text-decoration: none; margin-right: 5px;">Index</a> |&nbsp;
+            <a href="/feed.xml" target="_blank" style="text-decoration: none; margin-right: 5px;">RSS</a> |&nbsp;
+            <a href="http://weibo.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Weibo</a> |&nbsp;
+            <a href="https://twitter.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Twitter</a> |&nbsp;
+            <a href="/link" target="_blank" style="text-decoration: none; margin-right: 5px;">Links</a> |&nbsp;
+            <a href="/mail.txt" target="_blank">Gmail</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: none;">
+      <script src="http://s11.cnzz.com/z_stat.php?id=1256907244&web_id=1256907244" language="JavaScript"></script>
+    </div>
+  </body>
+</html>
