@@ -7,7 +7,7 @@ title: Cracked HackerOne Hidden Bounty Amount
 ================
 <p class="date">{{ page.date | date_to_string }} - Tr3jer_CongRong</p>
 
-> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;这个是前几天提给HackerOne官方并被确认的Violation of Secure Design Principles类型报告。推算隐藏的奖金，可惜计算方式是正态分布，画出范围不能精确，for fun。详情懒得再写一遍了，可以从我的POC中看出逻辑;)
+> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;这个是我前几天提给HackerOne官方并被确认的Violation of Secure Design Principles类型报告。推算隐藏的奖金，可惜计算方式是正态分布，画出范围不能精确，for fun。详情懒得再写一遍了，可以从我的POC中看出逻辑;)
 
 ```
 #!/usr/bin/env python
