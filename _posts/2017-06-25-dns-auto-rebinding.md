@@ -244,7 +244,7 @@ dns记录污染：
 test.example.com.		0	IN	CNAME	<script>alert\(/xss/\)</script>test.example.com.
 ```
 
-![](http://pfr2vvlbk.bkt.clouddn.com/0day.png)
+![](http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/0day.png)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;这个怎么玩取决于你的小脑袋瓜的脑回路了。如果防火墙还要验证是否为信任地址的话修改lib/common.py：
 

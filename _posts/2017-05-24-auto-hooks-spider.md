@@ -11,11 +11,11 @@ title: Auto Hooks Spider
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;实现很简单，因为我本地实现的比较复杂，所以是把它拆分下改成现成的发出来。还有就是代理的实现我没放进去，想爬墙外的话可以改下requests模块，拆分url判断是否存在于gfw列表就行了。
 
-![](http://pfr2vvlbk.bkt.clouddn.com/4rfedsxz.png)
+![](http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/4rfedsxz.png)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;个人收集的有价值主域名1000+，hooks.txt先放200个你们玩。
 
-![](http://pfr2vvlbk.bkt.clouddn.com/4trefds.png)
+![](http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/4trefds.png)
 
 * <a target="_blank" href="https://github.com/Tr3jer/AutoHookSpider">https://github.com/Tr3jer/AutoHookSpider</a>
 

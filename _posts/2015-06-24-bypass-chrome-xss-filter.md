@@ -11,7 +11,7 @@ title: Google Chrome Anti-XSS Filter Bypass
 
 众所周知Chrome浏览器的Xss Filter是基于模糊匹配敏感关键字的方式进行拦截外部JavaScript脚本注入的，然而可以通过svg标签绕过Xss Filter.
 
-<img src="http://pfr2vvlbk.bkt.clouddn.com/ysao8.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/ysao8.png">
 
 #### Details
 
@@ -31,7 +31,7 @@ title: Google Chrome Anti-XSS Filter Bypass
 
 	http://127.0.0.1/demo.php?xss=<svg><script>/<1/>alert(document.domain)</script></svg>
 
-<img src="http://pfr2vvlbk.bkt.clouddn.com/4rywe7.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/4rywe7.png">
 
 > 13年Gainover也分享过一个svg标签Bypass Chrome Xss Filter的Payload:`<svg><script xlink:href=data:,alert(1)></script></svg>`现已失效.
 

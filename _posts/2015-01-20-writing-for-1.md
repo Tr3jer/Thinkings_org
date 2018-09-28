@@ -7,7 +7,7 @@ title: Writing For 1%
 ================
 <p class="date">{{ page.date | date_to_string }} - Tr3jer_CongRong</p>
 <center>
-<img src="http://pfr2vvlbk.bkt.clouddn.com/dog-akita-inu-scarf-squint-snow-2880x1800.jpg">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/dog-akita-inu-scarf-squint-snow-2880x1800.jpg">
 </center>
 
 **这个Blog打算不单纯的用作讨论技术,同样也会分享一些有趣的东西,希望大家能够喜欢:)**

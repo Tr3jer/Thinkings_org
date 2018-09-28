@@ -102,7 +102,7 @@ Kali Linux预装了许多渗透测试软件，包括nmap (端口扫描器)、Wir
 
 拉取安装后就可以启动了，因为是纯净的kali镜像所以只有420MB，需要什么直接apt-get。
 
-<img src="http://pfr2vvlbk.bkt.clouddn.com/3r4tgdfxvc.png">
+<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/3r4tgdfxvc.png">
 
 #### 常见问题
 - [After upgrade Boot2Docker 1.5 to 1.6 error append:Failed to get machine “boot2docker-vm”: machine does not exist (Did you run `boot2docker init`?)](http://stackoverflow.com/questions/29799491/after-upgrade-boot2docker-1-5-to-1-6-error-appendfailed-to-get-machine-boot2do/29819016)
