@@ -9,19 +9,19 @@ title: 半自动化PHP代码审计思路与环境搭建
 
 #### 代码审计常见流程:
 
-<img src="http://7xiw31.com1.z0.glb.clouddn.com/2132b1y3k21.png">
+<img src="http://pfr2vvlbk.bkt.clouddn.com/2132b1y3k21.png">
 
 	(1)通过可控变量(输入点)回溯危险函数
 	(2)查找危险函数确定可控变量
 	(3)传递的过程中触发漏洞
 	
 #### 思考:
-<img src="http://7xiw31.com1.z0.glb.clouddn.com/32ee43tgreg.png">
+<img src="http://pfr2vvlbk.bkt.clouddn.com/32ee43tgreg.png">
 
 #### 最佳出发点:
 **枚举所有`可控变量(输入点)` & `危险函数`,包括但不限于:**
 
-<img src="http://7xiw31.com1.z0.glb.clouddn.com/ahs98isuaf.png">
+<img src="http://pfr2vvlbk.bkt.clouddn.com/ahs98isuaf.png">
 
 > * 大型Web程序逻辑越复杂越易出现漏洞,这就需要代码审计人员拥有较强的`代码理解度`和`逻辑思维`,每一段代码都有可能辅助触发漏洞,当代码涉及很多文件时,比如在`MVC`中,`Action`层代码可能会涉及几个甚至几十个文件,这些文件包括框架的`核心配置初始化文件`,`类文件`,`路由控制文件`等,如果用手工挖掘漏洞会比较累,另外,某些应用可能比较复杂,我们并不清楚流程是怎样的,该去哪里追踪变量.
 > * So,合理的利用半自动化对于代码审计来说即是事半功倍.

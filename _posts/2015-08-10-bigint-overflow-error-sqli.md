@@ -11,7 +11,7 @@ title: BIGINT Overflow Error Based SQL Injection
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**首先看看Mysql(>=5.5.5)如何存储整数的，之前的版本当整数溢出的时候不会报错。<a target="_blank" href="http://dev.mysql.com/doc/refman/5.5/en/integer-types.html">Integer Types (Exact Value)</a>**
 
-<img src="http://7xiw31.com1.z0.glb.clouddn.com/i76ryjtgdh.png">
+<img src="http://pfr2vvlbk.bkt.clouddn.com/i76ryjtgdh.png">
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**BIGINT数据类型的长度为8字节(64Bytes)，分别用二进制、十进制、十六进制的`signed/unsigned`表示最大值:**
 
@@ -141,7 +141,7 @@ title: BIGINT Overflow Error Based SQL Injection
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**这里纠正一个Paper中错误的观点，文中提到一次性存储表列数据只能取出27行，其实这是报错信息的最大长度所决定的，如果只想取到重要信息的话，Payload中不加库名表名还有分隔符简短点就可以了，一图胜千言。**
 
-<img src="http://7xiw31.com1.z0.glb.clouddn.com/5u6ehrtsdf.png">
+<img src="http://pfr2vvlbk.bkt.clouddn.com/5u6ehrtsdf.png">
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**当知道库名表名列名后，就可以构造语句获取数据了：**
 

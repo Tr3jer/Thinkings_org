@@ -152,4 +152,4 @@ could not connect to server: Connection refused
     Is the server running on host "localhost" (fe80::1) and accepting
     TCP/IP connections on port 5432?
 
-<img src="http://7xiw31.com1.z0.glb.clouddn.com/6udrhfgx.png">
+<img src="http://pfr2vvlbk.bkt.clouddn.com/6udrhfgx.png">
