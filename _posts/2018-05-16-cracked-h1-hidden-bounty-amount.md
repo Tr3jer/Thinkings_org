@@ -126,13 +126,13 @@ if __name__ == '__main__':
 
 * 计算@<a target="_blank" href="https://hackerone.com/geekboy">geekboy</a>:
 
-![](http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/579xovyz.png)
+![](http://blog-1252048719.cos.ap-shanghai.myqcloud.com/579xovyz.png)
 
-![](http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/575csqpv.png)
+![](http://blog-1252048719.cos.ap-shanghai.myqcloud.com/575csqpv.png)
 
 * 计算@<a target="_blank" href="https://hackerone.com/quora">quora</a>厂商:
 
-![](http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/378eahxk.png)
+![](http://blog-1252048719.cos.ap-shanghai.myqcloud.com/378eahxk.png)
 
-![](http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/21uemnb.png)
+![](http://blog-1252048719.cos.ap-shanghai.myqcloud.com/21uemnb.png)
 

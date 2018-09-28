@@ -18,7 +18,7 @@ title: LNMP虚拟主机PHP沙盒逃逸
 
     lnmp1.3/include/php.sh
 
-<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/5ethrdfb.png">
+<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5ethrdfb.png">
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注意到了stream_socket_server被禁用了。这个是用来建立Socket服务端的，完全可以使用其他可创建socket服务端的函数进行反弹个socket会话，比如socket_create、 fsockopen。不过虽是可以建立socket会话，但group为www，所以这个留在后面结合使用。
 
@@ -81,4 +81,4 @@ title: LNMP虚拟主机PHP沙盒逃逸
     die();
     ?>
 
-<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/rsd.png">
+<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/rsd.png">

@@ -40,7 +40,7 @@ title: Rips Scanners 本地文件读取漏洞分析
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**翻到RIPS前版本发现漏洞是同样存在的。**
 
-<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/54rtgdfcvx.png">
+<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/54rtgdfcvx.png">
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**相比来看利用的条件比前版本鸡肋一点，新版本验证了扩展名，而前版本可以读取文件的范围更广。**
 
@@ -65,4 +65,4 @@ title: Rips Scanners 本地文件读取漏洞分析
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**以上为RIPS新版本允许读取文件的扩展名，最后来个利用:**
 
-<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/5555rrfdd.png">
+<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5555rrfdd.png">

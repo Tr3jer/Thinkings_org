@@ -9,7 +9,7 @@ title: Web App 特征识别库
 
 > 之前一直抓fofa的规则进行使用，新版本后规则都被隐藏了。就把较近版本的规则发出来，2119条mysql格式的。
 
-<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/tdfcx.png">
+<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/tdfcx.png">
 
 <a target="_blank" href="https://gist.github.com/Tr3jer/271a9e26e267a47a8e9f1aa76c47a003">Github Gist</a>
 

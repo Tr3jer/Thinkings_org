@@ -15,7 +15,7 @@ title: 未完成的事 - 逆推乌云路人甲真实ID
 
 Old：
 
-<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/5erdfc.png">
+<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5erdfc.png">
 
 ```
 因为存在浮动问题，可以设两个时间点，爬取两个时间点的整站数据。
@@ -25,11 +25,11 @@ Old：
 2. 个人匿名漏洞数(x)和xrange(range(0,x),n+1)的所有组合(y)。
 3. 然后根据所有路人甲漏洞的关注数(z)进行匹配y，实现筛选出漏洞关注数min-max的匿名漏洞范围。
 
-<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/5202.png">
+<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5202.png">
 
-<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/Screen%20Shot%202016-04-16%20at%2010.05.23%20PM.png">
+<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/Screen%20Shot%202016-04-16%20at%2010.05.23%20PM.png">
 
-<img src="http://tr3jer-1252048719.cos.ap-hongkong.myqcloud.com/5203.png">
+<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5203.png">
 
 这块是实时更新的，准备工作：
 
