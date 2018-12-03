@@ -7,6 +7,13 @@
 <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
 
 <item>
+<title>Symbo1</title>
+<pubDate>Sat, 01 Dec 2018 00:00:00 +0800</pubDate>
+<link>http://localhost:4000/2018/12/01/symbo1.html</link>
+<guid isPermaLink="true">http://localhost:4000/2018/12/01/symbo1.html</guid>
+</item>
+
+<item>
 <title>Cracked HackerOne Hidden Bounty Amount</title>
 <pubDate>Wed, 16 May 2018 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2018/05/16/cracked-h1-hidden-bounty-amount.html</link>
@@ -137,13 +144,6 @@
 <pubDate>Thu, 30 Jul 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/07/30/mac-tools.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/07/30/mac-tools.html</guid>
-</item>
-
-<item>
-<title>Google Chrome Anti-XSS Filter Bypass</title>
-<pubDate>Wed, 24 Jun 2015 00:00:00 +0800</pubDate>
-<link>http://localhost:4000/2015/06/24/bypass-chrome-xss-filter.html</link>
-<guid isPermaLink="true">http://localhost:4000/2015/06/24/bypass-chrome-xss-filter.html</guid>
 </item>
 
 </channel>
