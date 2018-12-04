@@ -7,7 +7,7 @@ title: Git+Github+Markdown+Jekyll Build a Blog
 ================
 <p class="date">{{ page.date | date_to_string }} - Tr3jer_CongRong</p>
 <center>
-<img src="http://ww2.sinaimg.cn/mw690/9c5c5d93tw1erp3be7l47j20ya0jhdgg.jpg">
+<img src="https://ww2.sinaimg.cn/mw690/9c5c5d93tw1erp3be7l47j20ya0jhdgg.jpg">
 </center>
 
 #### 0x01<科普>:
@@ -40,7 +40,7 @@ title: Git+Github+Markdown+Jekyll Build a Blog
 
 以下所有动作，都在该分支下完成.
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/32refds.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/32refds.png">
 
 在项目根目录下，建立一个名为`_config.yml`的文本文件。它是jekyll的设置文件，我们在里面填入如下内容，其他设置都可以用默认选项，具体解释参见[官方网页](https://github.com/jekyll/jekyll/wiki/Configuration)。
 
@@ -102,7 +102,7 @@ title: Git+Github+Markdown+Jekyll Build a Blog
 
 此时的目录结构:
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/6rythfg.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/6rythfg.png">
 
 >其实也可以直接用Jekyll New一个项目,然后将其覆盖/修改,同时也可以开启Jekyll服务进行本地调试.
 
@@ -110,9 +110,9 @@ title: Git+Github+Markdown+Jekyll Build a Blog
 
 	gem install jekyll
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/5rthfgbv.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/5rthfgbv.png">
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/43etrdgf.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/43etrdgf.png">
 
 #### 0x03<提交Pages>:
 

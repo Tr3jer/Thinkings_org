@@ -19,7 +19,7 @@
 
 <p>就一个大苹果的图，Format Analysis后得到一串base64:<code>ZW1lbS4uLiAvY3RmXzM2MF9mbGFnv</code></p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/6ehrtsgbfdx.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/6ehrtsgbfdx.png" /></p>
 
 <p>解密后为<code>emem... /ctf_360_flag</code>，是一个目录，图为被咬一口的苹果，osx默认下每个目录下都会存在一个.DS_Store文件来保存文件夹的显示属性，请求<code>/ctf_360_flag/.DS_Store</code>及得到flag：</p>
 
@@ -32,7 +32,7 @@
 <pre><code>--. .. ..-. - --.. -- --. .- ;..&lt;..- -.. .-- . .... .--. $.- = "----- .-.-.- .---- " ;$-... = $_--. . - [.----. -... . ----. ] ;.. ..- . ($-.. . -.-. -- = .- ---. .- ---. ){ .. ..-. ( .. ... _.- .- . .-. .- -.-- ($-... )){ . -.-. .. .. --- "-. - -- -.- . -.- - -.-.- - "; . -..- .. - ; }. .- .. ... . .. ..-. (- .-.-- . . ... _-. ..- -- . .-. .. -.-. ($-... )){ $-.-. = (.. -. - )(($.- + $-... ) * .- --- --- -- ); .. ..-. ($-.-. == "-- -.. " &amp; &amp; $-... [.---- ----- ] == ..- . .- . -.. ... . ){ . -. -. .... --- "..-. . -.. .- --. "; }. .-.. ... . { . -.-. .... -- - "-. --- - .- . - .-- -.- .-- "; . -. .- .. - ; } }. .-. . ... . { . - .-. ... . --- "-. -- - -.- . -.-- -.-.-- "; }}. .-. . ... . { . -.-. .... - -- "-. --- -.- . -.-- -. -.-- "; }..--.. &gt;
 </code></pre>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/76tyhfg.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/76tyhfg.png" /></p>
 
 <p>解密得到一段php代码：</p>
 
@@ -98,23 +98,23 @@ var_dump($b[10] == TRUE);为false
 
 <p>      翻到第7305个数据包为发微博的request包，Follow TCP Stream。</p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/tydhfgbxcv.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/tydhfgbxcv.png" /></p>
 
 <p>向下翻，poiid为地址</p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/65i7rtuydh.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/65i7rtuydh.png" /></p>
 
 <p>c为手机类型</p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/8irujtydhfg.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/8irujtydhfg.png" /></p>
 
 <p>content为微博内容</p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/4aresgdfxc.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/4aresgdfxc.png" /></p>
 
 <p>ua为User-Agent</p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/7uytdhfgx.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/7uytdhfgx.png" /></p>
 
 <p>根据这些字段就可以更改相应的字段为要求：</p>
 
@@ -131,7 +131,7 @@ var_dump($b[10] == TRUE);为false
   <p>请分析数据包并给出数据包中利用漏洞的CVE编号。（CVE编号即为过关密码，格式：CVE-XXXX-XXXX）</p>
 </blockquote>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/8irjtydfg.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/8irjtydfg.png" /></p>
 
 <p>是一段js混淆，进行其反混淆</p>
 
@@ -146,7 +146,7 @@ var_dump($b[10] == TRUE);为false
 
 <p>搜索了下，flag为<code>CVE-2014-0773</code></p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/eytdfg.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/eytdfg.png" /></p>
 
 <h4 id="encrypt2">Encrypt2</h4>
 <blockquote>
@@ -164,11 +164,11 @@ IHNBa9usUBMcck5d1kNqEVmZl9CDkmNNnsLIFV3IKnsVRT4OOCQJdRNq76Pzbw==")));
 
 <p>这段代码进行base64+gzinflate加密，var_dump下看看执行结果：</p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/67jtydgbfvc.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/67jtydgbfvc.png" /></p>
 
 <p>获得了一串base64密文<code>YXNzZXJ0X29wdGlvbnMoQVNTRVJUX1dBUk5JTkcsIDApOw==</code>，解码得到<code>assert_options(ASSERT_WARNING, 0);</code>这个函数设置ASSERT_WARNING为0，即为不回显warning，删掉这段base64加密后的代码执行下。</p>
 
-<p><img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/6i7jrtyd.png" /></p>
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/6i7jrtyd.png" /></p>
 
 <p>执行后由此看出是一段一句话木马，flag即为POST接受的参数：</p>
 

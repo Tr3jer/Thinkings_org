@@ -11,7 +11,7 @@ title: 360 Geekgame Writeup
 
 就一个大苹果的图，Format Analysis后得到一串base64:`ZW1lbS4uLiAvY3RmXzM2MF9mbGFnv`
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/6ehrtsgbfdx.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/6ehrtsgbfdx.png">
 
 解密后为`emem... /ctf_360_flag`，是一个目录，图为被咬一口的苹果，osx默认下每个目录下都会存在一个.DS_Store文件来保存文件夹的显示属性，请求`/ctf_360_flag/.DS_Store`及得到flag：
 
@@ -22,7 +22,7 @@ title: 360 Geekgame Writeup
 
 	--. .. ..-. - --.. -- --. .- ;..<..- -.. .-- . .... .--. $.- = "----- .-.-.- .---- " ;$-... = $_--. . - [.----. -... . ----. ] ;.. ..- . ($-.. . -.-. -- = .- ---. .- ---. ){ .. ..-. ( .. ... _.- .- . .-. .- -.-- ($-... )){ . -.-. .. .. --- "-. - -- -.- . -.- - -.-.- - "; . -..- .. - ; }. .- .. ... . .. ..-. (- .-.-- . . ... _-. ..- -- . .-. .. -.-. ($-... )){ $-.-. = (.. -. - )(($.- + $-... ) * .- --- --- -- ); .. ..-. ($-.-. == "-- -.. " & & $-... [.---- ----- ] == ..- . .- . -.. ... . ){ . -. -. .... --- "..-. . -.. .- --. "; }. .-.. ... . { . -.-. .... -- - "-. --- - .- . - .-- -.- .-- "; . -. .- .. - ; } }. .-. . ... . { . - .-. ... . --- "-. -- - -.- . -.-- -.-.-- "; }}. .-. . ... . { . -.-. .... - -- "-. --- -.- . -.-- -. -.-- "; }..--.. >
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/76tyhfg.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/76tyhfg.png">
 
 解密得到一段php代码：
 
@@ -82,23 +82,23 @@ title: 360 Geekgame Writeup
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;翻到第7305个数据包为发微博的request包，Follow TCP Stream。
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/tydhfgbxcv.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/tydhfgbxcv.png">
 
 向下翻，poiid为地址
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/65i7rtuydh.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/65i7rtuydh.png">
 
 c为手机类型
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/8irujtydhfg.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/8irujtydhfg.png">
 
 content为微博内容
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/4aresgdfxc.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/4aresgdfxc.png">
 
 ua为User-Agent
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/7uytdhfgx.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/7uytdhfgx.png">
 
 根据这些字段就可以更改相应的字段为要求：
 
@@ -111,7 +111,7 @@ ua为User-Agent
 #### NET2
 >请分析数据包并给出数据包中利用漏洞的CVE编号。（CVE编号即为过关密码，格式：CVE-XXXX-XXXX）
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/8irjtydfg.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/8irjtydfg.png">
 
 是一段js混淆，进行其反混淆
 
@@ -125,7 +125,7 @@ ua为User-Agent
 
 搜索了下，flag为`CVE-2014-0773`
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/eytdfg.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/eytdfg.png">
 
 #### Encrypt2
 >小明在服务器上发现了一个奇怪的php文件，初步断定为黑客留下的一句话后门，请分析php文件，找出一句话后门的密码。（密码即为Flag）
@@ -141,11 +141,11 @@ ua为User-Agent
 
 这段代码进行base64+gzinflate加密，var_dump下看看执行结果：
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/67jtydgbfvc.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/67jtydgbfvc.png">
 
 获得了一串base64密文`YXNzZXJ0X29wdGlvbnMoQVNTRVJUX1dBUk5JTkcsIDApOw==`，解码得到`assert_options(ASSERT_WARNING, 0);`这个函数设置ASSERT_WARNING为0，即为不回显warning，删掉这段base64加密后的代码执行下。
 
-<img src="http://blog-1252048719.cos.ap-shanghai.myqcloud.com/6i7jrtyd.png">
+<img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/6i7jrtyd.png">
 
 执行后由此看出是一段一句话木马，flag即为POST接受的参数：
 
