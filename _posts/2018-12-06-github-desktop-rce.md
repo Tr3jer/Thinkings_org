@@ -53,7 +53,7 @@ export const shell: IAppShell = {
 }
 ```
 
-ipcRenderer对象的`showItemInFolder`方法使用`show-item-in-folder`事件发送获取到的path
+ipcRenderer对象使用`show-item-in-folder`事件发送获取到的path
 
 跟进app/src/main-process/main.ts
 

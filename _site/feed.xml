@@ -60,7 +60,7 @@
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;ipcRenderer对象的&lt;code&gt;showItemInFolder&lt;/code&gt;方法使用&lt;code&gt;show-item-in-folder&lt;/code&gt;事件发送获取到的path&lt;/p&gt;
+&lt;p&gt;ipcRenderer对象使用&lt;code&gt;show-item-in-folder&lt;/code&gt;事件发送获取到的path&lt;/p&gt;
 
 &lt;p&gt;跟进app/src/main-process/main.ts&lt;/p&gt;
 
