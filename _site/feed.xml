@@ -107,7 +107,7 @@
 }
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;判断如果是mac系统则&lt;code&gt;shell.openExternal&lt;/code&gt;运行。&lt;/p&gt;
+&lt;p&gt;判断如果是mac系统则使用&lt;code&gt;file://&lt;/code&gt;协议重新构造url，并&lt;code&gt;shell.openExternal&lt;/code&gt;运行。&lt;/p&gt;
 
 &lt;blockquote&gt;
   &lt;p&gt;POC:&lt;/p&gt;

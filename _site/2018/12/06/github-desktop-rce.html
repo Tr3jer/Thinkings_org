@@ -111,7 +111,7 @@
 }
 </code></pre>
 
-<p>判断如果是mac系统则<code>shell.openExternal</code>运行。</p>
+<p>判断如果是mac系统则使用<code>file://</code>协议重新构造url，并<code>shell.openExternal</code>运行。</p>
 
 <blockquote>
   <p>POC:</p>

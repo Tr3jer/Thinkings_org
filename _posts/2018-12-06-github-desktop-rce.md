@@ -103,7 +103,7 @@ export function openDirectorySafe(path: string) {
 }
 ```
 
-判断如果是mac系统则`shell.openExternal`运行。
+判断如果是mac系统则使用`file://`协议重新构造url，并`shell.openExternal`运行。
 
 > POC:
 
