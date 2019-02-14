@@ -7,7 +7,7 @@ title: Github Desktop RCEx2 for Mac latest Version
 ================
 <p class="date">{{ page.date | date_to_string }} - Tr3jer_CongRong</p>
 
-> 截至今日最新版的两处RCE，第一个重复/第二个内部排查已知，复现蛮简单的，直接show your code.
+> 截至今日最新版的两处RCE，第一个重复@evi1m0/第二个内部排查已知，复现蛮简单的，直接show your code.
 
 #### 0x01
 
