@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <link rel="shortcut icon" href="../../../public/1616.ico">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Github Desktop RCEx2 for Mac latest Version - Posted By Tr3jer</title>
+    <meta name="description" content="Hacking for fun. - Tr3jer_CongRong"/>
+    <link rel="stylesheet" href="/css/Tr3jer.css" type="text/css" />
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  </head>
+  <body>
+    <div class="site">
+      <div class="post-content">
+        <div id="post">
+          <h1 id="github-desktop-rcex2-for-mac-latest-version">Github Desktop RCEx2 for Mac latest Version</h1>
+<p class="date">14 Feb 2019 - Tr3jer_CongRong</p>
+
+<blockquote>
+  <p>截至今日最新版的两处RCE，报告重复了，复现蛮简单的，直接show your code.</p>
+</blockquote>
+
+<h4 id="0x01">0x01</h4>
+
+<p>app/src/ui/diff/binary-file.tsx:</p>
+
+<pre><code>export class BinaryFile extends React.Component&lt;IBinaryFileProps, {}&gt; {
+  private open = () =&gt; {
+    const fullPath = Path.join(this.props.repository.path, this.props.path)
+    openFile(fullPath, this.props.dispatcher)
+  }
+
+  public render() {
+    return (
+      &lt;div className="panel binary" id="diff"&gt;
+        &lt;div className="image-header"&gt;This binary file has changed.&lt;/div&gt;
+        &lt;div className="image-header"&gt;
+          &lt;LinkButton onClick={this.open}&gt;
+            Open file in external program.
+          &lt;/LinkButton&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre>
+
+<p>Follow up <code>openFile</code></p>
+
+<p>app/src/ui/lib/open-file.ts:</p>
+
+<pre><code>const result = await shell.openExternal(`file://${fullPath}`)
+</code></pre>
+
+<h4 id="0x02">0x02</h4>
+
+<p>app/src/ui/lib/context-menu.ts:</p>
+
+<pre><code>const RestrictedFileExtensions = ['.cmd', '.exe', '.bat', '.sh']
+export const CopyFilePathLabel = __DARWIN__
+  ? 'Copy File Path'
+  : 'Copy file path'
+
+export const DefaultEditorLabel = __DARWIN__
+  ? 'Open in External Editor'
+  : 'Open in external editor'
+
+export const RevealInFileManagerLabel = __DARWIN__
+  ? 'Reveal in Finder'
+  : __WIN32__
+  ? 'Show in Explorer'
+  : 'Show in your File Manager'
+
+export const TrashNameLabel = __DARWIN__ ? 'Trash' : 'Recycle Bin'
+
+export const OpenWithDefaultProgramLabel = __DARWIN__
+  ? 'Open with Default Program'
+  : 'Open with default program'
+
+export function isSafeFileExtension(extension: string): boolean {
+  if (__WIN32__) {
+    return RestrictedFileExtensions.indexOf(extension.toLowerCase()) === -1
+  }
+  return true
+}
+</code></pre>
+
+<p><code>context-menu</code> restricted these files extensions:</p>
+
+<pre><code>const RestrictedFileExtensions = ['.cmd', '.exe', '.bat', '.sh']
+</code></pre>
+
+<p>But macos is a Unix OS, and many binary files can be run directly.</p>
+
+<p>Follow up and search <code>OpenWithDefaultProgramLabel</code>:</p>
+
+<p>app/src/ui/changes/changes-list.tsx:</p>
+
+<pre><code>24    CopyFilePathLabel,
+25    RevealInFileManagerLabel,
+26:   OpenWithDefaultProgramLabel,
+27  } from '../lib/context-menu'
+28  import { CommitMessage } from './commit-message'
+..
+374        },
+375        {
+376:         label: OpenWithDefaultProgramLabel,
+377          action: () =&gt; this.props.onOpenItem(path),
+378          enabled: isSafeExtension &amp;&amp; status.kind !== AppFileStatusKind.Deleted,
+</code></pre>
+
+<p>app/src/ui/history/file-list.tsx:</p>
+
+<pre><code>13    DefaultEditorLabel,
+14    RevealInFileManagerLabel,
+15:   OpenWithDefaultProgramLabel,
+16  } from '../lib/context-menu'
+17  import { List } from '../lib/list'
+ ..
+150        },
+151        {
+152:         label: OpenWithDefaultProgramLabel,
+153          action: () =&gt; this.props.onOpenItem(filePath),
+154          enabled: isSafeExtension &amp;&amp; fileExistsOnDisk,
+</code></pre>
+
+<p>app/src/ui/merge-conflicts/merge-conflicts-dialog.tsx:</p>
+
+<pre><code>27  import { IMenuItem } from '../../lib/menu-item'
+28  import {
+29:   OpenWithDefaultProgramLabel,
+30    RevealInFileManagerLabel,
+31  } from '../lib/context-menu'
+..
+291        const items: IMenuItem[] = [
+292          {
+293:           label: OpenWithDefaultProgramLabel,
+294            action: () =&gt; openFile(absoluteFilePath, dispatcher),
+295          },
+</code></pre>
+
+<p>These calls can be used under macos, not subject to file extensions.</p>
+
+        </div>
+      </div>
+      
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'tr3jer';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+      <div id="disqus_thread"></div>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="contact">
+          <p>
+            <a href="/" style="text-decoration: none; margin-right: 5px;">Index</a> |&nbsp;
+            <a href="/feed.xml" target="_blank" style="text-decoration: none; margin-right: 5px;">RSS</a> |&nbsp;
+            <a href="http://github.com/tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Github</a> |&nbsp;
+            <a href="http://weibo.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Weibo</a> |&nbsp;
+            <a href="https://twitter.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Twitter</a> |&nbsp;
+            <a href="/link" target="_blank" style="text-decoration: none; margin-right: 5px;">Links</a> |&nbsp;
+            <a href="/mail.txt" target="_blank">Gmail</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: none;">
+      <script src="https://s23.cnzz.com/z_stat.php?id=1275554055&web_id=1275554055" language="JavaScript"></script>
+    </div>
+  </body>
+</html>
