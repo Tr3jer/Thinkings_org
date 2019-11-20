@@ -32,4 +32,4 @@ permalink: /link/
 * wnagzihxa1n: <a target="_blank" href="http://wangzhixian.org/">wangzhixian.org</a>
 * L3m0n: <a target="_blank" href="http://iamstudy.cnblogs.com/">iamstudy.cnblogs.com</a>
 * xia0yu: <a target="_blank" href="http://xia0yu.win/">xia0yu.win</a>
-* 5amy: <a target="_blank" href="http://g5amy.me/archives">g5amy.me</a>
+* 5amy: <a target="_blank" href="http://g5amy.me/">g5amy.me</a>
