@@ -29,7 +29,6 @@ permalink: /link/
 * Phithon: <a target="_blank" href="http://www.leavesongs.com/">www.leavesongs.com</a>
 * ub3r: <a target="_blank" href="http://ub3r.cn/">ub3r.cn</a>
 * 王松_Striker: <a target="_blank" href="http://www.hackersb.cn/">www.hackersb.cn</a>
-* wnagzihxa1n: <a target="_blank" href="http://wangzhixian.org/">wangzhixian.org</a>
 * L3m0n: <a target="_blank" href="http://iamstudy.cnblogs.com/">iamstudy.cnblogs.com</a>
 * xia0yu: <a target="_blank" href="http://xia0yu.win/">xia0yu.win</a>
 * 5amy: <a target="_blank" href="http://g5amy.me/">g5amy.me</a>
