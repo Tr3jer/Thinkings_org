@@ -1,0 +1,128 @@
+I"�<h1 id="github-desktop-rcex2-for-mac-latest-version">Github Desktop RCEx2 for Mac latest Version</h1>
+<p class="date">14 Feb 2019 - Tr3jer_CongRong</p>
+
+<blockquote>
+  <p>截至今日最新版的两处RCE，第一个重复@evi1m0/第二个内部排查已知，复现蛮简单的，直接show your code.</p>
+</blockquote>
+
+<h4 id="0x01">0x01</h4>
+
+<p>app/src/ui/diff/binary-file.tsx:</p>
+
+<pre><code>export class BinaryFile extends React.Component&lt;IBinaryFileProps, {}&gt; {
+  private open = () =&gt; {
+    const fullPath = Path.join(this.props.repository.path, this.props.path)
+    openFile(fullPath, this.props.dispatcher)
+  }
+
+  public render() {
+    return (
+      &lt;div className="panel binary" id="diff"&gt;
+        &lt;div className="image-header"&gt;This binary file has changed.&lt;/div&gt;
+        &lt;div className="image-header"&gt;
+          &lt;LinkButton onClick={this.open}&gt;
+            Open file in external program.
+          &lt;/LinkButton&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    )
+  }
+}
+</code></pre>
+
+<p>Follow up <code>openFile</code></p>
+
+<p>app/src/ui/lib/open-file.ts:</p>
+
+<pre><code>const result = await shell.openExternal(`file://${fullPath}`)
+</code></pre>
+
+<h4 id="0x02">0x02</h4>
+
+<p>app/src/ui/lib/context-menu.ts:</p>
+
+<pre><code>const RestrictedFileExtensions = ['.cmd', '.exe', '.bat', '.sh']
+export const CopyFilePathLabel = __DARWIN__
+  ? 'Copy File Path'
+  : 'Copy file path'
+
+export const DefaultEditorLabel = __DARWIN__
+  ? 'Open in External Editor'
+  : 'Open in external editor'
+
+export const RevealInFileManagerLabel = __DARWIN__
+  ? 'Reveal in Finder'
+  : __WIN32__
+  ? 'Show in Explorer'
+  : 'Show in your File Manager'
+
+export const TrashNameLabel = __DARWIN__ ? 'Trash' : 'Recycle Bin'
+
+export const OpenWithDefaultProgramLabel = __DARWIN__
+  ? 'Open with Default Program'
+  : 'Open with default program'
+
+export function isSafeFileExtension(extension: string): boolean {
+  if (__WIN32__) {
+    return RestrictedFileExtensions.indexOf(extension.toLowerCase()) === -1
+  }
+  return true
+}
+</code></pre>
+
+<p><code>context-menu</code> restricted these files extensions:</p>
+
+<pre><code>const RestrictedFileExtensions = ['.cmd', '.exe', '.bat', '.sh']
+</code></pre>
+
+<p>But macos is a Unix OS, and many binary files can be run directly.</p>
+
+<p>Follow up and search <code>OpenWithDefaultProgramLabel</code>:</p>
+
+<p>app/src/ui/changes/changes-list.tsx:</p>
+
+<pre><code>24    CopyFilePathLabel,
+25    RevealInFileManagerLabel,
+26:   OpenWithDefaultProgramLabel,
+27  } from '../lib/context-menu'
+28  import { CommitMessage } from './commit-message'
+..
+374        },
+375        {
+376:         label: OpenWithDefaultProgramLabel,
+377          action: () =&gt; this.props.onOpenItem(path),
+378          enabled: isSafeExtension &amp;&amp; status.kind !== AppFileStatusKind.Deleted,
+</code></pre>
+
+<p>app/src/ui/history/file-list.tsx:</p>
+
+<pre><code>13    DefaultEditorLabel,
+14    RevealInFileManagerLabel,
+15:   OpenWithDefaultProgramLabel,
+16  } from '../lib/context-menu'
+17  import { List } from '../lib/list'
+ ..
+150        },
+151        {
+152:         label: OpenWithDefaultProgramLabel,
+153          action: () =&gt; this.props.onOpenItem(filePath),
+154          enabled: isSafeExtension &amp;&amp; fileExistsOnDisk,
+</code></pre>
+
+<p>app/src/ui/merge-conflicts/merge-conflicts-dialog.tsx:</p>
+
+<pre><code>27  import { IMenuItem } from '../../lib/menu-item'
+28  import {
+29:   OpenWithDefaultProgramLabel,
+30    RevealInFileManagerLabel,
+31  } from '../lib/context-menu'
+..
+291        const items: IMenuItem[] = [
+292          {
+293:           label: OpenWithDefaultProgramLabel,
+294            action: () =&gt; openFile(absoluteFilePath, dispatcher),
+295          },
+</code></pre>
+
+<p>These calls can be used under macos, not subject to file extensions.</p>
+:ET

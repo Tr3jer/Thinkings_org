@@ -1,0 +1,73 @@
+I"�
+<h1 id="rips-scanners-本地文件读取漏洞分析">Rips Scanners 本地文件读取漏洞分析</h1>
+<p class="date">27 Dec 2015 - Tr3jer_CongRong</p>
+
+<p>      <strong>RIPS是一个源代码分析工具，它使用了静态分析技术，能够自动化地挖掘PHP源代码潜在的安全漏洞。渗透测试人员可以直接容易的审阅分析结果，而不用审阅整个程序代码。由于静态源代码分析的限制，漏洞是否真正存在，仍然需要代码审阅者确认。RIPS能够检测XSS, SQL注入, 文件泄露, LFI/RFI, RCE漏洞等。</strong></p>
+
+<blockquote>
+  <p>/rips-0.55/windows/code.php 第102行</p>
+</blockquote>
+
+<pre><code>$file = $_GET['file'];
+$marklines = explode(',', $_GET['lines']);
+$ext = '.'.pathinfo($file, PATHINFO_EXTENSION);
+
+
+if(!empty($file) &amp;&amp; is_file($file) &amp;&amp; in_array($ext, $FILETYPES))
+{
+	$lines = file($file); 
+	
+	// place line numbers in extra table for more elegant copy/paste without line numbers
+	echo '&lt;tr&gt;&lt;td&gt;&lt;table&gt;';
+	for($i=1, $max=count($lines); $i&lt;=$max;$i++) 
+		echo "&lt;tr&gt;&lt;td class=\"linenrcolumn\"&gt;&lt;span class=\"linenr\"&gt;$i&lt;/span&gt;&lt;A id='".($i+2).'\'&gt;&lt;/A&gt;&lt;/td&gt;&lt;/tr&gt;';
+	echo '&lt;/table&gt;&lt;/td&gt;&lt;td id="codeonly"&gt;&lt;table id="codetable" width="100%"&gt;';
+	
+	$in_comment = false;
+	for($i=0; $i&lt;$max; $i++)
+	{				
+		$in_comment = highlightline($lines[$i], $i+1, $marklines, $in_comment);
+	}
+} else
+{
+	echo '&lt;tr&gt;&lt;td&gt;Invalid file specified.&lt;/td&gt;&lt;/tr&gt;';
+}
+</code></pre>
+
+<blockquote>
+  <p>$file为GET过来的，验证是否为文件，如果是就将其传入到数组，然后打印出来，算是本地文件读取吧。</p>
+</blockquote>
+
+<p>      <strong>翻到RIPS前版本发现漏洞是同样存在的。</strong></p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/54rtgdfcvx.png" /></p>
+
+<p>      <strong>相比来看利用的条件比前版本鸡肋一点，新版本验证了扩展名，而前版本可以读取文件的范围更广。</strong></p>
+
+<pre><code>$ext = '.'.pathinfo($file, PATHINFO_EXTENSION);
+if(!empty($file) &amp;&amp; is_file($file) &amp;&amp; in_array($ext, $FILETYPES))
+</code></pre>
+
+<blockquote>
+  <p>跟踪到/rips-0.55/config/general.php 第49行</p>
+</blockquote>
+
+<pre><code>$FILETYPES = array(						// filetypes to scan
+	'.php', 
+	'.inc', 
+	'.phps', 
+	'.php4', 
+	'.php5', 
+	//'.html', 
+	//'.htm', 
+	//'.txt',
+	'.phtml', 
+	'.tpl',  
+	'.cgi'
+); 
+</code></pre>
+
+<p>      <strong>以上为RIPS新版本允许读取文件的扩展名，最后来个利用:</strong></p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/5555rrfdd.png" /></p>
+:ET

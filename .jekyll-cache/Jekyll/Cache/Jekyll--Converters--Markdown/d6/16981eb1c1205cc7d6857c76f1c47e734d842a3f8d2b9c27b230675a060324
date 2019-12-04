@@ -1,0 +1,125 @@
+I"d"<h1 id="under-the-docker-run-kali-linux">Under The Docker Run Kali Linux</h1>
+<p class="date">13 Nov 2015 - Tr3jer_CongRong</p>
+
+<h4 id="简介">简介</h4>
+<ul>
+  <li>
+    <p><code>Docker</code>是一个由GO语言写的程序运行的开源的应用<code>容器</code>引擎（Linux containers， LXCs），让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口（类似 iPhone 的 app）。几乎没有性能开销,可以很容易地在机器和数据中心中运行。最重要的是,他们不依赖于任何语言、框架包括系统。</p>
+  </li>
+  <li>
+    <p><code>Kali Linux</code>是基于Debian的Linux发行版， 设计用于数字取证和渗透测试 和 黑客攻防。
+Kali Linux预装了许多渗透测试软件，包括nmap (端口扫描器)、Wireshark (数据包分析器)、John the Ripper (密码破解器),以及Aircrack-ng (一套用于对无线局域网进行渗透测试的软件). 用户可通过硬盘、live CD或live USB运行Kali Linux。Metasploit的Metasploit Framework支持Kali Linux，Metasploit一套针对远程主机进行开发和执行Exploit代码的工具。</p>
+  </li>
+</ul>
+
+<h4 id="好处">好处</h4>
+<p>      Docker相比KVM之类最明显的特点就是启动快，资源占用小。因此对于构建隔离的标准化的运行环境，轻量级的PaaS， 构建自动化测试和持续集成环境，以及一切可以横向扩展的应用都可轻松应对。具体说来，<code>Docker在如下几个方面具有较大的优势</code>：</p>
+
+<ul>
+  <li>更快速的交付和部署</li>
+  <li>更高效的虚拟化</li>
+  <li>更轻松的迁移和扩展</li>
+  <li>更简单的管理</li>
+</ul>
+
+<p>      kali原镜像所含的渗透套件很丰富，基本渗透中的需求都可以满足，但是长期使用会显得有些臃肿，比如换个环境(迁移)，扔锅(被取证)等等，既然想<code>方便</code>/<code>快捷</code>/<code>高效</code>的使用Kali，Docker虚拟化再合适不过。</p>
+
+<h4 id="安装docker">安装Docker</h4>
+<p>      我是在<code>Mac</code>下安装的Docker，Docker引擎使用了Linux内核特定的特性，所以要让它运行在OS X上我们需要用一个轻量型的虚拟机，如(Virtualbox, Vmware Fusion, Parallel Desktop)等。用OS X的Docker客户端来控制虚拟Docker来构建，运行以及管理Docker容器。</p>
+
+<p>      Boot2Docker是帮助控制虚拟机中 Docker 的工具，它会下载一个安装好docker的虚拟机，并控制其实现docker功能：</p>
+
+<pre><code>brew install boot2docker
+</code></pre>
+
+<p>安装Docker client：</p>
+
+<pre><code># Get the docker client file
+DIR=$(mktemp -d ${TMPDIR:-/tmp}/dockerdl.XXXXXXX) &amp;&amp; \
+curl -f -o $DIR/ld.tgz https://get.docker.io/builds/Darwin/x86_64/docker-latest.tgz &amp;&amp; \
+gunzip $DIR/ld.tgz &amp;&amp; \
+tar xvf $DIR/ld.tar -C $DIR/ &amp;&amp; \
+cp $DIR/usr/local/bin/docker ./docker
+
+# Set the environment variable for the docker daemon
+export DOCKER_HOST=tcp://127.0.0.1:4243
+
+# Copy the executable file
+sudo cp docker /usr/local/bin/
+</code></pre>
+
+<p>      或者直接使用<a href="https://github.com/boot2docker/osx-installer/releases">Boot2Docker.pkg</a>安装，安装好后运行boot2docker这个client command，这个过程会进行初始化下载一个boot2docer.iso，然后会用ssh生成用于docker的ssh的公钥和私钥对，用于远程.</p>
+
+<p>初始化后运行boot2docker报了个错，对应设置到环境变量即可。</p>
+
+<pre><code>➜ ~ boot2docker start
+Waiting for VM and Docker daemon to start...
+.o
+Started.
+Writing /Users/CongRong/.boot2docker/certs/boot2docker-vm/ca.pem
+Writing /Users/CongRong/.boot2docker/certs/boot2docker-vm/cert.pem
+Writing /Users/CongRong/.boot2docker/certs/boot2docker-vm/key.pem
+Your environment variables are already set correctly.
+
+To connect the Docker client to the Docker daemon, please set:
+export DOCKER_CERT_PATH=/Users/CongRong/.boot2docker/certs/boot2docker-vm
+export DOCKER_TLS_VERIFY=1
+export DOCKER_HOST=tcp://192.168.59.103:2376
+
+Or run: `eval "$(boot2docker shellinit)"`
+</code></pre>
+
+<h4 id="安装镜像">安装镜像</h4>
+<p>      kali-linux-docker的<a href="https://hub.docker.com/r/kalilinux/kali-linux-docker/">DockerHub主页</a>，或者直接搜索：</p>
+
+<pre><code>➜ ~ docker search kali
+NAME                                      DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+kalilinux/kali-linux-docker               Kali Linux 2.x Base Image                       120                  [OK]
+linuxkonsult/kali-metasploit              Kali base image with metasploit                 26                   [OK]
+linuxkonsult/kali                         Kali Linux 2.0 base image                       8
+brimstone/kali                                                                            3                    [OK]
+kkirsche/kali-linux-docker                Unofficial Kali Linux Docker                    2                    [OK]
+kalilinux/kali-linux-docker-rolling       Kali Linux Rolling Docker Image                 2                    [OK]
+wsec/kali-metasploit                      Official Kali Base image + Metasploit           2                    [OK]
+officialkali/kali                                                                         2
+kalilinux/kali                                                                            2
+lodelestra/kali-linux-metasploit-docker   metasploit docker based on kali-linux-docker    1                    [OK]
+ctarwater/kali-msf                        Kali + Metasploit + Postgresql                  1                    [OK]
+e3rp4y/kali-metasploit                                                                    1                    [OK]
+blackfinsecurity/tha-kali                                                                 1                    [OK]
+andresriancho/w3af-kali                                                                   0                    [OK]
+ctarwater/kali                            Kali base image (no tools)                      0                    [OK]
+netxp/kali                                kali                                            0                    [OK]
+johnsandiford/kali                                                                        0                    [OK]
+miteshshah/kali                           Kali Linux                                      0                    [OK]
+nicot/kali                                                                                0                    [OK]
+lxj616/docker-kali-custom-tools           docker-kali-custom-tools                        0                    [OK]
+jasonchaffee/kali-linux                   Kali Linux Docker Container                     0                    [OK]
+ctarwater/kali-msf-micro                  Kali + Metasploit with all of the Metasplo...   0                    [OK]
+scottj/kali-docker                        Custom Kali 2.0 Docker Build                    0                    [OK]
+digitalshokunin/kali-metasploit                                                           0                    [OK]
+butlerrc30/kali-ssh                       Kali image that generates random cert for ...   0                    [OK]
+</code></pre>
+
+<p>安装Kali：</p>
+
+<pre><code>docker pull kalilinux/kali-linux-docker
+</code></pre>
+
+<p>拉取安装后就可以启动了，因为是纯净的kali镜像所以只有420MB，需要什么直接apt-get。</p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/3r4tgdfxvc.png" /></p>
+
+<h4 id="常见问题">常见问题</h4>
+<ul>
+  <li>
+    <p><a href="http://stackoverflow.com/questions/29799491/after-upgrade-boot2docker-1-5-to-1-6-error-appendfailed-to-get-machine-boot2do/29819016">After upgrade Boot2Docker 1.5 to 1.6 error append:Failed to get machine “boot2docker-vm”: machine does not exist (Did you run <code>boot2docker init</code>?)</a></p>
+  </li>
+  <li>
+    <p><a href="http://stackoverflow.com/questions/26572112/how-to-fix-error-in-run-failed-to-get-machine-boot2docker-vm-machine-does-n">How to fix “error in run: Failed to get machine ”boot2docker-vm“: machine does not exist”?</a></p>
+  </li>
+  <li>
+    <p><a href="http://stackoverflow.com/questions/29294286/fata0000-get-http-var-run-docker-sock-v1-17-version-dial-unix-var-run-doc">FATA[0000] Post http:///var/run/docker.sock/v1.18/images/create?fromImage=kalilinux%2Fkali-linux-docker%3Alatest: dial unix /var/run/docker.sock: no such file or directory. Are you trying to connect to a TLS-enabled daemon without TLS?</a></p>
+  </li>
+</ul>
+:ET
