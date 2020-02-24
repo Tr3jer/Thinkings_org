@@ -20,9 +20,7 @@ permalink: /link/
 * 小乐天: <a target="_blank" href="http://blog.safebuff.com/">blog.safebuff.com</a>
 * Wolf: <a target="_blank" href="http://www.xiyv.net/">www.xiyv.net</a>
 * Mars: <a target="_blank" href="http://mars.run/">mars.run</a>
-* y1ng: <a target="_blank" href="http://www.y1ng.net/">www.y1ng.net</a>
 * tnt1200: <a target="_blank" href="http://www.sipcer.com/">www.sipcer.com</a>
-* wooyaa: <a target="_blank" href="http://wooyaa.me/">wooyaa.me</a>
 * K0shl: <a target="_blank" href="http://whereisk0shl.top/">whereisk0shl.top</a>
 * Mosuan: <a target="_blank" href="http://www.0aa.me/">www.0aa.me</a>
 * 司马: <a target="_blank" href="http://www.nxadmin.com/">www.nxadmin.com</a>
