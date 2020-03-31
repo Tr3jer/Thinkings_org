@@ -30,3 +30,4 @@ permalink: /link/
 * L3m0n: <a target="_blank" href="http://iamstudy.cnblogs.com/">iamstudy.cnblogs.com</a>
 * xia0yu: <a target="_blank" href="http://xia0yu.win/">xia0yu.win</a>
 * 5amy: <a target="_blank" href="http://g5amy.me/">g5amy.me</a>
+* b1u3r: <a target="_blank" href="http://b1ue.cn/">b1ue.cn</a>
