@@ -1,0 +1,15 @@
+I"�<h1 id="关于wsltools的一切">关于wsltools的一切</h1>
+<p class="date">16 Apr 2020 - Tr3jer_CongRong</p>
+
+<blockquote>
+  <p>从我的自动化套件抽取出几个模块整合成的库，功能本身很纯洁，但面向爬虫/漏扫很多场景可用，感兴趣可以试试，好用给个star ;)</p>
+</blockquote>
+
+<p><a href="https://github.com/Symbo1/wsltools">https://github.com/Symbo1/wsltools</a></p>
+
+<p>wsltools - Web Scan Lazy Tools (Python Package) 是开源的web扫描辅助集，在构建web爬虫/扫描器的基础上节省可通用实现的功能，例如：正文相似度判断、url多种处理、域名处理、正文/数据类型判断、处理/识别http响应基础安全、参数/表单数据填充等。兼容Python 2/3，开箱即用。</p>
+
+<p>如果都依赖同一种漏扫，正常的树上不可能结出两种果子。不同的想法结果就会是不同的，所以部署自己的自动化能力是每个Cyber Researcher的必修课。happy hunting！</p>
+
+<p>在我的自动化套件中，golang，nodejs我都用，但为什么发布python版本，因为python目前仍然是众多初学者构建扫描器的首选语言。</p>
+:ET

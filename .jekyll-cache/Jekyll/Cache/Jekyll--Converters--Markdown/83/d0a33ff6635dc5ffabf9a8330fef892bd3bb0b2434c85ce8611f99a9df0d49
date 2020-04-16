@@ -1,0 +1,13 @@
+I"*<h1 id="关于wsltools的一切">关于wsltools的一切</h1>
+<p class="date">16 Apr 2020 - Tr3jer_CongRong</p>
+
+<blockquote>
+  <p>从我的自动化套件抽取出几个模块整合成的库，功能本身很纯洁，但面向爬虫/漏扫很多场景可用，感兴趣可以试试，好用给个star ;)</p>
+</blockquote>
+
+<p><a href="https://github.com/Symbo1/wsltools">https://github.com/Symbo1/wsltools</a></p>
+
+<p>如果都依赖同一种漏扫，正常的树上不可能结出两种果子。不同的想法结果就会是不同的，所以部署自己的自动化能力是每个Cyber Researcher的必修课。happy hunting！</p>
+
+<p>在我的自动化套件中，golang，nodejs我都用，但为什么发布python版本，因为python目前仍然是众多初学者构建扫描器的首选语言。</p>
+:ET

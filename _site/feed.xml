@@ -7,6 +7,39 @@
 <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
 
 <item>
+<title>关于wsltools的一切</title>
+<description>&lt;h1 id=&quot;关于wsltools的一切&quot;&gt;关于wsltools的一切&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;16 Apr 2020 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;p&gt;      wsltools - Web Scan Lazy Tools (Python Package) 是开源的web扫描辅助集，在构建web爬虫/扫描器的基础上节省可通用实现的功能，例如：正文相似度判断、url多种处理、域名处理、正文/数据类型判断、处理/识别http响应基础安全、参数/表单数据填充等。兼容Python 2/3，开箱即用。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/Symbo1/wsltools&quot; target=&quot;__blank&quot;&gt;https://github.com/Symbo1/wsltools&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://wsltools.readthedocs.io/&quot; target=&quot;__blank&quot;&gt;https://wsltools.readthedocs.io/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;      本身也是从我的自动化套件抽取出几个模块整合成的库，功能本身很纯洁，但面向爬虫/漏扫很多场景可用，感兴趣可以试试，好用给个star ;)&lt;/p&gt;
+
+&lt;p&gt;      当我们使用Python构建web爬虫时，可以使用requests/urlparse/scrapy等优秀的三方库，基本不需要我们去处理繁琐/可通用实现的基础功能。&lt;/p&gt;
+
+&lt;p&gt;      当我们构建漏洞扫描器时，会倾向于结合poc框架来实现。poc框架有很多，但至今编写poc并没有绝对的通用标准模版，也不需要有。不过这些poc框架或传统漏扫，会依赖于一些通用的扫描/检测基础方法论，所以完全可以合并这些方法论的具体实现。说到依赖的通用方法论，那么bin世界的pwntools就是这种类型。&lt;/p&gt;
+
+&lt;p&gt;说到pwntools，也是wsltools名字的由来启发，感觉web scan lazy蛮贴合的而且还蹭了下&lt;code&gt;猥琐流&lt;/code&gt; XD&lt;/p&gt;
+
+&lt;p&gt;      如果都依赖同一种漏扫，预期情况下正常的树上不可能结出两种果子。不同的想法结果就会是不同的，所以部署自己的自动化能力是每个Cyber Researcher的必修课。happy hunting！&lt;/p&gt;
+
+&lt;p&gt;      在我的自动化套件中，python/golang/nodejs我都用，但为什么发布python版本，因为python目前仍然是众多初学者构建扫描器的首选语言。&lt;/p&gt;
+
+&lt;p&gt;      最初着手整合这几个模块的时候是想加入更精确的urlparse+指纹识别，如果你经常用py构建漏扫相关，会发现标准库的urlparse并不精准，奈何官方代码实在多，与好处不对等就没有加入，后期再考虑下。还有指纹识别是因为个人更倾向于headless识别，倒也简单，只是加入了会显得臃肿吧。XD&lt;/p&gt;
+
+&lt;p&gt;wsltools提供的功能都不是复杂的实现，只是尽可能的提供一些便利，同时也可以作为爬虫/扫描器初学者的学习资料。&lt;/p&gt;
+</description>
+<pubDate>Thu, 16 Apr 2020 00:00:00 +0800</pubDate>
+<link>http://localhost:4000/2020/04/16/wsltools.html</link>
+<guid isPermaLink="true">http://localhost:4000/2020/04/16/wsltools.html</guid>
+</item>
+
+<item>
 <title>Enum H1 Staff and Users email addresses and Lock accounts</title>
 <description>&lt;h1 id=&quot;enum-h1-staff-and-users-email-addresses-and-lock-accounts&quot;&gt;Enum H1 Staff and Users email addresses and Lock accounts&lt;/h1&gt;
 &lt;p class=&quot;date&quot;&gt;14 Dec 2019 - Tr3jer_CongRong&lt;/p&gt;
@@ -638,7 +671,7 @@ p=subprocess.call([&quot;/bin/sh&quot;,&quot;-i&quot;]);
 
 &lt;p&gt;      话说回来，还是会有一些优秀的Bughunter值得学习，他们的想法与思路真的很新奇，与国内的视角是不一样的，而且审核针对每个漏洞的评判也并不一致。他们更看重一个漏洞危害程度，譬如domain takeover这种漏洞uber、starbucks能Reward$5000（挖到的前提是讲究天时地利柔人和，我是没捡到过）国内很少见，和本土云服务有关吧。还是这个例子，原理的确很简单粗暴，但放在国内就会说只是domain master点错了给您“打一折”儿吧小老弟。&lt;/p&gt;
 
-&lt;p&gt;      玩国际厂商还是放弃一把梭吧，扫描器之类的更没什么用。印象中h1 leaderboard（同登过某季度的xD）有个毛子选手那真的猛的一批，所以国外项目个人更倾向于更大范围的信息收集，7*24小时轮训几百个项目主域名的子域名+设备服务指纹信息等，甚至自制域段翻个遍。再采集下来，检索关键字挑能看对眼的玩。&lt;/p&gt;
+&lt;p&gt;      玩国际厂商还是放弃一把梭吧，扫描器之类的更没什么用，不过可以深层fuzz。印象中h1 leaderboard（同登过某季度的xD）有个毛子选手那真的猛，所以国外项目个人更倾向于更大范围的信息收集，7*24小时轮训几百个项目主域名的子域名+设备服务指纹信息等，甚至自制域段翻个遍。再采集下来，检索关键字挑能看对眼的玩。&lt;/p&gt;
 
 &lt;p&gt;      前面存在一部分玩笑，其实国内src发展的蛮好的，也算是良性的体系，不能说哪个优秀的国际厂商值得我们借鉴，而是整体可以互相学习的。甚至本土也有越来越多的厂商入驻国外BugHunter圈子，金山、滴滴、阿里等。but老外们要是想挖国内src估计会卡在注册时没有+86的11位手机号而不得不放弃精美的积分玩偶，用来见证这份跨越种族的黑客友谊。&lt;/p&gt;
 
@@ -1998,85 +2031,6 @@ return 0;
 <pubDate>Wed, 01 Jun 2016 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2016/06/01/osx-code-disclose-cve-2013-0966.html</link>
 <guid isPermaLink="true">http://localhost:4000/2016/06/01/osx-code-disclose-cve-2013-0966.html</guid>
-</item>
-
-<item>
-<title>Rips Scanners 本地文件读取漏洞分析</title>
-<description>&lt;h1 id=&quot;rips-scanners-本地文件读取漏洞分析&quot;&gt;Rips Scanners 本地文件读取漏洞分析&lt;/h1&gt;
-&lt;p class=&quot;date&quot;&gt;27 Dec 2015 - Tr3jer_CongRong&lt;/p&gt;
-
-&lt;p&gt;      &lt;strong&gt;RIPS是一个源代码分析工具，它使用了静态分析技术，能够自动化地挖掘PHP源代码潜在的安全漏洞。渗透测试人员可以直接容易的审阅分析结果，而不用审阅整个程序代码。由于静态源代码分析的限制，漏洞是否真正存在，仍然需要代码审阅者确认。RIPS能够检测XSS, SQL注入, 文件泄露, LFI/RFI, RCE漏洞等。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;/rips-0.55/windows/code.php 第102行&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;pre&gt;&lt;code&gt;$file = $_GET['file'];
-$marklines = explode(',', $_GET['lines']);
-$ext = '.'.pathinfo($file, PATHINFO_EXTENSION);
-
-
-if(!empty($file) &amp;amp;&amp;amp; is_file($file) &amp;amp;&amp;amp; in_array($ext, $FILETYPES))
-{
-	$lines = file($file); 
-	
-	// place line numbers in extra table for more elegant copy/paste without line numbers
-	echo '&amp;lt;tr&amp;gt;&amp;lt;td&amp;gt;&amp;lt;table&amp;gt;';
-	for($i=1, $max=count($lines); $i&amp;lt;=$max;$i++) 
-		echo &quot;&amp;lt;tr&amp;gt;&amp;lt;td class=\&quot;linenrcolumn\&quot;&amp;gt;&amp;lt;span class=\&quot;linenr\&quot;&amp;gt;$i&amp;lt;/span&amp;gt;&amp;lt;A id='&quot;.($i+2).'\'&amp;gt;&amp;lt;/A&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;';
-	echo '&amp;lt;/table&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;td id=&quot;codeonly&quot;&amp;gt;&amp;lt;table id=&quot;codetable&quot; width=&quot;100%&quot;&amp;gt;';
-	
-	$in_comment = false;
-	for($i=0; $i&amp;lt;$max; $i++)
-	{				
-		$in_comment = highlightline($lines[$i], $i+1, $marklines, $in_comment);
-	}
-} else
-{
-	echo '&amp;lt;tr&amp;gt;&amp;lt;td&amp;gt;Invalid file specified.&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;';
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;$file为GET过来的，验证是否为文件，如果是就将其传入到数组，然后打印出来，算是本地文件读取吧。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;      &lt;strong&gt;翻到RIPS前版本发现漏洞是同样存在的。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/54rtgdfcvx.png&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;      &lt;strong&gt;相比来看利用的条件比前版本鸡肋一点，新版本验证了扩展名，而前版本可以读取文件的范围更广。&lt;/strong&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;$ext = '.'.pathinfo($file, PATHINFO_EXTENSION);
-if(!empty($file) &amp;amp;&amp;amp; is_file($file) &amp;amp;&amp;amp; in_array($ext, $FILETYPES))
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;跟踪到/rips-0.55/config/general.php 第49行&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;pre&gt;&lt;code&gt;$FILETYPES = array(						// filetypes to scan
-	'.php', 
-	'.inc', 
-	'.phps', 
-	'.php4', 
-	'.php5', 
-	//'.html', 
-	//'.htm', 
-	//'.txt',
-	'.phtml', 
-	'.tpl',  
-	'.cgi'
-); 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;      &lt;strong&gt;以上为RIPS新版本允许读取文件的扩展名，最后来个利用:&lt;/strong&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/5555rrfdd.png&quot; /&gt;&lt;/p&gt;
-</description>
-<pubDate>Sun, 27 Dec 2015 00:00:00 +0800</pubDate>
-<link>http://localhost:4000/2015/12/27/rips-scanners-vul.html</link>
-<guid isPermaLink="true">http://localhost:4000/2015/12/27/rips-scanners-vul.html</guid>
 </item>
 
 </channel>
