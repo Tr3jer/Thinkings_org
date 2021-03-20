@@ -1546,54 +1546,6 @@ int main( )
 </item>
 
 <item>
-<title>Auto Hooks Spider</title>
-<description>&lt;h1 id=&quot;auto-hooks-spider&quot;&gt;Auto Hooks Spider&lt;/h1&gt;
-&lt;p class=&quot;date&quot;&gt;24 May 2017 - Tr3jer_CongRong&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;好像好久没发东西了，抽空研究自动化，一部分是如何有效获取自动化的food，想了很多也实现出了很多，比如一些常规手法、PassiveDNS等等，尤其后者虽然有效果但发现有个弊端，就是说从这种底层记录进行筛选贼TMD烧硬件。不然我就想去拆小区交换机了= =。倒不如实现个自动spider，省了来回点啊点。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;      实现很简单，因为我本地实现的比较复杂，所以是把它拆分下改成现成的发出来。还有就是代理的实现我没放进去，想爬墙外的话可以改下requests模块，拆分url判断是否存在于gfw列表就行了。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/4rfedsxz.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;      个人收集的有价值主域名1000+，hooks.txt先放200个你们玩。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/4trefds.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a target=&quot;_blank&quot; href=&quot;https://github.com/Tr3jer/AutoHookSpider&quot;&gt;https://github.com/Tr3jer/AutoHookSpider&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code&gt;AutoHookSpider
-├── LICENSE
-├── README.md
-├── hooks.txt   #hooks字典，随机放了200个，可以自己收集。
-├── lib
-│   ├── __init__.py
-│   ├── common.py   #琐碎功能
-│   └── record.sql  #先在Mysql创建这个表
-├── main.py #主程序
-└── requirements.txt
-
-sudo pip install -r requirements.txt
-lib/record.sql into mysql
-usage: python main.py {Options}[ google.com,twitter.com,facebook.com | -t 20 ]
-或者直接python main.py会直接在hooks.txt抽取(thread_cnt)个入口域名。
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;比如你想专门抓一个公司的子域名，那么将hooks放入该inc的主域名直接运行就ok。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-</description>
-<pubDate>Wed, 24 May 2017 00:00:00 +0800</pubDate>
-<link>http://localhost:4000/2017/05/24/auto-hooks-spider.html</link>
-<guid isPermaLink="true">http://localhost:4000/2017/05/24/auto-hooks-spider.html</guid>
-</item>
-
-<item>
 <title>Aliyun Xianzhi Speech PPT</title>
 <description>&lt;h1 id=&quot;aliyun-xianzhi-speech-ppt&quot;&gt;Aliyun Xianzhi Speech PPT&lt;/h1&gt;
 &lt;p class=&quot;date&quot;&gt;30 Mar 2017 - Tr3jer_CongRong&lt;/p&gt;
@@ -2031,6 +1983,85 @@ return 0;
 <pubDate>Wed, 01 Jun 2016 00:00:00 +0800</pubDate>
 <link>http://localhost:4000/2016/06/01/osx-code-disclose-cve-2013-0966.html</link>
 <guid isPermaLink="true">http://localhost:4000/2016/06/01/osx-code-disclose-cve-2013-0966.html</guid>
+</item>
+
+<item>
+<title>Rips Scanners 本地文件读取漏洞分析</title>
+<description>&lt;h1 id=&quot;rips-scanners-本地文件读取漏洞分析&quot;&gt;Rips Scanners 本地文件读取漏洞分析&lt;/h1&gt;
+&lt;p class=&quot;date&quot;&gt;27 Dec 2015 - Tr3jer_CongRong&lt;/p&gt;
+
+&lt;p&gt;      &lt;strong&gt;RIPS是一个源代码分析工具，它使用了静态分析技术，能够自动化地挖掘PHP源代码潜在的安全漏洞。渗透测试人员可以直接容易的审阅分析结果，而不用审阅整个程序代码。由于静态源代码分析的限制，漏洞是否真正存在，仍然需要代码审阅者确认。RIPS能够检测XSS, SQL注入, 文件泄露, LFI/RFI, RCE漏洞等。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;/rips-0.55/windows/code.php 第102行&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;$file = $_GET['file'];
+$marklines = explode(',', $_GET['lines']);
+$ext = '.'.pathinfo($file, PATHINFO_EXTENSION);
+
+
+if(!empty($file) &amp;amp;&amp;amp; is_file($file) &amp;amp;&amp;amp; in_array($ext, $FILETYPES))
+{
+	$lines = file($file); 
+	
+	// place line numbers in extra table for more elegant copy/paste without line numbers
+	echo '&amp;lt;tr&amp;gt;&amp;lt;td&amp;gt;&amp;lt;table&amp;gt;';
+	for($i=1, $max=count($lines); $i&amp;lt;=$max;$i++) 
+		echo &quot;&amp;lt;tr&amp;gt;&amp;lt;td class=\&quot;linenrcolumn\&quot;&amp;gt;&amp;lt;span class=\&quot;linenr\&quot;&amp;gt;$i&amp;lt;/span&amp;gt;&amp;lt;A id='&quot;.($i+2).'\'&amp;gt;&amp;lt;/A&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;';
+	echo '&amp;lt;/table&amp;gt;&amp;lt;/td&amp;gt;&amp;lt;td id=&quot;codeonly&quot;&amp;gt;&amp;lt;table id=&quot;codetable&quot; width=&quot;100%&quot;&amp;gt;';
+	
+	$in_comment = false;
+	for($i=0; $i&amp;lt;$max; $i++)
+	{				
+		$in_comment = highlightline($lines[$i], $i+1, $marklines, $in_comment);
+	}
+} else
+{
+	echo '&amp;lt;tr&amp;gt;&amp;lt;td&amp;gt;Invalid file specified.&amp;lt;/td&amp;gt;&amp;lt;/tr&amp;gt;';
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;$file为GET过来的，验证是否为文件，如果是就将其传入到数组，然后打印出来，算是本地文件读取吧。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;      &lt;strong&gt;翻到RIPS前版本发现漏洞是同样存在的。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/54rtgdfcvx.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;      &lt;strong&gt;相比来看利用的条件比前版本鸡肋一点，新版本验证了扩展名，而前版本可以读取文件的范围更广。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ext = '.'.pathinfo($file, PATHINFO_EXTENSION);
+if(!empty($file) &amp;amp;&amp;amp; is_file($file) &amp;amp;&amp;amp; in_array($ext, $FILETYPES))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;跟踪到/rips-0.55/config/general.php 第49行&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;pre&gt;&lt;code&gt;$FILETYPES = array(						// filetypes to scan
+	'.php', 
+	'.inc', 
+	'.phps', 
+	'.php4', 
+	'.php5', 
+	//'.html', 
+	//'.htm', 
+	//'.txt',
+	'.phtml', 
+	'.tpl',  
+	'.cgi'
+); 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;      &lt;strong&gt;以上为RIPS新版本允许读取文件的扩展名，最后来个利用:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://blog-1252048719.cos.ap-shanghai.myqcloud.com/5555rrfdd.png&quot; /&gt;&lt;/p&gt;
+</description>
+<pubDate>Sun, 27 Dec 2015 00:00:00 +0800</pubDate>
+<link>http://localhost:4000/2015/12/27/rips-scanners-vul.html</link>
+<guid isPermaLink="true">http://localhost:4000/2015/12/27/rips-scanners-vul.html</guid>
 </item>
 
 </channel>
